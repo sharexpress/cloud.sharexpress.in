@@ -9,38 +9,474 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as TwoFactorRouteImport } from './routes/two-factor'
+import { Route as TeamRouteImport } from './routes/team'
+import { Route as StorageRouteImport } from './routes/storage'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SecretsRouteImport } from './routes/secrets'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as NetworkingRouteImport } from './routes/networking'
+import { Route as MonitoringRouteImport } from './routes/monitoring'
+import { Route as LogsRouteImport } from './routes/logs'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as FunctionsRouteImport } from './routes/functions'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as DomainsRouteImport } from './routes/domains'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DeploymentsRouteImport } from './routes/deployments'
+import { Route as DatabasesRouteImport } from './routes/databases'
+import { Route as ComputeRouteImport } from './routes/compute'
+import { Route as BillingRouteImport } from './routes/billing'
+import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwoFactorRoute = TwoFactorRouteImport.update({
+  id: '/two-factor',
+  path: '/two-factor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StorageRoute = StorageRouteImport.update({
+  id: '/storage',
+  path: '/storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecretsRoute = SecretsRouteImport.update({
+  id: '/secrets',
+  path: '/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NetworkingRoute = NetworkingRouteImport.update({
+  id: '/networking',
+  path: '/networking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoringRoute = MonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FunctionsRoute = FunctionsRouteImport.update({
+  id: '/functions',
+  path: '/functions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DomainsRoute = DomainsRouteImport.update({
+  id: '/domains',
+  path: '/domains',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeploymentsRoute = DeploymentsRouteImport.update({
+  id: '/deployments',
+  path: '/deployments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesRoute = DatabasesRouteImport.update({
+  id: '/databases',
+  path: '/databases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComputeRoute = ComputeRouteImport.update({
+  id: '/compute',
+  path: '/compute',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiKeysRoute = ApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIdRoute = ProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ProjectsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/billing': typeof BillingRoute
+  '/compute': typeof ComputeRoute
+  '/databases': typeof DatabasesRoute
+  '/deployments': typeof DeploymentsRoute
+  '/docs': typeof DocsRoute
+  '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
+  '/monitoring': typeof MonitoringRoute
+  '/networking': typeof NetworkingRoute
+  '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/secrets': typeof SecretsRoute
+  '/settings': typeof SettingsRoute
+  '/storage': typeof StorageRoute
+  '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
+  '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/billing': typeof BillingRoute
+  '/compute': typeof ComputeRoute
+  '/databases': typeof DatabasesRoute
+  '/deployments': typeof DeploymentsRoute
+  '/docs': typeof DocsRoute
+  '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
+  '/monitoring': typeof MonitoringRoute
+  '/networking': typeof NetworkingRoute
+  '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/secrets': typeof SecretsRoute
+  '/settings': typeof SettingsRoute
+  '/storage': typeof StorageRoute
+  '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
+  '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/billing': typeof BillingRoute
+  '/compute': typeof ComputeRoute
+  '/databases': typeof DatabasesRoute
+  '/deployments': typeof DeploymentsRoute
+  '/docs': typeof DocsRoute
+  '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
+  '/logs': typeof LogsRoute
+  '/monitoring': typeof MonitoringRoute
+  '/networking': typeof NetworkingRoute
+  '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/secrets': typeof SecretsRoute
+  '/settings': typeof SettingsRoute
+  '/storage': typeof StorageRoute
+  '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
+  '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api-keys'
+    | '/billing'
+    | '/compute'
+    | '/databases'
+    | '/deployments'
+    | '/docs'
+    | '/domains'
+    | '/forgot-password'
+    | '/functions'
+    | '/login'
+    | '/logs'
+    | '/monitoring'
+    | '/networking'
+    | '/projects'
+    | '/register'
+    | '/secrets'
+    | '/settings'
+    | '/storage'
+    | '/team'
+    | '/two-factor'
+    | '/verify'
+    | '/projects/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api-keys'
+    | '/billing'
+    | '/compute'
+    | '/databases'
+    | '/deployments'
+    | '/docs'
+    | '/domains'
+    | '/forgot-password'
+    | '/functions'
+    | '/login'
+    | '/logs'
+    | '/monitoring'
+    | '/networking'
+    | '/projects'
+    | '/register'
+    | '/secrets'
+    | '/settings'
+    | '/storage'
+    | '/team'
+    | '/two-factor'
+    | '/verify'
+    | '/projects/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/api-keys'
+    | '/billing'
+    | '/compute'
+    | '/databases'
+    | '/deployments'
+    | '/docs'
+    | '/domains'
+    | '/forgot-password'
+    | '/functions'
+    | '/login'
+    | '/logs'
+    | '/monitoring'
+    | '/networking'
+    | '/projects'
+    | '/register'
+    | '/secrets'
+    | '/settings'
+    | '/storage'
+    | '/team'
+    | '/two-factor'
+    | '/verify'
+    | '/projects/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiKeysRoute: typeof ApiKeysRoute
+  BillingRoute: typeof BillingRoute
+  ComputeRoute: typeof ComputeRoute
+  DatabasesRoute: typeof DatabasesRoute
+  DeploymentsRoute: typeof DeploymentsRoute
+  DocsRoute: typeof DocsRoute
+  DomainsRoute: typeof DomainsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  FunctionsRoute: typeof FunctionsRoute
+  LoginRoute: typeof LoginRoute
+  LogsRoute: typeof LogsRoute
+  MonitoringRoute: typeof MonitoringRoute
+  NetworkingRoute: typeof NetworkingRoute
+  ProjectsRoute: typeof ProjectsRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
+  SecretsRoute: typeof SecretsRoute
+  SettingsRoute: typeof SettingsRoute
+  StorageRoute: typeof StorageRoute
+  TeamRoute: typeof TeamRoute
+  TwoFactorRoute: typeof TwoFactorRoute
+  VerifyRoute: typeof VerifyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/two-factor': {
+      id: '/two-factor'
+      path: '/two-factor'
+      fullPath: '/two-factor'
+      preLoaderRoute: typeof TwoFactorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/storage': {
+      id: '/storage'
+      path: '/storage'
+      fullPath: '/storage'
+      preLoaderRoute: typeof StorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secrets': {
+      id: '/secrets'
+      path: '/secrets'
+      fullPath: '/secrets'
+      preLoaderRoute: typeof SecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/networking': {
+      id: '/networking'
+      path: '/networking'
+      fullPath: '/networking'
+      preLoaderRoute: typeof NetworkingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitoring': {
+      id: '/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof MonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/functions': {
+      id: '/functions'
+      path: '/functions'
+      fullPath: '/functions'
+      preLoaderRoute: typeof FunctionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/domains': {
+      id: '/domains'
+      path: '/domains'
+      fullPath: '/domains'
+      preLoaderRoute: typeof DomainsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deployments': {
+      id: '/deployments'
+      path: '/deployments'
+      fullPath: '/deployments'
+      preLoaderRoute: typeof DeploymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/databases': {
+      id: '/databases'
+      path: '/databases'
+      fullPath: '/databases'
+      preLoaderRoute: typeof DatabasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compute': {
+      id: '/compute'
+      path: '/compute'
+      fullPath: '/compute'
+      preLoaderRoute: typeof ComputeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +484,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$id': {
+      id: '/projects/$id'
+      path: '/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof ProjectsIdRouteImport
+      parentRoute: typeof ProjectsRoute
+    }
   }
 }
 
+interface ProjectsRouteChildren {
+  ProjectsIdRoute: typeof ProjectsIdRoute
+}
+
+const ProjectsRouteChildren: ProjectsRouteChildren = {
+  ProjectsIdRoute: ProjectsIdRoute,
+}
+
+const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
+  ProjectsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiKeysRoute: ApiKeysRoute,
+  BillingRoute: BillingRoute,
+  ComputeRoute: ComputeRoute,
+  DatabasesRoute: DatabasesRoute,
+  DeploymentsRoute: DeploymentsRoute,
+  DocsRoute: DocsRoute,
+  DomainsRoute: DomainsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  FunctionsRoute: FunctionsRoute,
+  LoginRoute: LoginRoute,
+  LogsRoute: LogsRoute,
+  MonitoringRoute: MonitoringRoute,
+  NetworkingRoute: NetworkingRoute,
+  ProjectsRoute: ProjectsRouteWithChildren,
+  RegisterRoute: RegisterRoute,
+  SecretsRoute: SecretsRoute,
+  SettingsRoute: SettingsRoute,
+  StorageRoute: StorageRoute,
+  TeamRoute: TeamRoute,
+  TwoFactorRoute: TwoFactorRoute,
+  VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
