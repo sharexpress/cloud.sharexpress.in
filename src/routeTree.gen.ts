@@ -9,15 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as TwoFactorRouteImport } from './routes/two-factor'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as StorageRouteImport } from './routes/storage'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SecretsRouteImport } from './routes/secrets'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as NetworkingRouteImport } from './routes/networking'
 import { Route as MonitoringRouteImport } from './routes/monitoring'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FunctionsRouteImport } from './routes/functions'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DomainsRouteImport } from './routes/domains'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DeploymentsRouteImport } from './routes/deployments'
@@ -28,6 +33,16 @@ import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwoFactorRoute = TwoFactorRouteImport.update({
+  id: '/two-factor',
+  path: '/two-factor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -46,6 +61,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SecretsRoute = SecretsRouteImport.update({
   id: '/secrets',
   path: '/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -68,9 +88,19 @@ const LogsRoute = LogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FunctionsRoute = FunctionsRouteImport.update({
   id: '/functions',
   path: '/functions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DomainsRoute = DomainsRouteImport.update({
@@ -128,15 +158,20 @@ export interface FileRoutesByFullPath {
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/monitoring': typeof MonitoringRoute
   '/networking': typeof NetworkingRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesByTo {
@@ -148,15 +183,20 @@ export interface FileRoutesByTo {
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/monitoring': typeof MonitoringRoute
   '/networking': typeof NetworkingRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesById {
@@ -169,15 +209,20 @@ export interface FileRoutesById {
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/functions': typeof FunctionsRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/monitoring': typeof MonitoringRoute
   '/networking': typeof NetworkingRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/team': typeof TeamRoute
+  '/two-factor': typeof TwoFactorRoute
+  '/verify': typeof VerifyRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRouteTypes {
@@ -191,15 +236,20 @@ export interface FileRouteTypes {
     | '/deployments'
     | '/docs'
     | '/domains'
+    | '/forgot-password'
     | '/functions'
+    | '/login'
     | '/logs'
     | '/monitoring'
     | '/networking'
     | '/projects'
+    | '/register'
     | '/secrets'
     | '/settings'
     | '/storage'
     | '/team'
+    | '/two-factor'
+    | '/verify'
     | '/projects/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -211,15 +261,20 @@ export interface FileRouteTypes {
     | '/deployments'
     | '/docs'
     | '/domains'
+    | '/forgot-password'
     | '/functions'
+    | '/login'
     | '/logs'
     | '/monitoring'
     | '/networking'
     | '/projects'
+    | '/register'
     | '/secrets'
     | '/settings'
     | '/storage'
     | '/team'
+    | '/two-factor'
+    | '/verify'
     | '/projects/$id'
   id:
     | '__root__'
@@ -231,15 +286,20 @@ export interface FileRouteTypes {
     | '/deployments'
     | '/docs'
     | '/domains'
+    | '/forgot-password'
     | '/functions'
+    | '/login'
     | '/logs'
     | '/monitoring'
     | '/networking'
     | '/projects'
+    | '/register'
     | '/secrets'
     | '/settings'
     | '/storage'
     | '/team'
+    | '/two-factor'
+    | '/verify'
     | '/projects/$id'
   fileRoutesById: FileRoutesById
 }
@@ -252,19 +312,38 @@ export interface RootRouteChildren {
   DeploymentsRoute: typeof DeploymentsRoute
   DocsRoute: typeof DocsRoute
   DomainsRoute: typeof DomainsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   FunctionsRoute: typeof FunctionsRoute
+  LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
   MonitoringRoute: typeof MonitoringRoute
   NetworkingRoute: typeof NetworkingRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
   SecretsRoute: typeof SecretsRoute
   SettingsRoute: typeof SettingsRoute
   StorageRoute: typeof StorageRoute
   TeamRoute: typeof TeamRoute
+  TwoFactorRoute: typeof TwoFactorRoute
+  VerifyRoute: typeof VerifyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/two-factor': {
+      id: '/two-factor'
+      path: '/two-factor'
+      fullPath: '/two-factor'
+      preLoaderRoute: typeof TwoFactorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/team': {
       id: '/team'
       path: '/team'
@@ -291,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/secrets'
       fullPath: '/secrets'
       preLoaderRoute: typeof SecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -321,11 +407,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/functions': {
       id: '/functions'
       path: '/functions'
       fullPath: '/functions'
       preLoaderRoute: typeof FunctionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/domains': {
@@ -415,15 +515,20 @@ const rootRouteChildren: RootRouteChildren = {
   DeploymentsRoute: DeploymentsRoute,
   DocsRoute: DocsRoute,
   DomainsRoute: DomainsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   FunctionsRoute: FunctionsRoute,
+  LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
   MonitoringRoute: MonitoringRoute,
   NetworkingRoute: NetworkingRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
+  RegisterRoute: RegisterRoute,
   SecretsRoute: SecretsRoute,
   SettingsRoute: SettingsRoute,
   StorageRoute: StorageRoute,
   TeamRoute: TeamRoute,
+  TwoFactorRoute: TwoFactorRoute,
+  VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
