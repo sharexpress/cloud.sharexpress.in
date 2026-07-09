@@ -27,6 +27,7 @@ import { Route as DomainsRouteImport } from './routes/domains'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DeploymentsRouteImport } from './routes/deployments'
 import { Route as DatabasesRouteImport } from './routes/databases'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComputeRouteImport } from './routes/compute'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
@@ -123,6 +124,11 @@ const DatabasesRoute = DatabasesRouteImport.update({
   path: '/databases',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComputeRoute = ComputeRouteImport.update({
   id: '/compute',
   path: '/compute',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
+  '/dashboard': typeof DashboardRoute
   '/databases': typeof DatabasesRoute
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
+  '/dashboard': typeof DashboardRoute
   '/databases': typeof DatabasesRoute
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
+  '/dashboard': typeof DashboardRoute
   '/databases': typeof DatabasesRoute
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/billing'
     | '/compute'
+    | '/dashboard'
     | '/databases'
     | '/deployments'
     | '/docs'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/billing'
     | '/compute'
+    | '/dashboard'
     | '/databases'
     | '/deployments'
     | '/docs'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/billing'
     | '/compute'
+    | '/dashboard'
     | '/databases'
     | '/deployments'
     | '/docs'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   ApiKeysRoute: typeof ApiKeysRoute
   BillingRoute: typeof BillingRoute
   ComputeRoute: typeof ComputeRoute
+  DashboardRoute: typeof DashboardRoute
   DatabasesRoute: typeof DatabasesRoute
   DeploymentsRoute: typeof DeploymentsRoute
   DocsRoute: typeof DocsRoute
@@ -456,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DatabasesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/compute': {
       id: '/compute'
       path: '/compute'
@@ -511,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiKeysRoute: ApiKeysRoute,
   BillingRoute: BillingRoute,
   ComputeRoute: ComputeRoute,
+  DashboardRoute: DashboardRoute,
   DatabasesRoute: DatabasesRoute,
   DeploymentsRoute: DeploymentsRoute,
   DocsRoute: DocsRoute,
@@ -533,3 +554,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.jsx'
+import type { startInstance } from './start.js'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

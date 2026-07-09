@@ -1,0 +1,52 @@
+import { Cloud } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+export function AuthLayout({ title, subtitle, children, footer, }) {
+    return (<div className="grid min-h-screen grid-cols-1 bg-background lg:grid-cols-2">
+      <div className="flex flex-col justify-between px-8 py-8">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="grid h-7 w-7 place-items-center rounded-md bg-foreground text-background">
+            <Cloud className="h-4 w-4"/>
+          </div>
+          <span className="text-[14px] font-semibold text-foreground">Nimbus</span>
+        </Link>
+
+        <div className="mx-auto w-full max-w-sm py-16">
+          <h1 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h1>
+          {subtitle && <p className="mt-2 text-[13px] text-muted-foreground">{subtitle}</p>}
+          <div className="mt-8">{children}</div>
+        </div>
+
+        <div className="text-[11.5px] text-muted-foreground">
+          {footer ?? <span>© 2026 Nimbus, Inc.</span>}
+        </div>
+      </div>
+
+      <aside className="relative hidden overflow-hidden border-l border-border bg-surface lg:block dot-grid">
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-accent/10"/>
+        <div className="relative flex h-full flex-col justify-between p-12">
+          <div className="max-w-md">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-accent">The cloud platform</div>
+            <h2 className="mt-3 text-[28px] font-semibold leading-tight tracking-tight text-foreground">
+              Ship faster.<br />Scale calmly.
+            </h2>
+            <p className="mt-4 text-[13.5px] leading-relaxed text-muted-foreground">
+              Nimbus brings deployments, compute, databases, and media into a single control plane —
+              so your team spends time on product, not plumbing.
+            </p>
+          </div>
+
+          <figure className="rounded-lg border border-border bg-background/70 p-5 backdrop-blur-sm">
+            <blockquote className="text-[13.5px] leading-relaxed text-foreground">
+              "We consolidated three vendors into one and cut our infra bill by 38%. The DX is unreal."
+            </blockquote>
+            <figcaption className="mt-3 flex items-center gap-2.5">
+              <div className="grid h-7 w-7 place-items-center rounded-full bg-accent/15 text-[10px] font-semibold text-accent">JL</div>
+              <div className="text-[11.5px] text-muted-foreground">
+                <span className="text-foreground">Jordan Lee</span> · CTO at Acme
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      </aside>
+    </div>);
+}
