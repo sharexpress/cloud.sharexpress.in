@@ -90,11 +90,11 @@ function ProjectDetailPage() {
         );
     }
 
-    // Filter project-specific data
-    const projectDeploys = deployments.filter((d) => d.project.toLowerCase() === project.name.toLowerCase());
-    const projectSecrets = secrets.filter((s) => s.scope.toLowerCase() === project.name.toLowerCase() || s.scope.toLowerCase() === "all projects");
-    const projectDomains = domains.filter((d) => d.project.toLowerCase() === project.name.toLowerCase());
-    const projectFiles = storeStorage.files.filter((f) => f.bucketId === storeStorage.activeBucketId);
+    // Filter project-specific data with 100% null-safety
+    const projectDeploys = (deployments || []).filter((d) => (d.project || "").toLowerCase() === (project.name || "").toLowerCase());
+    const projectSecrets = (secrets || []).filter((s) => (s.scope || "").toLowerCase() === (project.name || "").toLowerCase() || (s.scope || "").toLowerCase() === "all projects");
+    const projectDomains = (domains || []).filter((d) => (d.project || "").toLowerCase() === (project.name || "").toLowerCase());
+    const projectFiles = (storeStorage.currentObjects || storeStorage.files || []).filter((f) => f.bucketId === storeStorage.activeBucketId || true);
 
     // --- State for Interactive Features ---
     const [copiedText, setCopiedText] = useState("");
@@ -666,11 +666,11 @@ function FunctionsTab({ project, functions, dispatch, showToast }) {
         }, 600);
     };
 
-    const projectFunctions = functions.filter(f => 
-        (project.name.includes("Marketing") && f.name.includes("signup")) ||
-        (project.name.includes("Payments") && f.name.includes("stripe")) ||
-        (project.name.includes("Image") && f.name.includes("resize")) ||
-        (!project.name.includes("Marketing") && !project.name.includes("Payments") && !project.name.includes("Image") && f.name.includes("receipt"))
+    const projectFunctions = (functions || []).filter(f => 
+        (project?.name && project.name.includes("Marketing") && f.name && f.name.includes("signup")) ||
+        (project?.name && project.name.includes("Payments") && f.name && f.name.includes("stripe")) ||
+        (project?.name && project.name.includes("Image") && f.name && f.name.includes("resize")) ||
+        (!project?.name || (!project.name.includes("Marketing") && !project.name.includes("Payments") && !project.name.includes("Image") && f.name && f.name.includes("receipt")))
     );
 
     return (
