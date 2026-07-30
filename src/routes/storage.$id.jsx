@@ -22,7 +22,8 @@ import {
   Trash2, ShieldCheck, Cpu, Activity, Clock, 
   Layers, Search, Filter, AlertTriangle, Eye, EyeOff, RotateCcw,
   Plus, Edit3, Code, Table, FileJson, FolderPlus, X, Save,
-  Upload, Folder, FileText, ImageIcon, FileVideo, Globe, Key, Lock
+  Upload, Folder, FileText, ImageIcon, FileVideo, Globe, Key, Lock,
+  Grid3x3, List, Download, ExternalLink, Sliders, Maximize2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,11 +51,11 @@ const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
 
 // Initial S3 Bucket Objects Mock Data
 const INITIAL_OBJECTS = [
-    { id: "o_1", name: "avatars/hero-user.png", size: "412 KB", type: "image/png", modified: "Today at 14:20", etag: '"a4b8c9d1e2f3"' },
-    { id: "o_2", name: "documents/terms-v2.pdf", size: "1.2 MB", type: "application/pdf", modified: "Yesterday at 09:15", etag: '"b5c9d0e1f2a3"' },
-    { id: "o_3", name: "videos/intro-demo.mp4", size: "24.5 MB", type: "video/mp4", modified: "Jul 28, 2026", etag: '"c6d0e1f2a3b4"' },
-    { id: "o_4", name: "assets/logo-dark.svg", size: "18 KB", type: "image/svg+xml", modified: "Jul 27, 2026", etag: '"d7e1f2a3b4c5"' },
-    { id: "o_5", name: "backups/db-dump-0726.tar.gz", size: "142.8 MB", type: "application/gzip", modified: "Jul 26, 2026", etag: '"e8f2a3b4c5d6"' },
+    { id: "o_1", name: "avatars/hero-user.png", size: "412 KB", type: "image/png", modified: "Today at 14:20", etag: '"a4b8c9d1e2f3"', isImage: true },
+    { id: "o_2", name: "documents/terms-v2.pdf", size: "1.2 MB", type: "application/pdf", modified: "Yesterday at 09:15", etag: '"b5c9d0e1f2a3"', isDoc: true },
+    { id: "o_3", name: "videos/intro-demo.mp4", size: "24.5 MB", type: "video/mp4", modified: "Jul 28, 2026", etag: '"c6d0e1f2a3b4"', isVideo: true },
+    { id: "o_4", name: "assets/logo-dark.svg", size: "18 KB", type: "image/svg+xml", modified: "Jul 27, 2026", etag: '"d7e1f2a3b4c5"', isImage: true },
+    { id: "o_5", name: "backups/db-dump-0726.tar.gz", size: "142.8 MB", type: "application/gzip", modified: "Jul 26, 2026", etag: '"e8f2a3b4c5d6"', isDoc: true },
 ];
 
 function StorageDetailPage() {
@@ -90,6 +91,19 @@ function StorageDetailPage() {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(""), 3000);
     };
+
+    if (!bucket) {
+        return (
+            <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Storage" }]}>
+                <PageShell>
+                    <div className="text-center py-20 font-mono">
+                        <h2 className="text-lg font-semibold text-text-primary">Storage bucket not found</h2>
+                        <Link to="/storage" className="mt-4 inline-block text-accent-purple hover:underline">Back to storage</Link>
+                    </div>
+                </PageShell>
+            </AppShell>
+        );
+    }
 
     const endpointUri = `https://${bucket.name}.s3.sharexpress.in`;
 
@@ -127,7 +141,7 @@ function StorageDetailPage() {
             <PageShell>
                 {/* Dynamic Toast */}
                 {toastMessage && (
-                    <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-md bg-foreground px-4 py-3 text-[12.5px] font-medium text-background shadow-lg animate-in fade-in slide-in-from-bottom-5">
+                    <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-md bg-foreground px-4 py-3 text-[12.5px] font-medium text-background shadow-lg animate-in fade-in slide-in-from-bottom-5 font-mono">
                         <Check className="h-4 w-4 text-status-success" />
                         {toastMessage}
                     </div>
@@ -142,7 +156,7 @@ function StorageDetailPage() {
                                 "px-2 py-0.5 rounded text-[10.5px] font-mono font-bold uppercase",
                                 bucket.visibility === "public" ? "bg-status-success/10 text-status-success border border-status-success/30" : "bg-surface text-text-muted border border-border"
                             )}>
-                                {bucket.visibility || "private"}
+                                {bucket.visibility || "public"}
                             </span>
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-text-muted font-mono">
@@ -188,7 +202,7 @@ function StorageDetailPage() {
 
                 {/* OVERVIEW TAB */}
                 {tab === "Overview" && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 font-mono">
                         <div className="grid gap-4 md:grid-cols-4">
                             <Metric label="Bandwidth Out" value="1.42 TB" delta={{ value: "+12.4%", positive: true }} series={metricSeries(4)}/>
                             <Metric label="Requests / sec" value="840 QPS" delta={{ value: "+4.1%", positive: true }} series={metricSeries(6)}/>
@@ -228,7 +242,7 @@ function StorageDetailPage() {
                     </div>
                 )}
 
-                {/* FILE BROWSER TAB (S3 EXPLORER & CRUD) */}
+                {/* FILE BROWSER TAB (GOOGLE DRIVE / CLOUDINARY STYLE FILE BROWSER & CRUD) */}
                 {tab === "File Browser" && (
                     <FileBrowserTab bucket={bucket} showToast={showToast} />
                 )}
@@ -258,13 +272,22 @@ function StorageDetailPage() {
     );
 }
 
-/** 1. FILE BROWSER TAB (S3 GUI & CRUD) */
+/** 1. FILE BROWSER TAB (GOOGLE DRIVE / CLOUDINARY STYLE GRID & LIST WITH PREVIEW LIGHTBOX) */
 function FileBrowserTab({ bucket, showToast }) {
     const [objects, setObjects] = useState(INITIAL_OBJECTS);
     const [searchQuery, setSearchQuery] = useState("");
+    const [viewMode, setViewMode] = useState("grid"); // "grid" | "list"
+    
+    // Modal states
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newFileName, setNewFileName] = useState("");
+    const [previewObj, setPreviewObj] = useState(null);
+
+    // Cloudinary Image Transformation State
+    const [width, setWidth] = useState("800");
+    const [quality, setQuality] = useState("80");
+    const [format, setFormat] = useState("webp");
 
     const filteredObjects = objects.filter((o) => 
         o.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -277,13 +300,18 @@ function FileBrowserTab({ bucket, showToast }) {
 
         setUploading(true);
         setTimeout(() => {
+            const isImg = newFileName.endsWith(".png") || newFileName.endsWith(".jpg") || newFileName.endsWith(".svg") || newFileName.endsWith(".webp");
+            const isVid = newFileName.endsWith(".mp4") || newFileName.endsWith(".mov");
             const newObj = {
                 id: `o_${Date.now()}`,
                 name: newFileName.trim().startsWith("uploads/") ? newFileName.trim() : `uploads/${newFileName.trim()}`,
-                size: "820 KB",
-                type: "application/octet-stream",
+                size: isVid ? "18.4 MB" : isImg ? "640 KB" : "1.1 MB",
+                type: isImg ? "image/png" : isVid ? "video/mp4" : "application/octet-stream",
                 modified: "Just now",
                 etag: `"${Math.random().toString(36).substring(2, 12)}"`,
+                isImage: isImg,
+                isVideo: isVid,
+                isDoc: !isImg && !isVid,
             };
             setObjects([newObj, ...objects]);
             setUploading(false);
@@ -295,6 +323,7 @@ function FileBrowserTab({ bucket, showToast }) {
 
     const handleDeleteObject = (id, name) => {
         setObjects(prev => prev.filter(o => o.id !== id));
+        if (previewObj && previewObj.id === id) setPreviewObj(null);
         showToast(`Deleted '${name}' from bucket.`);
     };
 
@@ -303,21 +332,45 @@ function FileBrowserTab({ bucket, showToast }) {
         showToast(`Copied s3://${bucket.name}/${name}`);
     };
 
+    const handleCopyCdnUrl = (name) => {
+        const url = `https://cdn.sharexpress.in/${bucket.name}/${name}`;
+        navigator.clipboard.writeText(url);
+        showToast("Copied CDN URL to clipboard!");
+    };
+
     return (
-        <div className="space-y-4">
-            {/* Toolbar */}
+        <div className="space-y-4 font-mono">
+            {/* Drive / Cloudinary Toolbar */}
             <div className="rounded-xl border border-border bg-card p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
                 <div className="relative flex-1">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"/>
                     <input
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search objects by prefix or file name…"
-                        className="h-8.5 w-full rounded-md border border-border bg-surface pl-9 pr-3 font-mono text-[12px] text-text-primary placeholder:text-text-muted focus:border-border-strong focus:outline-none transition-all"
+                        placeholder="Search files by name or type…"
+                        className="h-8.5 w-full rounded-md border border-border bg-surface pl-9 pr-3 text-[12px] text-text-primary placeholder:text-text-muted focus:border-border-strong focus:outline-none transition-all"
                     />
                 </div>
 
-                <div className="flex items-center gap-2 font-mono text-[11.5px]">
+                <div className="flex items-center gap-2 text-[11.5px]">
+                    {/* View Switcher (Grid Gallery vs List) */}
+                    <div className="flex h-8.5 items-center rounded-md border border-border bg-surface p-0.5">
+                        <button
+                            onClick={() => setViewMode("grid")}
+                            className={cn("grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer", viewMode === "grid" ? "bg-card text-text-primary font-bold shadow-2xs" : "text-text-muted hover:text-text-primary")}
+                            title="Grid Preview (Cloudinary / Drive)"
+                        >
+                            <Grid3x3 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode("list")}
+                            className={cn("grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer", viewMode === "list" ? "bg-card text-text-primary font-bold shadow-2xs" : "text-text-muted hover:text-text-primary")}
+                            title="List View"
+                        >
+                            <List className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
+
                     <button
                         onClick={() => setIsUploadOpen(true)}
                         className="inline-flex h-8.5 items-center gap-1.5 rounded-md bg-foreground px-3.5 font-semibold text-background hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
@@ -327,16 +380,94 @@ function FileBrowserTab({ bucket, showToast }) {
                 </div>
             </div>
 
-            {/* Objects Table */}
+            {/* Objects Display */}
             {filteredObjects.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center font-mono">
+                <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
                     <HardDrive className="h-8 w-8 text-text-muted mx-auto mb-2 opacity-50" />
-                    <div className="text-[13px] font-bold text-text-primary">No objects found</div>
+                    <div className="text-[13px] font-bold text-text-primary">No files found</div>
                     <div className="text-[11px] text-text-muted mt-0.5">Upload a file to get started with '{bucket.name}'.</div>
                 </div>
+            ) : viewMode === "grid" ? (
+                /* GOOGLE DRIVE / CLOUDINARY GRID PREVIEW MODE */
+                <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredObjects.map((obj) => (
+                        <div 
+                            key={obj.id}
+                            className="group relative rounded-xl border border-border bg-card overflow-hidden hover:border-border-strong transition-all hover:shadow-lg flex flex-col justify-between"
+                        >
+                            {/* Thumbnail Preview Area */}
+                            <div 
+                                onClick={() => setPreviewObj(obj)}
+                                className="relative h-36 w-full bg-surface/80 border-b border-border/60 flex items-center justify-center cursor-pointer overflow-hidden group-hover:bg-surface transition-colors"
+                            >
+                                {obj.isImage ? (
+                                    <div className="flex flex-col items-center justify-center p-4 text-center">
+                                        <ImageIcon className="h-10 w-10 text-accent-purple mb-1.5 opacity-80 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] text-text-muted truncate max-w-[140px]">{obj.name.split("/").pop()}</span>
+                                    </div>
+                                ) : obj.isVideo ? (
+                                    <div className="flex flex-col items-center justify-center p-4 text-center">
+                                        <FileVideo className="h-10 w-10 text-cyan-400 mb-1.5 opacity-80 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] text-text-muted truncate max-w-[140px]">{obj.name.split("/").pop()}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center p-4 text-center">
+                                        <FileText className="h-10 w-10 text-amber-400 mb-1.5 opacity-80 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] text-text-muted truncate max-w-[140px]">{obj.name.split("/").pop()}</span>
+                                    </div>
+                                )}
+
+                                {/* Hover Preview Badge */}
+                                <div className="absolute inset-0 bg-background/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-foreground px-2.5 py-1 text-[11px] font-bold text-background shadow-md">
+                                        <Eye className="h-3 w-3" /> Preview
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Card Details & Actions */}
+                            <div className="p-3">
+                                <div className="truncate text-[12px] font-bold text-text-primary" title={obj.name}>
+                                    {obj.name}
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] text-text-muted mt-1">
+                                    <span>{obj.size}</span>
+                                    <span>{obj.modified}</span>
+                                </div>
+
+                                <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center justify-between">
+                                    <button 
+                                        onClick={() => handleCopyUri(obj.name)}
+                                        className="h-6 px-2 rounded border border-border bg-surface text-[10px] text-text-muted hover:text-text-primary transition-colors cursor-pointer flex items-center gap-1"
+                                    >
+                                        <Copy className="h-2.5 w-2.5" /> S3 URI
+                                    </button>
+
+                                    <div className="flex items-center gap-1">
+                                        <button 
+                                            onClick={() => setPreviewObj(obj)}
+                                            className="p-1 rounded text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                                            title="Quick Preview"
+                                        >
+                                            <Maximize2 className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteObject(obj.id, obj.name)}
+                                            className="p-1 rounded text-status-danger hover:bg-status-danger/10 transition-colors cursor-pointer"
+                                            title="Delete file"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : (
+                /* DRIVE TABLE LIST VIEW MODE */
                 <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
-                    <table className="w-full text-left font-mono text-[12px]">
+                    <table className="w-full text-left text-[12px]">
                         <thead className="border-b border-border bg-surface text-[10.5px] text-text-muted uppercase tracking-wider">
                             <tr>
                                 <th className="px-4 py-3 font-semibold">Object Name</th>
@@ -350,14 +481,19 @@ function FileBrowserTab({ bucket, showToast }) {
                             {filteredObjects.map((obj) => (
                                 <tr key={obj.id} className="hover:bg-surface/50 transition-colors group">
                                     <td className="px-4 py-3 text-text-primary font-bold flex items-center gap-2 truncate">
-                                        <Folder className="h-3.5 w-3.5 text-text-muted shrink-0" />
-                                        <span className="truncate">{obj.name}</span>
+                                        <button onClick={() => setPreviewObj(obj)} className="flex items-center gap-2 hover:text-accent-purple text-left cursor-pointer truncate">
+                                            {obj.isImage ? <ImageIcon className="h-3.5 w-3.5 text-accent-purple shrink-0" /> : obj.isVideo ? <FileVideo className="h-3.5 w-3.5 text-cyan-400 shrink-0" /> : <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0" />}
+                                            <span className="truncate">{obj.name}</span>
+                                        </button>
                                     </td>
                                     <td className="px-4 py-3 text-text-muted">{obj.size}</td>
                                     <td className="px-4 py-3 text-text-muted">{obj.type}</td>
                                     <td className="px-4 py-3 text-text-muted">{obj.modified}</td>
                                     <td className="px-4 py-3 text-right shrink-0">
                                         <div className="flex items-center justify-end gap-1.5">
+                                            <button onClick={() => setPreviewObj(obj)} className="h-7 px-2 rounded border border-border bg-surface text-[10.5px] font-semibold text-text-primary hover:bg-surface/80 transition-colors cursor-pointer flex items-center gap-1">
+                                                <Eye className="h-3 w-3" /> Preview
+                                            </button>
                                             <button onClick={() => handleCopyUri(obj.name)} className="h-7 px-2 rounded border border-border bg-surface text-[10.5px] text-text-muted hover:text-text-primary transition-colors cursor-pointer flex items-center gap-1">
                                                 <Copy className="h-3 w-3" /> S3 URI
                                             </button>
@@ -373,12 +509,133 @@ function FileBrowserTab({ bucket, showToast }) {
                 </div>
             )}
 
+            {/* GOOGLE DRIVE / CLOUDINARY PREVIEW LIGHTBOX MODAL */}
+            {previewObj && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-md p-4">
+                    <div className="w-full max-w-2xl border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                        {/* Header */}
+                        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                            <div className="flex items-center gap-2 truncate">
+                                <Eye className="h-4 w-4 text-accent-purple shrink-0" />
+                                <h3 className="text-[13.5px] font-bold text-text-primary truncate">{previewObj.name}</h3>
+                            </div>
+                            <button onClick={() => setPreviewObj(null)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        {/* Media Display Area */}
+                        <div className="p-6 space-y-4">
+                            <div className="rounded-xl border border-border/80 bg-surface/80 p-8 flex flex-col items-center justify-center min-h-[220px] text-center">
+                                {previewObj.isImage ? (
+                                    <div className="space-y-3">
+                                        <div className="h-28 w-28 rounded-lg bg-accent-purple/10 border border-accent-purple/30 mx-auto flex items-center justify-center">
+                                            <ImageIcon className="h-12 w-12 text-accent-purple" />
+                                        </div>
+                                        <div className="text-[12px] font-bold text-text-primary">Image Asset Preview</div>
+                                        <div className="text-[10.5px] text-text-muted">1920 × 1080 px · PNG Format</div>
+                                    </div>
+                                ) : previewObj.isVideo ? (
+                                    <div className="space-y-3">
+                                        <div className="h-28 w-28 rounded-lg bg-cyan-500/10 border border-cyan-500/30 mx-auto flex items-center justify-center">
+                                            <FileVideo className="h-12 w-12 text-cyan-400" />
+                                        </div>
+                                        <div className="text-[12px] font-bold text-text-primary">MP4 Video Stream</div>
+                                        <div className="text-[10.5px] text-text-muted">1080p H.264 · 60 FPS</div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <div className="h-28 w-28 rounded-lg bg-amber-500/10 border border-amber-500/30 mx-auto flex items-center justify-center">
+                                            <FileText className="h-12 w-12 text-amber-400" />
+                                        </div>
+                                        <div className="text-[12px] font-bold text-text-primary">Document File</div>
+                                        <div className="text-[10.5px] text-text-muted">{previewObj.type}</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Cloudinary Image Transformations Helper */}
+                            {previewObj.isImage && (
+                                <div className="rounded-lg border border-border bg-surface p-3 space-y-2 text-[11.5px]">
+                                    <div className="flex items-center gap-2 font-bold text-text-primary">
+                                        <Sliders className="h-3.5 w-3.5 text-accent-purple" />
+                                        <span>Cloudinary Image Transformation Params</span>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div>
+                                            <label className="text-[10px] text-text-muted uppercase block mb-1">Width</label>
+                                            <select value={width} onChange={(e) => setWidth(e.target.value)} className="h-7 w-full rounded border border-border bg-card px-2 text-[11px] text-text-primary focus:outline-none">
+                                                <option value="400">w_400 (400px)</option>
+                                                <option value="800">w_800 (800px)</option>
+                                                <option value="1200">w_1200 (1200px)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-text-muted uppercase block mb-1">Quality</label>
+                                            <select value={quality} onChange={(e) => setQuality(e.target.value)} className="h-7 w-full rounded border border-border bg-card px-2 text-[11px] text-text-primary focus:outline-none">
+                                                <option value="80">q_80 (Optimal)</option>
+                                                <option value="90">q_90 (High)</option>
+                                                <option value="100">q_100 (Lossless)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-text-muted uppercase block mb-1">Format</label>
+                                            <select value={format} onChange={(e) => setFormat(e.target.value)} className="h-7 w-full rounded border border-border bg-card px-2 text-[11px] text-text-primary focus:outline-none">
+                                                <option value="webp">f_webp</option>
+                                                <option value="avif">f_avif</option>
+                                                <option value="png">f_png</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2 flex items-center justify-between rounded bg-card p-2 border border-border/60 text-[10.5px]">
+                                        <span className="truncate text-text-muted">
+                                            https://cdn.sharexpress.in/{bucket.name}/{previewObj.name}?w={width}&q={quality}&f={format}
+                                        </span>
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(`https://cdn.sharexpress.in/${bucket.name}/${previewObj.name}?w=${width}&q=${quality}&f=${format}`);
+                                                showToast("Copied Transformed CDN URL!");
+                                            }}
+                                            className="text-text-primary font-bold hover:underline shrink-0 ml-2 cursor-pointer"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Footer Actions */}
+                            <div className="flex items-center justify-between pt-2 border-t border-border">
+                                <div className="text-[11px] text-text-muted">
+                                    Size: <strong>{previewObj.size}</strong> · Modified: {previewObj.modified}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => handleCopyCdnUrl(previewObj.name)}
+                                        className="h-8 px-3 rounded-md border border-border bg-surface text-[11.5px] font-semibold text-text-primary hover:bg-surface/80 transition-colors cursor-pointer flex items-center gap-1.5"
+                                    >
+                                        <Copy className="h-3.5 w-3.5" /> Copy CDN Link
+                                    </button>
+                                    <button 
+                                        onClick={() => showToast(`Downloading ${previewObj.name}…`)}
+                                        className="h-8 px-3.5 rounded-md bg-foreground text-[11.5px] font-bold text-background hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5"
+                                    >
+                                        <Download className="h-3.5 w-3.5" /> Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* UPLOAD MODAL */}
             {isUploadOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 font-mono">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
                     <div className="w-full max-w-md border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-                            <h2 className="text-[13.5px] font-bold text-text-primary">Upload Object to '{bucket.name}'</h2>
+                            <h2 className="text-[13.5px] font-bold text-text-primary">Upload File to '{bucket.name}'</h2>
                             <button onClick={() => setIsUploadOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
                                 <X className="h-4 w-4" />
                             </button>
@@ -415,7 +672,7 @@ function FileBrowserTab({ bucket, showToast }) {
                                     disabled={uploading}
                                     className="h-8.5 px-4 rounded-md bg-foreground text-[12px] font-bold text-background hover:opacity-90 cursor-pointer flex items-center gap-1.5"
                                 >
-                                    {uploading ? "Uploading…" : "Upload Object"}
+                                    {uploading ? "Uploading…" : "Upload File"}
                                 </button>
                             </div>
                         </form>
