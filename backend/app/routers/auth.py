@@ -16,15 +16,18 @@ from fastapi import APIRouter, Response, Request, Depends
 from app.models.schemas import OTPRequest, OTPVerifyRequest
 from app.controllers.user_controller import UserController
 from app.middleware.auth import get_current_user
+from app.middleware.rate_limit import rate_limit
 from typing import Dict, Any
 
 router = APIRouter(prefix="/auth", tags=["Authentication & SSO"])
 
-@router.post("/send-otp")
+# Max 3 OTP requests per 5 minutes per IP
+@router.post("/send-otp", dependencies=[Depends(rate_limit(max_requests=3, window_seconds=300))])
 async def send_otp(payload: OTPRequest):
     return await UserController.send_otp(payload)
 
-@router.post("/verify-otp")
+# Max 5 verification attempts per 5 minutes per IP
+@router.post("/verify-otp", dependencies=[Depends(rate_limit(max_requests=5, window_seconds=300))])
 async def verify_otp(payload: OTPVerifyRequest, response: Response):
     return await UserController.verify_otp(payload, response)
 
