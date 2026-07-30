@@ -20,7 +20,8 @@ import { PageShell, Panel, Metric, StatusBadge, AreaChart, Sparkline } from "@/c
 import { 
   Copy, Database, Check, RefreshCw, Terminal, Play, 
   Trash2, ShieldCheck, HardDrive, Cpu, Activity, Clock, 
-  Layers, Search, Filter, AlertTriangle, Eye, EyeOff, RotateCcw
+  Layers, Search, Filter, AlertTriangle, Eye, EyeOff, RotateCcw,
+  Plus, Edit3, Code, Table, FileJson, FolderPlus, X, Save
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/databases/$id")({
     component: DatabaseDetailPage,
 });
 
-const DB_TABS = ["Overview", "Query Console", "Connections", "Backups", "Logs", "Settings"];
+const DB_TABS = ["Overview", "Data Explorer", "Query Console", "Connections", "Backups", "Logs", "Settings"];
 
 // Global chart series helper
 const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
@@ -45,6 +46,30 @@ const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
         out.push(Math.max(4, Math.min(100, Math.round(v))));
     }
     return out;
+};
+
+// Initial MongoDB Atlas Mock Collections Data
+const INITIAL_COLLECTIONS = {
+    users: [
+        { _id: "66a8b12f48e2a1b94c000001", name: "Jordan Lee", email: "jordan@acme.com", role: "admin", status: "active", createdAt: "2026-07-28T14:20:00Z" },
+        { _id: "66a8b12f48e2a1b94c000002", name: "Alex Chen", email: "alex@acme.com", role: "developer", status: "active", createdAt: "2026-07-29T09:15:30Z" },
+        { _id: "66a8b12f48e2a1b94c000003", name: "Sarah Connor", email: "sarah@acme.com", role: "member", status: "pending", createdAt: "2026-07-29T11:45:12Z" },
+        { _id: "66a8b12f48e2a1b94c000004", name: "Dev Ops Bot", email: "bot@acme.com", role: "service_account", status: "active", createdAt: "2026-07-30T08:02:44Z" },
+    ],
+    orders: [
+        { _id: "66a8c44d19f8b2c12a000001", orderId: "ORD-94102", amount: 149.00, currency: "USD", customer: "jordan@acme.com", status: "completed" },
+        { _id: "66a8c44d19f8b2c12a000002", orderId: "ORD-94103", amount: 499.00, currency: "USD", customer: "alex@acme.com", status: "completed" },
+        { _id: "66a8c44d19f8b2c12a000003", orderId: "ORD-94104", amount: 29.00, currency: "USD", customer: "sarah@acme.com", status: "processing" },
+    ],
+    products: [
+        { _id: "66a8d88e72c3d4a56b000001", sku: "PROD-CLOUD-PRO", title: "Enterprise Cloud Hosting", price: 149, stock: 999 },
+        { _id: "66a8d88e72c3d4a56b000002", sku: "PROD-DB-CLUSTER", title: "Managed Postgres Cluster", price: 499, stock: 50 },
+        { _id: "66a8d88e72c3d4a56b000003", sku: "PROD-STORAGE-TB", title: "Encrypted S3 Storage 1TB", price: 29, stock: 5000 },
+    ],
+    audit_logs: [
+        { _id: "66a8e99f83d4e5f67a000001", action: "CLUSTER_RESTART", actor: "jordan@acme.com", ip: "192.168.1.42", timestamp: "2026-07-30T16:10:05Z" },
+        { _id: "66a8e99f83d4e5f67a000002", action: "API_KEY_CREATED", actor: "alex@acme.com", ip: "10.0.4.18", timestamp: "2026-07-30T17:22:19Z" },
+    ]
 };
 
 function DatabaseDetailPage() {
@@ -210,6 +235,11 @@ function DatabaseDetailPage() {
                     </div>
                 )}
 
+                {/* DATA EXPLORER TAB (MONGODB ATLAS STYLE CRUD) */}
+                {tab === "Data Explorer" && (
+                    <DataExplorerTab database={database} showToast={showToast} />
+                )}
+
                 {/* QUERY CONSOLE TAB */}
                 {tab === "Query Console" && (
                     <QueryConsoleTab database={database} showToast={showToast} />
@@ -237,6 +267,469 @@ function DatabaseDetailPage() {
 
             </PageShell>
         </AppShell>
+    );
+}
+
+/** 0. MONGODB ATLAS STYLE DATA EXPLORER & CRUD TAB */
+function DataExplorerTab({ database, showToast }) {
+    const [collectionsData, setCollectionsData] = useState(INITIAL_COLLECTIONS);
+    const [activeCol, setActiveCol] = useState("users");
+    const [colSearch, setColSearch] = useState("");
+    const [filterQuery, setFilterQuery] = useState("");
+    const [viewMode, setViewMode] = useState("json"); // "json" | "table"
+
+    // Modal state for Insert / Edit
+    const [isInsertOpen, setIsInsertOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editDoc, setEditDoc] = useState(null);
+    const [jsonInput, setJsonInput] = useState("");
+    const [jsonError, setJsonError] = useState("");
+
+    // Create New Collection state
+    const [isNewColOpen, setIsNewColOpen] = useState(false);
+    const [newColName, setNewColName] = useState("");
+
+    const docs = collectionsData[activeCol] || [];
+
+    // Filter documents by query string
+    const filteredDocs = docs.filter((doc) => {
+        if (!filterQuery.trim()) return true;
+        const str = JSON.stringify(doc).toLowerCase();
+        return str.includes(filterQuery.toLowerCase());
+    });
+
+    // Handle Create Collection
+    const handleCreateCollection = (e) => {
+        e.preventDefault();
+        const trimmed = newColName.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_");
+        if (!trimmed || collectionsData[trimmed]) return;
+
+        setCollectionsData({
+            ...collectionsData,
+            [trimmed]: []
+        });
+        setActiveCol(trimmed);
+        setNewColName("");
+        setIsNewColOpen(false);
+        showToast(`Created new collection '${trimmed}'`);
+    };
+
+    // Open Insert Modal
+    const openInsertModal = () => {
+        const template = {
+            _id: `66a${Math.random().toString(16).slice(2, 10)}${Date.now().toString(16).slice(-10)}`,
+            title: "New Document",
+            createdAt: new Date().toISOString(),
+        };
+        setJsonInput(JSON.stringify(template, null, 2));
+        setJsonError("");
+        setIsInsertOpen(true);
+    };
+
+    // Submit Insert Document
+    const handleInsertDocument = (e) => {
+        e.preventDefault();
+        try {
+            const parsed = JSON.parse(jsonInput);
+            if (!parsed._id) {
+                parsed._id = `66a${Math.random().toString(16).slice(2, 10)}${Date.now().toString(16).slice(-10)}`;
+            }
+            setCollectionsData({
+                ...collectionsData,
+                [activeCol]: [parsed, ...docs]
+            });
+            setIsInsertOpen(false);
+            showToast(`Inserted 1 document into '${activeCol}'`);
+        } catch (err) {
+            setJsonError(err.message);
+        }
+    };
+
+    // Open Edit Modal
+    const openEditModal = (doc) => {
+        setEditDoc(doc);
+        setJsonInput(JSON.stringify(doc, null, 2));
+        setJsonError("");
+        setIsEditOpen(true);
+    };
+
+    // Submit Edit Document
+    const handleSaveEdit = (e) => {
+        e.preventDefault();
+        try {
+            const parsed = JSON.parse(jsonInput);
+            setCollectionsData({
+                ...collectionsData,
+                [activeCol]: docs.map((d) => d._id === editDoc._id ? parsed : d)
+            });
+            setIsEditOpen(false);
+            setEditDoc(null);
+            showToast(`Updated document ${editDoc._id.slice(0, 8)}...`);
+        } catch (err) {
+            setJsonError(err.message);
+        }
+    };
+
+    // Delete Document
+    const handleDeleteDoc = (id) => {
+        setCollectionsData({
+            ...collectionsData,
+            [activeCol]: docs.filter((d) => d._id !== id)
+        });
+        showToast(`Deleted document ${id.slice(0, 8)}...`);
+    };
+
+    // Copy JSON to clipboard
+    const handleCopyDoc = (doc) => {
+        navigator.clipboard.writeText(JSON.stringify(doc, null, 2));
+        showToast("Copied JSON payload to clipboard!");
+    };
+
+    return (
+        <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] items-start">
+            
+            {/* Left Collections Sidebar */}
+            <div className="rounded-xl border border-border bg-card p-3 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono font-semibold uppercase text-text-muted">Collections</span>
+                    <button 
+                        onClick={() => setIsNewColOpen(true)}
+                        className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer"
+                        title="Create collection"
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+
+                {/* Collection Filter Input */}
+                <div className="relative">
+                    <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-text-muted"/>
+                    <input 
+                        value={colSearch}
+                        onChange={(e) => setColSearch(e.target.value)}
+                        placeholder="Filter collections…" 
+                        className="h-7.5 w-full rounded-md border border-border bg-surface pl-7 pr-2 font-mono text-[11px] text-text-primary placeholder:text-text-muted focus:outline-none"
+                    />
+                </div>
+
+                {/* Collections List */}
+                <ul className="space-y-1 font-mono text-[11.5px]">
+                    {Object.keys(collectionsData)
+                        .filter(col => col.toLowerCase().includes(colSearch.toLowerCase()))
+                        .map((colName) => {
+                            const count = collectionsData[colName].length;
+                            const active = activeCol === colName;
+                            return (
+                                <li key={colName}>
+                                    <button
+                                        onClick={() => setActiveCol(colName)}
+                                        className={cn(
+                                            "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-left transition-colors cursor-pointer",
+                                            active
+                                                ? "bg-surface text-text-primary font-bold border border-border/80 shadow-2xs"
+                                                : "text-text-muted hover:bg-surface/50 hover:text-text-primary"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2 truncate">
+                                            <FolderPlus className="h-3.5 w-3.5 opacity-60 shrink-0" />
+                                            <span className="truncate">{colName}</span>
+                                        </div>
+                                        <span className="text-[10px] text-text-muted/60 bg-surface/80 px-1 rounded border border-border/40 shrink-0">{count}</span>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                </ul>
+            </div>
+
+            {/* Right Main Atlas Explorer View */}
+            <div className="space-y-4">
+                
+                {/* Atlas Filter & Action Bar */}
+                <div className="rounded-xl border border-border bg-card p-3 space-y-3 shadow-xs">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        {/* Collection title info */}
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-mono text-[14px] font-bold text-text-primary">{activeCol}</h3>
+                            <span className="font-mono text-[11px] text-text-muted">({filteredDocs.length} documents)</span>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                            {/* View Switcher */}
+                            <div className="flex h-8 items-center rounded-md border border-border bg-surface p-0.5">
+                                <button
+                                    onClick={() => setViewMode("json")}
+                                    className={cn("flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer", viewMode === "json" ? "bg-card text-text-primary font-bold shadow-2xs" : "text-text-muted hover:text-text-primary")}
+                                >
+                                    <FileJson className="h-3 w-3" /> JSON
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("table")}
+                                    className={cn("flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer", viewMode === "table" ? "bg-card text-text-primary font-bold shadow-2xs" : "text-text-muted hover:text-text-primary")}
+                                >
+                                    <Table className="h-3 w-3" /> Table
+                                </button>
+                            </div>
+
+                            {/* Insert Document Button */}
+                            <button
+                                onClick={openInsertModal}
+                                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3 font-mono text-[11.5px] font-semibold text-background hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
+                            >
+                                <Plus className="h-3.5 w-3.5" /> Insert Document
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Filter Query Input Bar */}
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <Filter className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"/>
+                            <input
+                                value={filterQuery}
+                                onChange={(e) => setFilterQuery(e.target.value)}
+                                placeholder='Filter e.g. { "role": "admin" } or keyword query…'
+                                className="h-8.5 w-full rounded-md border border-border bg-surface pl-9 pr-3 font-mono text-[12px] text-text-primary placeholder:text-text-muted focus:border-border-strong focus:outline-none transition-all"
+                            />
+                        </div>
+                        {filterQuery && (
+                            <button onClick={() => setFilterQuery("")} className="h-8.5 px-2.5 rounded border border-border bg-surface text-[11px] font-mono text-text-muted hover:text-text-primary">
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Documents Display */}
+                {filteredDocs.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center font-mono">
+                        <FileJson className="h-8 w-8 text-text-muted mx-auto mb-2 opacity-50" />
+                        <div className="text-[13px] font-bold text-text-primary">No documents found</div>
+                        <div className="text-[11px] text-text-muted mt-0.5">Click 'Insert Document' to add your first JSON document to '{activeCol}'.</div>
+                    </div>
+                ) : viewMode === "json" ? (
+                    <div className="space-y-3">
+                        {filteredDocs.map((doc) => (
+                            <div key={doc._id} className="rounded-xl border border-border bg-card p-4 transition-all hover:border-border-strong group shadow-xs">
+                                {/* Doc Header */}
+                                <div className="flex items-center justify-between border-b border-border/60 pb-2 mb-3 font-mono text-[11.5px]">
+                                    <div className="flex items-center gap-2 truncate">
+                                        <span className="text-text-muted">_id:</span>
+                                        <span className="font-bold text-text-primary truncate">{doc._id}</span>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex items-center gap-1.5">
+                                        <button 
+                                            onClick={() => openEditModal(doc)}
+                                            className="h-7 px-2 rounded border border-border bg-surface text-[10.5px] font-semibold text-text-primary hover:bg-surface/80 transition-colors cursor-pointer flex items-center gap-1"
+                                            title="Edit Document"
+                                        >
+                                            <Edit3 className="h-3 w-3" /> Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => handleCopyDoc(doc)}
+                                            className="h-7 px-2 rounded border border-border bg-surface text-[10.5px] text-text-muted hover:text-text-primary transition-colors cursor-pointer flex items-center gap-1"
+                                            title="Copy JSON"
+                                        >
+                                            <Copy className="h-3 w-3" /> Copy
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteDoc(doc._id)}
+                                            className="h-7 px-2 rounded border border-border bg-surface text-[10.5px] text-status-danger hover:bg-status-danger/10 transition-colors cursor-pointer flex items-center gap-1"
+                                            title="Delete Document"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* JSON Tree Syntax Display */}
+                                <pre className="font-mono text-[12px] text-text-primary bg-surface/70 p-3 rounded-lg border border-border/40 overflow-x-auto leading-relaxed">
+                                    {JSON.stringify(doc, null, 2)}
+                                </pre>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    /* Table View Mode */
+                    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+                        <table className="w-full text-left font-mono text-[12px]">
+                            <thead className="border-b border-border bg-surface text-[10.5px] text-text-muted uppercase tracking-wider">
+                                <tr>
+                                    {Object.keys(filteredDocs[0] || {}).map((key) => (
+                                        <th key={key} className="px-4 py-3 font-semibold">{key}</th>
+                                    ))}
+                                    <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/60">
+                                {filteredDocs.map((doc) => (
+                                    <tr key={doc._id} className="hover:bg-surface/50 transition-colors">
+                                        {Object.keys(filteredDocs[0] || {}).map((key) => (
+                                            <td key={key} className="px-4 py-3 text-text-primary max-w-[200px] truncate">
+                                                {typeof doc[key] === "object" ? JSON.stringify(doc[key]) : String(doc[key])}
+                                            </td>
+                                        ))}
+                                        <td className="px-4 py-3 text-right shrink-0">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <button onClick={() => openEditModal(doc)} className="p-1 rounded text-text-muted hover:text-text-primary cursor-pointer"><Edit3 className="h-3.5 w-3.5" /></button>
+                                                <button onClick={() => handleDeleteDoc(doc._id)} className="p-1 rounded text-status-danger hover:bg-status-danger/10 cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* INSERT DOCUMENT MODAL */}
+            {isInsertOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-lg border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                            <div className="flex items-center gap-2 font-mono text-[13.5px] font-bold text-text-primary">
+                                <Code className="h-4 w-4 text-accent-purple" />
+                                <span>Insert Document into '{activeCol}'</span>
+                            </div>
+                            <button onClick={() => setIsInsertOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleInsertDocument} className="p-5 space-y-3 font-mono">
+                            <div>
+                                <label className="block text-[11px] text-text-muted uppercase mb-1">JSON Payload</label>
+                                <textarea
+                                    rows={8}
+                                    value={jsonInput}
+                                    onChange={(e) => setJsonInput(e.target.value)}
+                                    className="w-full rounded-md border border-border bg-surface p-3 text-[12px] text-text-primary focus:border-border-strong focus:outline-none resize-none font-mono"
+                                />
+                            </div>
+
+                            {jsonError && (
+                                <div className="text-[11px] text-status-danger bg-status-danger/10 p-2 rounded border border-status-danger/30">
+                                    Syntax Error: {jsonError}
+                                </div>
+                            )}
+
+                            <div className="pt-2 flex justify-end gap-2 border-t border-border">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsInsertOpen(false)}
+                                    className="h-8.5 px-3.5 rounded-md border border-border bg-surface text-[12px] font-medium text-text-primary hover:bg-surface/80 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="h-8.5 px-4 rounded-md bg-foreground text-[12px] font-bold text-background hover:opacity-90 cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <Save className="h-3.5 w-3.5" /> Insert
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* EDIT DOCUMENT MODAL */}
+            {isEditOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-lg border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                            <div className="flex items-center gap-2 font-mono text-[13.5px] font-bold text-text-primary">
+                                <Edit3 className="h-4 w-4 text-accent-purple" />
+                                <span>Edit Document {editDoc?._id?.slice(0, 8)}…</span>
+                            </div>
+                            <button onClick={() => setIsEditOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSaveEdit} className="p-5 space-y-3 font-mono">
+                            <div>
+                                <label className="block text-[11px] text-text-muted uppercase mb-1">JSON Payload</label>
+                                <textarea
+                                    rows={9}
+                                    value={jsonInput}
+                                    onChange={(e) => setJsonInput(e.target.value)}
+                                    className="w-full rounded-md border border-border bg-surface p-3 text-[12px] text-text-primary focus:border-border-strong focus:outline-none resize-none font-mono"
+                                />
+                            </div>
+
+                            {jsonError && (
+                                <div className="text-[11px] text-status-danger bg-status-danger/10 p-2 rounded border border-status-danger/30">
+                                    Syntax Error: {jsonError}
+                                </div>
+                            )}
+
+                            <div className="pt-2 flex justify-end gap-2 border-t border-border">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditOpen(false)}
+                                    className="h-8.5 px-3.5 rounded-md border border-border bg-surface text-[12px] font-medium text-text-primary hover:bg-surface/80 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="h-8.5 px-4 rounded-md bg-foreground text-[12px] font-bold text-background hover:opacity-90 cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <Save className="h-3.5 w-3.5" /> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* CREATE NEW COLLECTION MODAL */}
+            {isNewColOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-sm border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 font-mono">
+                        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                            <h2 className="text-[13.5px] font-bold text-text-primary">New Collection</h2>
+                            <button onClick={() => setIsNewColOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreateCollection} className="p-5 space-y-4">
+                            <div>
+                                <label className="block text-[11px] text-text-muted uppercase mb-1">Collection Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. payment_intents"
+                                    value={newColName}
+                                    onChange={(e) => setNewColName(e.target.value)}
+                                    className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[12.5px] font-medium text-text-primary focus:border-border-strong focus:outline-none"
+                                />
+                            </div>
+
+                            <div className="pt-2 flex justify-end gap-2 border-t border-border">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNewColOpen(false)}
+                                    className="h-8.5 px-3.5 rounded-md border border-border bg-surface text-[12px] text-text-primary hover:bg-surface/80 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="h-8.5 px-3.5 rounded-md bg-foreground text-[12px] font-bold text-background hover:opacity-90 cursor-pointer"
+                                >
+                                    Create Collection
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+        </div>
     );
 }
 

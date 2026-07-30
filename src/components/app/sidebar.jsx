@@ -79,6 +79,7 @@ const projectNavSettings = [
 // Isolated Database-Specific Sub-Navigation
 const dbNavPrimary = [
     { tab: "Overview", label: "Overview", icon: LayoutDashboard },
+    { tab: "Data Explorer", label: "Data Explorer", icon: Layers },
     { tab: "Query Console", label: "Query Console", icon: Terminal },
     { tab: "Connections", label: "Connections", icon: Users },
 ];
