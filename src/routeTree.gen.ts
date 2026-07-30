@@ -33,6 +33,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
+import { Route as DatabasesIdRouteImport } from './routes/databases.$id'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -154,6 +155,11 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const DatabasesIdRoute = DatabasesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DatabasesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -161,7 +167,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
   '/dashboard': typeof DashboardRoute
-  '/databases': typeof DatabasesRoute
+  '/databases': typeof DatabasesRouteWithChildren
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
+  '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesByTo {
@@ -187,7 +194,7 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
   '/dashboard': typeof DashboardRoute
-  '/databases': typeof DatabasesRoute
+  '/databases': typeof DatabasesRouteWithChildren
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
+  '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRoutesById {
@@ -214,7 +222,7 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/compute': typeof ComputeRoute
   '/dashboard': typeof DashboardRoute
-  '/databases': typeof DatabasesRoute
+  '/databases': typeof DatabasesRouteWithChildren
   '/deployments': typeof DeploymentsRoute
   '/docs': typeof DocsRoute
   '/domains': typeof DomainsRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
+  '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
 }
 export interface FileRouteTypes {
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/two-factor'
     | '/verify'
+    | '/databases/$id'
     | '/projects/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/two-factor'
     | '/verify'
+    | '/databases/$id'
     | '/projects/$id'
   id:
     | '__root__'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/two-factor'
     | '/verify'
+    | '/databases/$id'
     | '/projects/$id'
   fileRoutesById: FileRoutesById
 }
@@ -321,7 +333,7 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   ComputeRoute: typeof ComputeRoute
   DashboardRoute: typeof DashboardRoute
-  DatabasesRoute: typeof DatabasesRoute
+  DatabasesRoute: typeof DatabasesRouteWithChildren
   DeploymentsRoute: typeof DeploymentsRoute
   DocsRoute: typeof DocsRoute
   DomainsRoute: typeof DomainsRoute
@@ -511,8 +523,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/databases/$id': {
+      id: '/databases/$id'
+      path: '/$id'
+      fullPath: '/databases/$id'
+      preLoaderRoute: typeof DatabasesIdRouteImport
+      parentRoute: typeof DatabasesRoute
+    }
   }
 }
+
+interface DatabasesRouteChildren {
+  DatabasesIdRoute: typeof DatabasesIdRoute
+}
+
+const DatabasesRouteChildren: DatabasesRouteChildren = {
+  DatabasesIdRoute: DatabasesIdRoute,
+}
+
+const DatabasesRouteWithChildren = DatabasesRoute._addFileChildren(
+  DatabasesRouteChildren,
+)
 
 interface ProjectsRouteChildren {
   ProjectsIdRoute: typeof ProjectsIdRoute
@@ -532,7 +563,7 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   ComputeRoute: ComputeRoute,
   DashboardRoute: DashboardRoute,
-  DatabasesRoute: DatabasesRoute,
+  DatabasesRoute: DatabasesRouteWithChildren,
   DeploymentsRoute: DeploymentsRoute,
   DocsRoute: DocsRoute,
   DomainsRoute: DomainsRoute,
