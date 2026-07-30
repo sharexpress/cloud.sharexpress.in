@@ -14,23 +14,29 @@
 
 from fastapi import HTTPException
 from typing import Dict, Any
-from app.models.schemas import StorageBucketCreate
-from app.core.db import get_db
 import logging
 import uuid
+import datetime
+
+from app.models.schemas import StorageBucketCreate
+from app.core.db import get_db
+from app.utils.encryption import encrypt_secret, decrypt_secret
+from app.services.minio_service import ensure_bucket_exists, generate_presigned_upload_url, list_bucket_objects
 
 logger = logging.getLogger(__name__)
 
 INITIAL_BUCKETS = [
     {
         "id": "b_1",
-        "name": "media-assets",
+        "name": "acme-uploads",
         "workspace_id": "ws_acme",
         "visibility": "public",
         "region": "iad1",
-        "size": "42.8 GB",
+        "size": "88.4 GB",
         "objects_count": 12480,
-        "endpoint": "https://media-assets.s3.sharexpress.in"
+        "endpoint": "https://acme-uploads.s3.sharexpress.in",
+        "access_key": "AKIA_PROD_ACME_90128",
+        "secret_key_encrypted": encrypt_secret("sk_s3_secret_acme_prod_90128301923")
     },
     {
         "id": "b_2",
@@ -40,7 +46,9 @@ INITIAL_BUCKETS = [
         "region": "iad1",
         "size": "142.0 GB",
         "objects_count": 480,
-        "endpoint": "https://backups-archive.s3.sharexpress.in"
+        "endpoint": "https://backups-archive.s3.sharexpress.in",
+        "access_key": "AKIA_PROD_ARCHIVE_12049",
+        "secret_key_encrypted": encrypt_secret("sk_s3_secret_archive_prod_1204910293")
     }
 ]
 
@@ -49,6 +57,13 @@ class StorageController:
     async def create_bucket(payload: StorageBucketCreate, workspace_id: str, user: Dict[str, Any]):
         db = get_db()
         b_id = f"b_{uuid.uuid4().hex[:8]}"
+        
+        # Provision bucket in MinIO
+        ensure_bucket_exists(payload.name)
+        
+        raw_secret = f"sk_s3_secret_{uuid.uuid4().hex[:16]}"
+        access_key = f"AKIA_PROD_{uuid.uuid4().hex[:10].upper()}"
+
         bucket_doc = {
             "id": b_id,
             "name": payload.name,
@@ -58,11 +73,13 @@ class StorageController:
             "size": "0 GB",
             "objects_count": 0,
             "endpoint": f"https://{payload.name}.s3.sharexpress.in",
-            "access_key": f"AKIA_PROD_{uuid.uuid4().hex[:12].upper()}",
-            "secret_key": f"sk_s3_secret_{uuid.uuid4().hex[:16]}"
+            "access_key": access_key,
+            "secret_key_encrypted": encrypt_secret(raw_secret),
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
         await db.buckets.insert_one(bucket_doc)
+        bucket_doc["secret_key_masked"] = "••••••••••••••••••••••••••••••••"
         return {"success": True, "bucket": bucket_doc}
 
     @staticmethod
@@ -70,13 +87,15 @@ class StorageController:
         db = get_db()
         buckets = await db.buckets.find({"workspace_id": workspace_id}).to_list(100)
         if not buckets:
-            return INITIAL_BUCKETS
+            buckets = INITIAL_BUCKETS
 
         out = []
         for b in buckets:
             b_dict = dict(b)
-            b_dict["id"] = str(b_dict["_id"])
-            b_dict.pop("_id", None)
+            if "_id" in b_dict:
+                b_dict["id"] = str(b_dict["_id"])
+                b_dict.pop("_id", None)
+            b_dict["secret_key_masked"] = "••••••••••••••••••••••••••••••••"
             out.append(b_dict)
         return out
 
@@ -89,11 +108,10 @@ class StorageController:
             if not bucket:
                 raise HTTPException(status_code=404, detail="Bucket not found")
 
-        access_key = bucket.get("access_key", "AKIA_PROD_SHAREXPRESS_2026_KEYS")
-        secret_key = bucket.get("secret_key", "sk_secret_sharexpress_prod_894102931")
+        access_key = bucket.get("access_key", "AKIA_PROD_SHAREXPRESS_KEYS")
+        raw_secret = decrypt_secret(bucket.get("secret_key_encrypted", ""))
 
-        if not unmask:
-            secret_key = "••••••••••••••••••••••••••••••••"
+        secret_key = raw_secret if unmask else "••••••••••••••••••••••••••••••••"
 
         return {
             "success": True,
@@ -101,3 +119,12 @@ class StorageController:
             "secret_access_key": secret_key,
             "unmasked": unmask
         }
+
+    @staticmethod
+    async def list_objects(bucket_name: str):
+        return {"success": True, "objects": list_bucket_objects(bucket_name)}
+
+    @staticmethod
+    async def get_presigned_upload(bucket_name: str, object_name: str):
+        res = generate_presigned_upload_url(bucket_name, object_name)
+        return {"success": True, "upload_data": res}

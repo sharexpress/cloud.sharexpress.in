@@ -14,11 +14,13 @@
 
 from fastapi import HTTPException
 from typing import Dict, Any
+import datetime
+import logging
+
 from app.models.schemas import DatabaseCreate
 from app.core.db import get_db
-import logging
-import uuid
-import datetime
+from app.utils.encryption import encrypt_secret, decrypt_secret
+from app.services.database_provisioner import provision_database_container
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ INITIAL_DATABASES = [
         "host": "primary-pg.internal.sharexpress.in",
         "port": 5432,
         "database_name": "main_db",
-        "connection_string_masked": "postgresql://acme_user:••••••••••••@primary-pg.internal.sharexpress.in:5432/main_db"
+        "connection_string_encrypted": encrypt_secret("postgresql://acme_user:sk_db_pass_908123@primary-pg.internal.sharexpress.in:5432/main_db")
     },
     {
         "id": "db_2",
@@ -47,7 +49,7 @@ INITIAL_DATABASES = [
         "host": "cache-redis.internal.sharexpress.in",
         "port": 6379,
         "database_name": "0",
-        "connection_string_masked": "redis://:••••••••••••@cache-redis.internal.sharexpress.in:6379/0"
+        "connection_string_encrypted": encrypt_secret("redis://:sk_redis_pass_12389@cache-redis.internal.sharexpress.in:6379/0")
     }
 ]
 
@@ -55,25 +57,36 @@ class DatabaseController:
     @staticmethod
     async def create_database(payload: DatabaseCreate, workspace_id: str, user: Dict[str, Any]):
         db = get_db()
-        db_id = f"db_{uuid.uuid4().hex[:8]}"
-        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        
+        # Provision real Docker database container
+        prov_res = await provision_database_container(
+            name=payload.name,
+            engine=payload.engine,
+            version=payload.version or "16",
+            workspace_id=workspace_id
+        )
 
         db_doc = {
-            "id": db_id,
+            "id": prov_res["id"],
             "name": payload.name,
             "workspace_id": workspace_id,
-            "engine": payload.engine.title(),
-            "version": payload.version,
+            "engine": prov_res["engine"],
+            "version": prov_res["version"],
             "region": payload.region,
-            "status": "running",
-            "host": f"{payload.name}.internal.sharexpress.in",
-            "port": 5432 if payload.engine == "postgres" else 27017 if payload.engine == "mongodb" else 3306,
-            "database_name": f"{payload.name}_db",
-            "connection_string": f"{payload.engine}://share_user:sk_secret_db_pass_8921@{payload.name}.internal.sharexpress.in/{payload.name}_db",
-            "created_at": now
+            "status": prov_res["status"],
+            "host": prov_res["host"],
+            "port": prov_res["port"],
+            "database_name": prov_res["database_name"],
+            "connection_string_encrypted": prov_res["connection_string_encrypted"],
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
         await db.databases.insert_one(db_doc)
+        
+        # Return masked connection string by default
+        db_doc["connection_string_masked"] = prov_res["connection_string_raw"].replace(
+            prov_res["connection_string_raw"].split(":")[2].split("@")[0], "••••••••••••"
+        )
         return {"success": True, "database": db_doc}
 
     @staticmethod
@@ -81,14 +94,25 @@ class DatabaseController:
         db = get_db()
         databases = await db.databases.find({"workspace_id": workspace_id}).to_list(100)
         if not databases:
-            return INITIAL_DATABASES
+            databases = INITIAL_DATABASES
 
         out = []
         for d in databases:
             d_dict = dict(d)
-            d_dict["id"] = str(d_dict["_id"])
-            d_dict.pop("_id", None)
-            d_dict["connection_string_masked"] = d_dict.get("connection_string", "").replace("sk_secret_db_pass_8921", "••••••••••••")
+            if "_id" in d_dict:
+                d_dict["id"] = str(d_dict["_id"])
+                d_dict.pop("_id", None)
+
+            raw_conn = decrypt_secret(d_dict.get("connection_string_encrypted", ""))
+            # Mask password in list view
+            parts = raw_conn.split("@")
+            if len(parts) > 1 and ":" in parts[0]:
+                prefix = parts[0].rsplit(":", 1)[0]
+                masked_conn = f"{prefix}:••••••••••••@{parts[1]}"
+            else:
+                masked_conn = raw_conn
+
+            d_dict["connection_string_masked"] = masked_conn
             out.append(d_dict)
         return out
 
@@ -101,9 +125,17 @@ class DatabaseController:
             if not database:
                 raise HTTPException(status_code=404, detail="Database not found")
 
-        conn = database.get("connection_string") or "postgresql://acme_user:sk_secret_db_pass_8921@primary-pg.internal.sharexpress.in:5432/main_db"
+        raw_conn = decrypt_secret(database.get("connection_string_encrypted", ""))
+        
         if not unmask:
-            conn = conn.replace("sk_secret_db_pass_8921", "••••••••••••")
+            parts = raw_conn.split("@")
+            if len(parts) > 1 and ":" in parts[0]:
+                prefix = parts[0].rsplit(":", 1)[0]
+                conn = f"{prefix}:••••••••••••@{parts[1]}"
+            else:
+                conn = raw_conn
+        else:
+            conn = raw_conn
 
         return {
             "success": True,

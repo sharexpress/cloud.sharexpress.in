@@ -36,3 +36,11 @@ async def get_keys(id: str, user: Dict[str, Any] = Depends(get_current_user)):
 @router.get("/buckets/{id}/keys/reveal")
 async def reveal_keys(id: str, user: Dict[str, Any] = Depends(require_identity_verified)):
     return await StorageController.get_credentials(id, unmask=True)
+
+@router.get("/buckets/{name}/objects")
+async def list_objects(name: str, user: Dict[str, Any] = Depends(get_current_user)):
+    return await StorageController.list_objects(name)
+
+@router.post("/buckets/{name}/presigned-upload")
+async def get_presigned_upload(name: str, object_name: str, user: Dict[str, Any] = Depends(get_current_user)):
+    return await StorageController.get_presigned_upload(name, object_name)
