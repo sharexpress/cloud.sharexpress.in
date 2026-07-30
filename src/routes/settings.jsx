@@ -23,7 +23,7 @@ import { toggleTheme, updateNotifications } from "../store/index.js";
 import { Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
-    head: () => ({ meta: [{ title: "Settings — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Settings — Sharexpress Cloud" }] }),
     component: SettingsPage,
 });
 
@@ -157,7 +157,7 @@ function SettingsPage() {
               </Panel>)}
 
             {tab === "Appearance" && (<Panel title="Appearance">
-                <p className="text-[13px] text-muted-foreground">Nimbus is optimized for a dark, focused workspace. Select active visual theme:</p>
+                <p className="text-[13px] text-muted-foreground">Sharexpress Cloud is optimized for a focused, high-contrast workspace inspired by assets.sharexpress.in. Select active visual theme:</p>
                 <div className="mt-4 flex gap-4">
                     <button 
                         onClick={() => dispatch(toggleTheme())}

@@ -31,16 +31,30 @@ import {
 } from "../store/index.js";
 
 export const Route = createFileRoute("/projects/$id")({
-    head: () => ({ meta: [{ title: "Project — Nimbus" }] }),
+    validateSearch: (search) => ({
+        tab: search.tab ? String(search.tab) : "Overview",
+    }),
+    head: () => ({ meta: [{ title: "Project Detail — Sharexpress Cloud" }] }),
     component: ProjectDetailPage,
 });
 
+// Global helper function for chart data generation
 const TABS = ["Overview", "Deployments", "Environment", "Domains", "Storage", "Functions", "Analytics", "Logs", "Activity", "Settings"];
+
+const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
+    const out = [];
+    for (let i = 0; i < len; i++) {
+        const v = Math.sin((i + seed) * 0.6) * (spread / 2) + Math.cos((i + seed) * 0.31) * (spread / 4) + base;
+        out.push(Math.max(4, Math.min(100, Math.round(v))));
+    }
+    return out;
+};
 
 function ProjectDetailPage() {
     const dispatch = useDispatch();
     const router = useRouter();
     const params = Route.useParams();
+    const search = Route.useSearch();
     const projectSlug = params.id;
 
     // Redux selectors
@@ -51,15 +65,20 @@ function ProjectDetailPage() {
     const functions = useSelector((state) => state.functions.list);
     const storeStorage = useSelector((state) => state.storage);
     const teamMembers = useSelector((state) => state.team.members);
+    const workspaces = useSelector((state) => state.workspaces?.list || []);
+    const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId);
+    const activeWsName = workspaces.find((w) => w.id === activeWsId)?.name || "Workspace";
 
     // Active project check
     const project = projects.find((p) => p.slug === projectSlug) || projects[0];
     
-    const [tab, setTab] = useState("Overview");
+    // Derive active tab from URL search state
+    const rawTab = search.tab || "Overview";
+    const tab = TABS.find((t) => t.toLowerCase() === rawTab.toLowerCase()) || "Overview";
 
     if (!project) {
         return (
-            <AppShell breadcrumbs={[{ label: "Acme Inc" }, { label: "Projects" }]}>
+            <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Projects" }]}>
                 <PageShell>
                     <div className="text-center py-20">
                         <h2 className="text-lg font-semibold text-foreground">Project not found</h2>
@@ -118,17 +137,7 @@ function ProjectDetailPage() {
         showToast(`Triggering rollback to commit ${dpl.commit}...`);
     };
 
-    // Helper functions for mock charts
-    const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
-        const out = [];
-        for (let i = 0; i < len; i++) {
-            const v = Math.sin((i + seed) * 0.6) * (spread / 2) + Math.cos((i + seed) * 0.31) * (spread / 4) + base;
-            out.push(Math.max(4, Math.min(100, Math.round(v))));
-        }
-        return out;
-    };
-
-    return (<AppShell breadcrumbs={[{ label: "Acme Inc" }, { label: "Projects" }, { label: project.name }]}>
+    return (<AppShell breadcrumbs={[{ label: activeWsName }, { label: "Projects" }, { label: project.name }, { label: tab }]}>
       <PageShell>
         
         {/* Dynamic Toast Indicator */}
@@ -139,39 +148,56 @@ function ProjectDetailPage() {
             </div>
         )}
 
-        <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-[12px] font-semibold text-foreground">
-              {project.name.slice(0, 2).toUpperCase()}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5">
+              <h1 className="truncate text-[22px] font-bold tracking-tight text-text-primary">{project.name}</h1>
+              <StatusBadge status={project.status}/>
             </div>
-            <div className="min-w-0">
-              <h1 className="truncate text-[20px] font-semibold tracking-tight text-foreground">{project.name}</h1>
-              <div className="mt-0.5 flex items-center gap-2 text-[12px] text-muted-foreground">
-                <StatusBadge status={project.status}/>
-                <span>·</span>
-                <span className="inline-flex items-center gap-1"><GitBranch className="h-3 w-3"/>{project.repo}</span>
-                <span>·</span>
-                <button onClick={() => triggerCopy(project.domain)} className="inline-flex items-center gap-1 hover:text-foreground transition-colors">
-                  {project.domain}<ExternalLink className="h-3 w-3"/>
-                </button>
-              </div>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-text-muted font-mono">
+              <span className="rounded bg-surface px-1.5 py-0.5 text-[10.5px] border border-border/60">{project.framework}</span>
+              <span>·</span>
+              <span className="inline-flex items-center gap-1.5"><GitBranch className="h-3.5 w-3.5"/>{project.repo} ({project.branch})</span>
+              <span>·</span>
+              <button onClick={() => triggerCopy(project.domain)} className="inline-flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer group">
+                <Globe className="h-3.5 w-3.5"/>
+                <span>{project.domain}</span>
+                <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100"/>
+              </button>
             </div>
           </div>
+
           <div className="flex shrink-0 items-center gap-2">
-            <button onClick={() => window.open(`https://${project.domain}`, "_blank")} className="h-8 rounded-md border border-border bg-surface px-3 text-[12px] text-foreground hover:border-border-strong transition-colors cursor-pointer">Visit</button>
+            <button onClick={() => window.open(`https://${project.domain}`, "_blank")} className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 text-[12px] font-medium text-text-primary hover:border-border-strong hover:bg-surface/80 transition-all cursor-pointer shadow-xs">
+              <ExternalLink className="h-3.5 w-3.5" /> Visit Site
+            </button>
             <button 
                 onClick={handleRedeploy}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 text-[12px] font-medium text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer"
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-[12px] font-semibold text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
             >
               <Rocket className="h-3.5 w-3.5"/> Redeploy
             </button>
           </div>
         </div>
 
-        <div className="mb-6 flex items-center gap-1 overflow-x-auto border-b border-border">
-          {TABS.map((t) => (<button key={t} onClick={() => setTab(t)} className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-[12.5px] transition-colors cursor-pointer ${tab === t ? "border-foreground text-foreground font-medium" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+        {/* Tab Navigation Pill Strip */}
+        <div className="mb-6 flex items-center gap-1 overflow-x-auto border-b border-border/60 pb-px">
+          {TABS.map((t) => (
+            <Link 
+              key={t} 
+              to="/projects/$id"
+              params={{ id: projectSlug }}
+              search={{ tab: t }} 
+              className={cn(
+                "whitespace-nowrap border-b-2 px-3.5 py-2 text-[12.5px] font-medium transition-all cursor-pointer relative",
+                tab === t 
+                  ? "border-accent-purple text-text-primary font-semibold" 
+                  : "border-transparent text-text-muted hover:text-text-primary"
+              )}
+            >
               {t}
-            </button>))}
+            </Link>
+          ))}
         </div>
 
         {/* --- TABS IMPLEMENTATIONS --- */}
@@ -445,7 +471,7 @@ function DomainsTab({ project, domains, dispatch, showToast }) {
                                             <div className="text-foreground font-semibold">DNS Configuration Required:</div>
                                             <div>Type: <span className="text-foreground">CNAME</span></div>
                                             <div>Name: <span className="text-foreground">@</span></div>
-                                            <div>Value: <span className="text-foreground">cname.nimbus-edge.app</span></div>
+                                            <div>Value: <span className="text-foreground">cname.sharexpress.in</span></div>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">

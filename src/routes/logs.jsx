@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addLogLine, clearLogs, toggleStreaming, setFilterLevel, setSearchQuery } from "../store/index.js";
 
 export const Route = createFileRoute("/logs")({
-    head: () => ({ meta: [{ title: "Logs — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Logs — Sharexpress Cloud" }] }),
     component: LogsPage,
 });
 

@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { verifyEmailLink } from "../store/index.js";
 
 export const Route = createFileRoute("/verify")({
-    head: () => ({ meta: [{ title: "Verify email — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Verify email — Sharexpress Cloud" }] }),
     component: VerifyPage,
 });
 

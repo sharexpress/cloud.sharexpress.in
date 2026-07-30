@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addFunction, triggerFunction } from "../store/index.js";
 
 export const Route = createFileRoute("/functions")({
-    head: () => ({ meta: [{ title: "Functions — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Functions — Sharexpress Cloud" }] }),
     component: FunctionsPage,
 });
 

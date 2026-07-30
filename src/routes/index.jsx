@@ -22,8 +22,8 @@ export const Route = createFileRoute("/")(
 {
     head: () => ({
         meta: [
-            { title: "Nimbus — The platform for modern cloud teams" },
-            { name: "description", content: "Purpose-built for deploying, scaling, and securing applications at the edge. Designed for speed." },
+            { title: "Sharexpress Cloud — Ecosystem Infrastructure Platform" },
+            { name: "description", content: "Purpose-built cloud platform for modern microservices, assets, databases, and edge compute under Sharexpress Foundation." },
         ],
     }),
     component: LandingPage,
@@ -246,10 +246,11 @@ function LandingPage() {
                 <div className="mx-auto max-w-[1200px] flex items-center justify-between px-6 h-14">
                     {/* Logo */}
                     <div className="flex items-center gap-2.5">
-                        <svg viewBox="0 0 100 100" className="h-[16px] w-[16px] text-white fill-current">
-                            <polygon points="50,8 95,88 5,88" />
-                        </svg>
-                        <span className="text-[14px] font-semibold tracking-tight text-white">Nimbus</span>
+                        <img src="/logo.png" alt="Sharexpress Logo" className="h-5 w-5 object-contain" />
+                        <div>
+                            <span className="text-[14px] font-semibold tracking-tight text-white leading-none block">Sharexpress Cloud</span>
+                            <span className="text-[8.5px] font-medium text-neutral-500 uppercase tracking-widest">Sharexpress Foundation</span>
+                        </div>
                     </div>
 
                     {/* Nav */}
@@ -276,12 +277,16 @@ function LandingPage() {
             {/* ─────────── HERO ─────────── */}
             <section ref={heroRef} className="mx-auto max-w-[1200px] px-6 pt-24 md:pt-36 pb-4">
                 <div className="max-w-[860px]">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[11px] font-medium mb-6">
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-accent animate-ping" />
+                        Sharexpress Ecosystem Infrastructure v2.4 Released
+                    </div>
                     <h1 className="reveal text-[48px] sm:text-[64px] md:text-[80px] font-medium tracking-[-0.04em] leading-[1.05] text-white">
                         The cloud platform{" "}
-                        <span className="text-neutral-500">for modern teams</span>
+                        <span className="text-neutral-500">for modern software ecosystems</span>
                     </h1>
-                    <p className="reveal delay-100 mt-6 text-[16px] sm:text-[18px] text-neutral-500 leading-[1.65] max-w-[520px]">
-                        Purpose-built for deploying and scaling applications at the edge. Designed for the AI era.
+                    <p className="reveal delay-100 mt-6 text-[16px] sm:text-[18px] text-neutral-500 leading-[1.65] max-w-[540px]">
+                        Seamlessly connecting <code className="text-neutral-300 font-mono text-[13px]">assets.sharexpress.in</code>, <code className="text-neutral-300 font-mono text-[13px]">files.sharexpress.in</code>, and edge compute into a unified control plane.
                     </p>
                 </div>
 
@@ -292,10 +297,8 @@ function LandingPage() {
                         <div className="flex items-center justify-between border-b border-white/[0.06] bg-[#0a0a0e] px-4 py-2.5">
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
-                                    <svg viewBox="0 0 100 100" className="h-[12px] w-[12px] text-accent fill-current opacity-70">
-                                        <polygon points="50,10 93,85 7,85" />
-                                    </svg>
-                                    <span className="text-[12px] font-medium text-neutral-300">Nimbus</span>
+                                    <img src="/logo.png" alt="Sharexpress" className="h-3.5 w-3.5 object-contain opacity-80" />
+                                    <span className="text-[12px] font-medium text-neutral-300">Sharexpress Cloud</span>
                                     <span className="text-neutral-700 text-[11px]">›</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
@@ -364,7 +367,7 @@ function LandingPage() {
                                         <div>
                                             <span className="text-neutral-300 font-medium">jori</span>
                                             <span className="text-neutral-600"> · just now</span>
-                                            <p className="mt-1 text-neutral-500">@Nimbus can you take a stab at this?</p>
+                                            <p className="mt-1 text-neutral-500">@Sharexpress AI can you deploy the asset manager build?</p>
                                         </div>
                                     </div>
                                 </div>
@@ -385,21 +388,17 @@ function LandingPage() {
                                     <span className="text-neutral-300">jori</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-neutral-500">
-                                    <svg viewBox="0 0 100 100" className="h-3 w-3 fill-current opacity-50">
-                                        <polygon points="50,10 93,85 7,85" />
-                                    </svg>
-                                    <span className="text-neutral-300">Nimbus</span>
+                                    <img src="/logo.png" alt="Sharexpress" className="h-3.5 w-3.5 object-contain" />
+                                    <span className="text-neutral-300 font-medium">Sharexpress Cloud</span>
                                 </div>
                                 <div className="mt-4 border-t border-white/[0.06] pt-4">
                                     <div className="bg-[#0a0a0e] border border-white/[0.06] rounded-md p-3 text-[11px] font-mono text-neutral-500">
                                         <div className="flex items-center gap-1.5 mb-2">
-                                            <svg viewBox="0 0 100 100" className="h-3 w-3 fill-current text-accent opacity-70">
-                                                <polygon points="50,10 93,85 7,85" />
-                                            </svg>
-                                            <span className="text-neutral-300 text-[11px]">Nimbus</span>
+                                            <img src="/logo.png" alt="Sharexpress" className="h-3 w-3 object-contain" />
+                                            <span className="text-neutral-300 text-[11px]">Sharexpress AI</span>
                                             <span className="text-[10px] bg-white/[0.06] px-1.5 py-0.5 rounded text-neutral-500">Agent</span>
                                         </div>
-                                        <p className="text-neutral-500 leading-relaxed">Examining the startup path...</p>
+                                        <p className="text-neutral-500 leading-relaxed">Syncing with assets.sharexpress.in pipeline...</p>
                                     </div>
                                 </div>
                             </div>
@@ -418,7 +417,7 @@ function LandingPage() {
                 <h2 className="reveal text-[36px] sm:text-[48px] md:text-[56px] font-medium tracking-[-0.03em] leading-[1.1] max-w-[900px]">
                     A new breed of cloud platform.{" "}
                     <span className="text-neutral-500">
-                        Purpose-built for speed with edge-native architectures, Nimbus sets a new standard for deploying and operating software.
+                        Purpose-built for speed with edge-native architectures, Sharexpress Cloud sets a new standard for deploying and operating software ecosystems.
                     </span>
                 </h2>
 
@@ -431,7 +430,7 @@ function LandingPage() {
                         </div>
                         <h3 className="text-[15px] font-semibold text-white mb-2">Built for performance</h3>
                         <p className="text-[13px] text-neutral-500 leading-relaxed">
-                            Nimbus is shaped by the principles of world-class infrastructure teams. Zero cold starts, global replication.
+                            Sharexpress Cloud is shaped by the principles of world-class infrastructure teams. Zero cold starts, global replication.
                         </p>
                     </div>
 
@@ -470,9 +469,9 @@ function LandingPage() {
                             Write code,<br />deploy instantly
                         </h2>
                         <div className="reveal delay-100">
-                            <p className="text-[16px] sm:text-[18px] text-neutral-500 leading-[1.65] max-w-[480px]">
-                                Start coding with zero config. Nimbus reads standard frameworks, syncs environment variables, and launches local dev servers automatically.
-                            </p>
+                            <p className="text-[13px] text-neutral-500 leading-relaxed">
+                            Start coding with zero config. Sharexpress Cloud reads standard frameworks, syncs environment variables, and launches local dev servers automatically.
+                        </p>
                             <div className="mt-6 flex items-center gap-2 text-[13px] text-neutral-400 hover:text-white transition-colors cursor-pointer group">
                                 <span className="text-neutral-600 font-mono">1.0</span>
                                 <span className="font-medium">Develop</span>
@@ -575,7 +574,7 @@ function LandingPage() {
                                 <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
                                     <div>
                                         <div className="text-[10px] text-success uppercase tracking-wider font-semibold">Preview URL</div>
-                                        <div className="text-success text-[13px] mt-1 font-sans font-medium">https://preview-acme.nimbus.dev</div>
+                                        <div className="text-success text-[13px] mt-1 font-sans font-medium">https://preview-acme.sharexpress.in</div>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] text-neutral-600">
                                         <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
@@ -758,10 +757,10 @@ function LandingPage() {
             <section ref={ctaRef} className="border-t border-white/[0.04]">
                 <div className="mx-auto max-w-[1200px] px-6 py-28 md:py-40 text-center">
                     <h2 className="reveal text-[36px] sm:text-[44px] md:text-[52px] font-medium tracking-[-0.03em] leading-[1.08]">
-                        Get started with Nimbus
+                        Get started with Sharexpress Cloud
                     </h2>
-                    <p className="reveal delay-100 mt-5 text-[16px] sm:text-[18px] text-neutral-500 leading-[1.65] max-w-[440px] mx-auto">
-                        Join thousands of teams deploying high-performance applications at the edge.
+                    <p className="reveal delay-100 mt-5 text-[16px] sm:text-[18px] text-neutral-500 leading-[1.65] max-w-[480px] mx-auto">
+                        Powering assets.sharexpress.in, files.sharexpress.in, and high-performance applications globally.
                     </p>
                     <div className="reveal delay-200 mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
@@ -775,7 +774,7 @@ function LandingPage() {
                             to="/dashboard"
                             className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-md border border-white/10 bg-transparent px-5 py-2.5 text-[13px] font-medium text-neutral-300 hover:text-white hover:border-white/20 hover:bg-white/[0.03] transition-all duration-200"
                         >
-                            Contact Sales
+                            Explore Console
                         </Link>
                     </div>
                 </div>
@@ -787,14 +786,15 @@ function LandingPage() {
                     <div className="grid sm:grid-cols-4 gap-12">
                         {/* Brand */}
                         <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <svg viewBox="0 0 100 100" className="h-[14px] w-[14px] text-neutral-400 fill-current">
-                                    <polygon points="50,8 95,88 5,88" />
-                                </svg>
-                                <span className="text-[13px] font-semibold text-white">Nimbus</span>
+                            <div className="flex items-center gap-2 mb-2">
+                                <img src="/logo.png" alt="Sharexpress Logo" className="h-5 w-5 object-contain" />
+                                <span className="text-[13px] font-semibold text-white">Sharexpress Cloud</span>
                             </div>
+                            <p className="text-[11px] text-neutral-500 leading-relaxed font-mono uppercase tracking-wider mb-2">
+                                Sharexpress Foundation
+                            </p>
                             <p className="text-[12px] text-neutral-600 leading-relaxed">
-                                The cloud platform for modern teams.
+                                The cloud platform for modern software ecosystems.
                             </p>
                         </div>
 
@@ -810,31 +810,32 @@ function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Resources */}
+                        {/* Ecosystem */}
                         <div>
-                            <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">Resources</div>
+                            <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">Ecosystem</div>
                             <div className="space-y-2.5 text-[12.5px] text-neutral-600">
-                                <Link to="/docs" className="block hover:text-neutral-300 transition-colors">Documentation</Link>
-                                <Link to="/billing" className="block hover:text-neutral-300 transition-colors">Pricing</Link>
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">Changelog</a>
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">Status</a>
+                                <a href="https://assets.sharexpress.in" target="_blank" rel="noreferrer" className="block hover:text-neutral-300 transition-colors">assets.sharexpress.in</a>
+                                <a href="https://files.sharexpress.in" target="_blank" rel="noreferrer" className="block hover:text-neutral-300 transition-colors">files.sharexpress.in</a>
+                                <a href="https://mail.sharexpress.in" target="_blank" rel="noreferrer" className="block hover:text-neutral-300 transition-colors">mail.sharexpress.in</a>
+                                <a href="https://interleet.sharexpress.in" target="_blank" rel="noreferrer" className="block hover:text-neutral-300 transition-colors">interleet.sharexpress.in</a>
+                                <a href="https://distribution.sharexpress.in" target="_blank" rel="noreferrer" className="block hover:text-neutral-300 transition-colors">distribution.sharexpress.in</a>
                             </div>
                         </div>
 
                         {/* Company */}
                         <div>
-                            <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">Company</div>
+                            <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">Foundation</div>
                             <div className="space-y-2.5 text-[12.5px] text-neutral-600">
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">About</a>
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">Blog</a>
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">Careers</a>
-                                <a href="#" className="block hover:text-neutral-300 transition-colors">Contact</a>
+                                <Link to="/docs" className="block hover:text-neutral-300 transition-colors">Documentation</Link>
+                                <Link to="/billing" className="block hover:text-neutral-300 transition-colors">Pricing</Link>
+                                <a href="#" className="block hover:text-neutral-300 transition-colors">Security & Trust</a>
+                                <a href="#" className="block hover:text-neutral-300 transition-colors">Open Source</a>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-16 pt-6 border-t border-white/[0.04] flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-neutral-600">
-                        <span>© 2026 Nimbus, Inc. All rights reserved.</span>
+                        <span>© 2026 Sharexpress Foundation. All rights reserved.</span>
                         <div className="flex gap-6">
                             <a href="#" className="hover:text-neutral-400 transition-colors">Privacy Policy</a>
                             <a href="#" className="hover:text-neutral-400 transition-colors">Terms of Service</a>

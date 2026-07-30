@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addDomain, verifyDomain, deleteDomain } from "../store/index.js";
 
 export const Route = createFileRoute("/domains")({
-    head: () => ({ meta: [{ title: "Domains — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Domains — Sharexpress Cloud" }] }),
     component: DomainsPage,
 });
 
@@ -104,7 +104,7 @@ function DomainsPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-[13.5px] font-semibold text-foreground">{d.host}</div>
-                      <div className="truncate text-[11.5px] text-muted-foreground">{d.project} · CNAME to edge.nimbus-cloud.app</div>
+                      <div className="truncate text-[11.5px] text-muted-foreground">{d.project} · CNAME to edge.sharexpress.in</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

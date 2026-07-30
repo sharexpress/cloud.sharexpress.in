@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { verifyTwoFactor, clearAuthError } from "../store/index.js";
 
 export const Route = createFileRoute("/two-factor")({
-    head: () => ({ meta: [{ title: "Two-factor authentication — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Two-factor authentication — Sharexpress Cloud" }] }),
     component: TwoFactorPage,
 });
 

@@ -29,7 +29,7 @@ import {
 } from "../store/index.js";
 
 export const Route = createFileRoute("/storage")({
-    head: () => ({ meta: [{ title: "Storage — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Storage & CDN — Sharexpress Cloud" }] }),
     component: StoragePage,
 });
 

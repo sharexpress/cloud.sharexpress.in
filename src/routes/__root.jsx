@@ -20,6 +20,8 @@ import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scrip
 import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { useSelector } from "react-redux";
+
 function NotFoundComponent() {
     return (<div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -38,26 +40,31 @@ function NotFoundComponent() {
       </div>
     </div>);
 }
+
 function ErrorComponent({ error, reset }) {
-    console.error(error);
+    console.error("Root Route Error:", error);
     const router = useRouter();
     useEffect(() => {
         reportLovableError(error, { boundary: "tanstack_root_error_component" });
     }, [error]);
     return (<div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-destructive/30 bg-destructive/10 text-destructive">
+      <div className="max-w-xl text-center">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-destructive/30 bg-destructive/10 text-destructive font-mono font-bold text-sm">
           500
         </div>
-        <h1 className="mt-6 text-[22px] font-semibold tracking-tight text-foreground">Something went wrong</h1>
+        <h1 className="mt-4 text-[20px] font-semibold tracking-tight text-foreground">Something went wrong</h1>
         <p className="mt-2 text-[13px] text-muted-foreground">
-          An unexpected error occurred. You can try again or head back to the dashboard.
+          An unexpected error occurred. Details below:
         </p>
+        <div className="mt-4 p-3 rounded-lg bg-surface border border-border text-left font-mono text-[11px] text-destructive overflow-x-auto max-h-48">
+          {error?.message || String(error)}
+          {error?.stack && <pre className="mt-2 text-[10px] text-muted-foreground opacity-80 whitespace-pre-wrap">{error.stack}</pre>}
+        </div>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button onClick={() => {
             router.invalidate();
             reset();
-        }} className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90">
+        }} className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90 cursor-pointer">
             Try again
           </button>
           <a href="/" className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:border-border-strong">
@@ -67,16 +74,59 @@ function ErrorComponent({ error, reset }) {
       </div>
     </div>);
 }
+
+function RootShell({ children }) {
+    return (<html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>);
+}
+
+function ThemeApplier({ children }) {
+    const theme = useSelector((state) => state.settings?.appearance?.theme || "dark");
+    
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        const root = document.documentElement;
+        if (theme === "dark") {
+            root.classList.add("dark");
+            root.classList.remove("light");
+            root.style.colorScheme = "dark";
+        } else {
+            root.classList.add("light");
+            root.classList.remove("dark");
+            root.style.colorScheme = "light";
+        }
+    }, [theme]);
+
+    return children;
+}
+
+function RootComponent() {
+    return (
+      <Provider store={store}>
+        <ThemeApplier>
+          <Outlet />
+        </ThemeApplier>
+      </Provider>
+    );
+}
+
 export const Route = createRootRouteWithContext()({
     head: () => ({
         meta: [
             { charSet: "utf-8" },
             { name: "viewport", content: "width=device-width, initial-scale=1" },
-            { title: "Nimbus — Cloud platform for modern teams" },
-            { name: "description", content: "Deploy apps, run compute, manage databases and storage, and monitor everything from one unified cloud control plane." },
-            { name: "author", content: "Nimbus" },
-            { property: "og:title", content: "Nimbus — Cloud platform for modern teams" },
-            { property: "og:description", content: "Deploy apps, run compute, manage databases and storage, and monitor everything from one unified cloud control plane." },
+            { title: "Sharexpress Cloud — Cloud Infrastructure Platform" },
+            { name: "description", content: "Deploy apps, run microservices, manage databases, object storage, and CDN media seamlessly with Sharexpress Ecosystem." },
+            { name: "author", content: "Sharexpress Foundation" },
+            { property: "og:title", content: "Sharexpress Cloud — Cloud Infrastructure Platform" },
+            { property: "og:description", content: "Deploy apps, run microservices, manage databases, object storage, and CDN media seamlessly with Sharexpress Ecosystem." },
             { property: "og:type", content: "website" },
             { name: "twitter:card", content: "summary_large_image" },
         ],
@@ -96,19 +146,3 @@ export const Route = createRootRouteWithContext()({
     notFoundComponent: NotFoundComponent,
     errorComponent: ErrorComponent,
 });
-function RootShell({ children }) {
-    return (<html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>);
-}
-function RootComponent() {
-    return (<Provider store={store}>
-      <Outlet />
-    </Provider>);
-}

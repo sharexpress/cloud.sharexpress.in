@@ -21,20 +21,20 @@ export function PageShell({ children }) {
     return <div className="mx-auto w-full max-w-[1400px] px-2 py-4 md:px-4 md:py-6">{children}</div>;
 }
 export function PageHeader({ title, description, actions, }) {
-    return (<div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+    return (<div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary pb-4">
       <div className="min-w-0">
-        <h1 className="text-[17px] font-bold tracking-tight text-white">{title}</h1>
-        {description && (<p className="mt-1 text-[12px] text-neutral-450">{description}</p>)}
+        <h1 className="text-[18px] font-bold tracking-tight text-text-primary">{title}</h1>
+        {description && (<p className="mt-1 text-xs text-text-muted">{description}</p>)}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>);
 }
 export function Panel({ title, description, actions, children, className, padded = true, }) {
-    return (<section className={cn("rounded-lg border border-white/[0.06] bg-[#0c0c10]/40", className)}>
-      {(title || actions) && (<header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-white/[0.06] px-4 py-3">
+    return (<section className={cn("rounded-lg border border-border-primary bg-bg-card shadow-sm", className)}>
+      {(title || actions) && (<header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border-primary px-4 py-3">
           <div className="min-w-0">
-            {title && <h2 className="truncate text-[11px] font-bold tracking-wider uppercase font-mono text-neutral-300">{title}</h2>}
-            {description && <p className="mt-0.5 truncate text-[11px] text-neutral-400">{description}</p>}
+            {title && <h2 className="truncate text-[11px] font-bold tracking-wider uppercase font-mono text-text-secondary">{title}</h2>}
+            {description && <p className="mt-0.5 truncate text-[11px] text-text-muted">{description}</p>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-1.5">{actions}</div>}
         </header>)}
@@ -43,47 +43,47 @@ export function Panel({ title, description, actions, children, className, padded
 }
 /* ---------------- Status / badges ---------------- */
 const statusStyles = {
-    ready: "bg-success/10 text-success border-success/20 font-semibold px-2 py-0.5",
-    healthy: "bg-success/10 text-success border-success/20 font-semibold px-2 py-0.5",
-    active: "bg-success/10 text-success border-success/20 font-semibold px-2 py-0.5",
-    valid: "bg-success/10 text-success border-success/20 font-semibold px-2 py-0.5",
-    paid: "bg-success/10 text-success border-success/20 font-semibold px-2 py-0.5",
-    building: "bg-info/10 text-info border-info/20 px-2 py-0.5 animate-pulse",
-    scaling: "bg-info/10 text-info border-info/20 px-2 py-0.5",
-    issuing: "bg-info/10 text-info border-info/20 px-2 py-0.5",
-    queued: "bg-muted text-muted-foreground border-border px-2 py-0.5",
-    idle: "bg-muted text-muted-foreground border-border px-2 py-0.5",
-    pending: "bg-warning/10 text-warning border-warning/20 px-2 py-0.5",
-    degraded: "bg-warning/10 text-warning border-warning/20 px-2 py-0.5",
-    error: "bg-destructive/10 text-destructive border-destructive/20 font-bold px-2 py-0.5",
-    canceled: "bg-muted text-muted-foreground border-border px-2 py-0.5",
+    ready: "bg-status-success/10 text-status-success border-status-success/20 font-semibold px-2 py-0.5",
+    healthy: "bg-status-success/10 text-status-success border-status-success/20 font-semibold px-2 py-0.5",
+    active: "bg-status-success/10 text-status-success border-status-success/20 font-semibold px-2 py-0.5",
+    valid: "bg-status-success/10 text-status-success border-status-success/20 font-semibold px-2 py-0.5",
+    paid: "bg-status-success/10 text-status-success border-status-success/20 font-semibold px-2 py-0.5",
+    building: "bg-status-info/10 text-status-info border-status-info/20 px-2 py-0.5 animate-pulse",
+    scaling: "bg-status-info/10 text-status-info border-status-info/20 px-2 py-0.5",
+    issuing: "bg-status-info/10 text-status-info border-status-info/20 px-2 py-0.5",
+    queued: "bg-bg-secondary text-text-muted border-border-primary px-2 py-0.5",
+    idle: "bg-bg-secondary text-text-muted border-border-primary px-2 py-0.5",
+    pending: "bg-status-warning/10 text-status-warning border-status-warning/20 px-2 py-0.5",
+    degraded: "bg-status-warning/10 text-status-warning border-status-warning/20 px-2 py-0.5",
+    error: "bg-status-danger/10 text-status-danger border-status-danger/20 font-bold px-2 py-0.5",
+    canceled: "bg-bg-secondary text-text-muted border-border-primary px-2 py-0.5",
 };
 export function StatusBadge({ status, label }) {
-    const cls = statusStyles[status] ?? "bg-muted text-muted-foreground border-border";
+    const cls = statusStyles[status] ?? "bg-bg-secondary text-text-muted border-border-primary";
     return (<span className={cn("inline-flex items-center gap-1.5 rounded-full border text-[10px] tracking-tight uppercase", cls)}>
       <span className="h-1 w-1 rounded-full bg-current"/>
       {label ?? status}
     </span>);
 }
 export function Tag({ children, className }) {
-    return (<span className={cn("inline-flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground", className)}>
+    return (<span className={cn("inline-flex items-center gap-1 rounded-md border border-border-primary bg-bg-secondary px-1.5 py-0.5 font-mono text-[11px] text-text-muted", className)}>
       {children}
     </span>);
 }
 /* ---------------- Metric card ---------------- */
 export function Metric({ label, value, hint, delta, series, icon, }) {
-    return (<div className="rounded-lg border border-border bg-surface p-5">
+    return (<div className="rounded-lg border border-border-primary bg-bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-muted-foreground">{label}</span>
-        {icon && <span className="text-muted-foreground">{icon}</span>}
+        <span className="text-xs text-text-muted font-medium">{label}</span>
+        {icon && <span className="text-text-muted">{icon}</span>}
       </div>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-[22px] font-semibold tracking-tight text-foreground">{value}</span>
-        {delta && (<span className={cn("text-[11px] font-medium", delta.positive ? "text-success" : "text-destructive")}>
+        <span className="text-[22px] font-semibold tracking-tight text-text-primary">{value}</span>
+        {delta && (<span className={cn("text-[11px] font-medium", delta.positive ? "text-status-success" : "text-status-danger")}>
             {delta.value}
           </span>)}
       </div>
-      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+      {hint && <div className="mt-1 text-[11px] text-text-muted">{hint}</div>}
       {series && <Sparkline data={series} className="mt-4"/>}
     </div>);
 }

@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleAlert, addAlert } from "../store/index.js";
 
 export const Route = createFileRoute("/monitoring")({
-    head: () => ({ meta: [{ title: "Monitoring — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Monitoring — Sharexpress Cloud" }] }),
     component: MonitoringPage,
 });
 

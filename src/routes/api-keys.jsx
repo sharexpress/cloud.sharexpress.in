@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { generateKey, rotateKey, revokeKey } from "../store/index.js";
 
 export const Route = createFileRoute("/api-keys")({
-    head: () => ({ meta: [{ title: "API Keys — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "API Keys — Sharexpress Cloud" }] }),
     component: ApiKeysPage,
 });
 
@@ -90,7 +90,7 @@ function ApiKeysPage() {
             </div>
         )}
 
-        <PageHeader title="API Keys" description="Programmatic access to the Nimbus API and CLI." actions={
+        <PageHeader title="API Keys" description="Programmatic access to the Sharexpress Cloud API and CLI." actions={
             <button 
                 onClick={() => setIsCreateOpen(true)}
                 className="h-8 rounded-md bg-accent px-3 text-[12px] font-medium text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer"

@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { inviteMember, cancelInvite, updateRole, removeMember } from "../store/index.js";
 
 export const Route = createFileRoute("/team")({
-    head: () => ({ meta: [{ title: "Team — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Team — Sharexpress Cloud" }] }),
     component: TeamPage,
 });
 

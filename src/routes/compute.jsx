@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { scaleReplicas, completeScaling, restartContainer, completeRestart } from "../store/index.js";
 
 export const Route = createFileRoute("/compute")({
-    head: () => ({ meta: [{ title: "Compute — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Compute — Sharexpress Cloud" }] }),
     component: ComputePage,
 });
 
@@ -194,7 +194,7 @@ function ComputePage() {
                   type="range" min="1" max="24" value={replicasVal} onChange={(e) => setReplicasVal(parseInt(e.target.value))}
                   className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-accent"
                 />
-                <span className="text-[10px] text-muted-foreground block text-center">Nimbus automatically balances replicas across availability zones.</span>
+                <span className="text-[10px] text-muted-foreground block text-center">Sharexpress Cloud automatically balances replicas across availability zones.</span>
               </div>
 
               <div className="border-t border-border pt-4 space-y-2">

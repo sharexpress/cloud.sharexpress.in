@@ -22,7 +22,7 @@ import { useDispatch } from "react-redux";
 import { register } from "../store/index.js";
 
 export const Route = createFileRoute("/register")({
-    head: () => ({ meta: [{ title: "Create account — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Create account — Sharexpress Cloud" }] }),
     component: RegisterPage,
 });
 

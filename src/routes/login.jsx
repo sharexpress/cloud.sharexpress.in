@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { login, clearAuthError } from "../store/index.js";
 
 export const Route = createFileRoute("/login")({
-    head: () => ({ meta: [{ title: "Sign in — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Sign in — Sharexpress Cloud" }] }),
     component: LoginPage,
 });
 
@@ -51,7 +51,7 @@ function LoginPage() {
         }
     };
 
-    return (<AuthLayout title="Sign in to Nimbus" subtitle="Welcome back. Enter your credentials to continue." footer={<span>Don't have an account? <Link to="/register" className="text-foreground hover:underline">Sign up</Link></span>}>
+    return (<AuthLayout title="Sign in to Sharexpress Cloud" subtitle="Welcome back. Enter your credentials to continue." footer={<span>Don't have an account? <Link to="/register" className="text-foreground hover:underline">Sign up</Link></span>}>
       <div className="space-y-3">
         <button className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-surface text-[13px] font-medium text-foreground hover:border-border-strong transition-colors">
           <Github className="h-4 w-4"/> Continue with GitHub

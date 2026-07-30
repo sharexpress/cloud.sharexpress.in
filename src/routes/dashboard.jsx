@@ -24,18 +24,21 @@ import { useSelector } from "react-redux";
 export const Route = createFileRoute("/dashboard")({
     head: () => ({
         meta: [
-            { title: "Overview — Nimbus" },
-            { name: "description", content: "Real-time status of your projects, deployments, compute, and usage." },
+            { title: "Overview — Sharexpress Cloud" },
+            { name: "description", content: "Real-time status of your projects, deployments, compute, and usage across Sharexpress Cloud." },
         ],
     }),
     component: OverviewPage,
 });
 
 function OverviewPage() {
-    // Select from Redux state
-    const projects = useSelector((state) => state.projects.list);
-    const deployments = useSelector((state) => state.deployments.list);
-    const billing = useSelector((state) => state.billing);
+    // Select from Redux state with null-safety
+    const projects = useSelector((state) => state.projects?.list || []);
+    const deployments = useSelector((state) => state.deployments?.list || []);
+    const billing = useSelector((state) => state.billing || {});
+    const workspaces = useSelector((s) => s.workspaces?.list || []);
+    const activeWsId = useSelector((s) => s.workspaces?.activeWorkspaceId);
+    const activeWs = workspaces.find((w) => w.id === activeWsId) || workspaces[0] || { name: "Workspace" };
     
     // Live metric fluctuations for higher fidelity
     const [liveCpu, setLiveCpu] = useState(34);
@@ -72,10 +75,26 @@ function OverviewPage() {
         { id: 5, who: "Sam Rivera", initials: "SR", verb: "resolved alert", target: "High Latency P99", meta: "auto-scale event", time: "2d ago" },
     ];
 
-    return (<AppShell breadcrumbs={[{ label: "Acme Inc" }, { label: "Overview" }]}>
+    const bwCurrent = billing.usage?.bandwidth?.current || 412;
+    const bwLimit = billing.usage?.bandwidth?.limit || 1000;
+    const bwUnit = billing.usage?.bandwidth?.unit || "GB";
+
+    const compCurrent = billing.usage?.compute?.current || 1840;
+    const compLimit = billing.usage?.compute?.limit || 5000;
+    const compUnit = billing.usage?.compute?.unit || "Hrs";
+
+    const stCurrent = billing.usage?.storage?.current || 1.7;
+    const stLimit = billing.usage?.storage?.limit || 5;
+    const stUnit = billing.usage?.storage?.unit || "TB";
+
+    const fnCurrent = billing.usage?.functions?.current || 1.34;
+    const fnLimit = billing.usage?.functions?.limit || 10;
+    const fnUnit = billing.usage?.functions?.unit || "M Invocations";
+
+    return (<AppShell breadcrumbs={[{ label: activeWs.name }, { label: "Overview" }]}>
       <PageShell>
         <PageHeader title="Overview" description="Everything that's running, right now." actions={<>
-              <button className="h-8 rounded-md border border-border bg-surface px-3 text-[12px] text-foreground hover:border-border-strong transition-colors">Last 24h</button>
+              <button className="h-8 rounded-md border border-border bg-surface px-3 text-[12px] text-foreground hover:border-border-strong transition-colors cursor-pointer">Last 24h</button>
               <button onClick={() => window.location.href='/projects'} className="h-8 rounded-md bg-accent px-3 text-[12px] font-medium text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer">New Project</button>
             </>}/>
 
@@ -99,14 +118,14 @@ function OverviewPage() {
 
           <Panel title="Monthly usage" description="Jun 2026 · to date">
             <div className="space-y-4">
-              <UsageRow label="Bandwidth" used={`${billing.usage.bandwidth.current} ${billing.usage.bandwidth.unit}`} total={`${billing.usage.bandwidth.limit} ${billing.usage.bandwidth.unit}`} pct={(billing.usage.bandwidth.current / billing.usage.bandwidth.limit) * 100}/>
-              <UsageRow label="Compute" used={`${billing.usage.compute.current} ${billing.usage.compute.unit}`} total={`${billing.usage.compute.limit} ${billing.usage.compute.unit}`} pct={(billing.usage.compute.current / billing.usage.compute.limit) * 100}/>
-              <UsageRow label="Storage" used={`${billing.usage.storage.current} ${billing.usage.storage.unit}`} total={`${billing.usage.storage.limit} ${billing.usage.storage.unit}`} pct={(billing.usage.storage.current / billing.usage.storage.limit) * 100}/>
-              <UsageRow label="Function invocations" used={`${billing.usage.functions.current} ${billing.usage.functions.unit}`} total={`${billing.usage.functions.limit} ${billing.usage.functions.unit}`} pct={(billing.usage.functions.current / billing.usage.functions.limit) * 100}/>
+              <UsageRow label="Bandwidth" used={`${bwCurrent} ${bwUnit}`} total={`${bwLimit} ${bwUnit}`} pct={(bwCurrent / bwLimit) * 100}/>
+              <UsageRow label="Compute" used={`${compCurrent} ${compUnit}`} total={`${compLimit} ${compUnit}`} pct={(compCurrent / compLimit) * 100}/>
+              <UsageRow label="Storage" used={`${stCurrent} ${stUnit}`} total={`${stLimit} ${stUnit}`} pct={(stCurrent / stLimit) * 100}/>
+              <UsageRow label="Function invocations" used={`${fnCurrent} ${fnUnit}`} total={`${fnLimit} ${fnUnit}`} pct={(fnCurrent / fnLimit) * 100}/>
             </div>
             <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
               <div>
-                <div className="text-[11px] text-muted-foreground">Projected bill ({billing.subscription.plan})</div>
+                <div className="text-[11px] text-muted-foreground">Projected bill ({billing.subscription?.plan || "Enterprise"})</div>
                 <div className="text-[15px] font-semibold text-foreground">$4,812</div>
               </div>
               <a className="inline-flex items-center gap-1 text-[12px] text-accent hover:underline" href="/billing">

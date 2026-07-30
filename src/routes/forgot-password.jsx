@@ -22,7 +22,7 @@ import { forgotPassword } from "../store/index.js";
 import { MailCheck } from "lucide-react";
 
 export const Route = createFileRoute("/forgot-password")({
-    head: () => ({ meta: [{ title: "Forgot password — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Forgot password — Sharexpress Cloud" }] }),
     component: ForgotPage,
 });
 

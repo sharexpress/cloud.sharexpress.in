@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { triggerRollback, addDeployment } from "../store/index.js";
 
 export const Route = createFileRoute("/deployments")({
-    head: () => ({ meta: [{ title: "Deployments — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Deployments — Sharexpress Cloud" }] }),
     component: DeploymentsPage,
 });
 
@@ -189,7 +189,7 @@ function DeploymentsPage() {
               <div className="border-t border-border pt-4 space-y-1.5">
                 <span className="text-[11px] text-muted-foreground block font-mono">Build Outputs</span>
                 <div className="bg-black p-3 rounded text-[10.5px] font-mono text-neutral-300 space-y-0.5 leading-relaxed overflow-x-auto max-h-[140px]">
-                    <div>&gt; nimbus build --production</div>
+                    <div>&gt; sharexpress cloud build --production</div>
                     <div>clone repository complete: 100%</div>
                     <div>running static checks: eslint/prettier passed</div>
                     <div>optimizing assets... ready</div>

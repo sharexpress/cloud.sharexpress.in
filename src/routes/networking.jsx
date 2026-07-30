@@ -20,7 +20,7 @@ import { PageShell, PageHeader, Panel, Metric } from "@/components/app/primitive
 import { metricSeries } from "@/lib/mock";
 import { Globe2, Shield } from "lucide-react";
 export const Route = createFileRoute("/networking")({
-    head: () => ({ meta: [{ title: "Networking — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Networking — Sharexpress Cloud" }] }),
     component: NetworkingPage,
 });
 const regions = [

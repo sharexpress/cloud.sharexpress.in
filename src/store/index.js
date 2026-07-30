@@ -580,10 +580,50 @@ const settingsSlice = createSlice({
   }
 });
 
+// --- Workspaces Slice ---
+const workspacesSlice = createSlice({
+  name: "workspaces",
+  initialState: {
+    list: [
+      { id: "ws_01", name: "Acme Inc", slug: "acme-inc", plan: "Enterprise", color: "#7C3AED", createdAt: "Jan 2026" },
+      { id: "ws_02", name: "Personal", slug: "personal", plan: "Pro", color: "#0891B2", createdAt: "Mar 2026" },
+    ],
+    activeWorkspaceId: "ws_01",
+  },
+  reducers: {
+    createWorkspace: (state, action) => {
+      const ws = {
+        id: `ws_${Date.now()}`,
+        color: "#059669",
+        plan: "Free",
+        createdAt: new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+        ...action.payload,
+      };
+      state.list.push(ws);
+      state.activeWorkspaceId = ws.id;
+    },
+    switchWorkspace: (state, action) => {
+      state.activeWorkspaceId = action.payload;
+    },
+    deleteWorkspace: (state, action) => {
+      state.list = state.list.filter(w => w.id !== action.payload);
+      if (state.activeWorkspaceId === action.payload) {
+        state.activeWorkspaceId = state.list[0]?.id || null;
+      }
+    },
+    updateWorkspace: (state, action) => {
+      const { id, ...changes } = action.payload;
+      const ws = state.list.find(w => w.id === id);
+      if (ws) Object.assign(ws, changes);
+    },
+  }
+});
+
 // --- Store Configuration ---
 export const store = configureStore({
   reducer: {
     auth: authSlice.reducer,
+    workspaces: workspacesSlice.reducer,
     projects: projectsSlice.reducer,
     deployments: deploymentsSlice.reducer,
     databases: databasesSlice.reducer,
@@ -622,3 +662,4 @@ export const { inviteMember, cancelInvite, updateRole, removeMember } = teamSlic
 export const { changePlan } = billingSlice.actions;
 export const { generateKey, rotateKey, revokeKey } = apiKeysSlice.actions;
 export const { toggleTheme, updateNotifications } = settingsSlice.actions;
+export const { createWorkspace, switchWorkspace, deleteWorkspace, updateWorkspace } = workspacesSlice.actions;

@@ -16,53 +16,52 @@
 
 import { AppSidebar } from "./sidebar";
 import { History } from "lucide-react";
+import { SharexpressLogo } from "./logo";
 
 export function AppShell({ breadcrumbs, title, actions, children }) {
     return (
-        <div className="flex h-screen w-full bg-[#000000] text-foreground overflow-hidden font-sans">
+        <div className="flex h-screen w-full bg-background text-text-primary overflow-hidden font-sans transition-colors">
             {/* Sidebar */}
             <AppSidebar />
 
-            {/* Main Pane Container */}
-            <div className="flex flex-1 flex-col p-2.5 md:p-3 overflow-hidden">
-                <div className="flex flex-1 flex-col rounded-lg border border-white/[0.06] bg-[#0a0a0c] overflow-hidden relative">
+            {/* Main Pane Container matching Linear's padded rounded-xl card layout */}
+            <div className="flex flex-1 flex-col p-2 md:p-2.5 overflow-hidden">
+                <div className="flex flex-1 flex-col rounded-xl border border-border bg-card overflow-hidden relative shadow-sm transition-colors">
                     
                     {/* Header inside the rounded container */}
-                    <div className="flex h-11 shrink-0 items-center justify-between border-b border-white/[0.06] px-4 bg-[#0a0a0c]/80">
+                    <div className="flex h-11 shrink-0 items-center justify-between border-b border-border px-4 bg-card">
                         <div className="min-w-0 flex-1">
                             {breadcrumbs && breadcrumbs.length > 0 ? (
-                                <nav className="flex items-center gap-1 text-[12.5px] font-semibold text-neutral-400">
+                                <nav className="flex items-center gap-1.5 text-[12px] font-medium text-text-muted">
                                     {breadcrumbs.map((b, i) => (
-                                        <span key={i} className="flex items-center gap-1">
-                                            {i > 0 && <span className="text-neutral-700">/</span>}
-                                            <span className={i === breadcrumbs.length - 1 ? "text-white" : "hover:text-neutral-200 cursor-pointer"}>{b.label}</span>
+                                        <span key={i} className="flex items-center gap-1.5">
+                                            {i > 0 && <span className="text-text-muted/40">/</span>}
+                                            <span className={i === breadcrumbs.length - 1 ? "text-text-primary font-semibold" : "hover:text-text-primary cursor-pointer transition-colors"}>{b.label}</span>
                                         </span>
                                     ))}
                                 </nav>
                             ) : title ? (
-                                <h1 className="truncate text-[13.5px] font-bold text-white">{title}</h1>
+                                <h1 className="truncate text-[13px] font-semibold text-text-primary">{title}</h1>
                             ) : null}
                         </div>
 
-                        {/* Top bar right actions matching Linear */}
+                        {/* Top bar right actions */}
                         <div className="flex items-center gap-2">
                             {actions}
                         </div>
                     </div>
 
                     {/* Content Area inside rounded container */}
-                    <div className="flex-1 overflow-y-auto p-5">
+                    <div className="flex-1 overflow-y-auto p-5 bg-card">
                         {children}
                     </div>
 
-                    {/* Bottom ask-bar similar to "Ask Linear" */}
-                    <div className="absolute bottom-3 right-4 z-40 flex items-center gap-2.5 bg-black/60 backdrop-blur border border-white/[0.06] px-3 py-1.5 rounded-full text-[11px] text-neutral-500 hover:text-white transition-all shadow-lg hover:border-white/[0.1] cursor-pointer select-none">
-                        <svg viewBox="0 0 100 100" className="h-3 w-3 fill-current text-accent">
-                            <polygon points="50,15 90,85 10,85" />
-                        </svg>
-                        <span>Ask Nimbus</span>
-                        <span className="text-neutral-700">|</span>
-                        <History className="h-3.5 w-3.5 text-neutral-500" />
+                    {/* Bottom Ask Sharexpress AI floating bar matching Linear screenshot */}
+                    <div className="absolute bottom-3 right-4 z-40 flex items-center gap-2 bg-card/90 backdrop-blur border border-border px-3.5 py-1.5 rounded-full text-[11.5px] text-text-secondary hover:text-text-primary transition-all shadow-md hover:border-border-strong cursor-pointer select-none">
+                        <SharexpressLogo className="h-3.5 w-3.5" />
+                        <span className="font-medium">Ask Sharexpress AI</span>
+                        <span className="text-text-muted/40">|</span>
+                        <History className="h-3.5 w-3.5 text-text-muted hover:text-text-primary transition-colors" />
                     </div>
 
                 </div>

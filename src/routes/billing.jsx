@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changePlan } from "../store/index.js";
 
 export const Route = createFileRoute("/billing")({
-    head: () => ({ meta: [{ title: "Billing — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Billing — Sharexpress Cloud" }] }),
     component: BillingPage,
 });
 

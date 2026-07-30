@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addDatabase, restartDatabase, completeDatabaseRestart } from "../store/index.js";
 
 export const Route = createFileRoute("/databases")({
-    head: () => ({ meta: [{ title: "Databases — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Databases — Sharexpress Cloud" }] }),
     component: DatabasesPage,
 });
 
@@ -118,7 +118,7 @@ function DatabasesPage() {
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {databases.map((db) => {
-              const connStr = `${db.engine.toLowerCase().startsWith("pg") ? "postgres" : db.engine.toLowerCase().startsWith("redis") ? "redis" : db.engine.toLowerCase().startsWith("mongo") ? "mongodb" : "mysql"}://nimbus_user:••••@${db.name}.acme-db.nimbus.host:5432/main`;
+              const connStr = `${db.engine.toLowerCase().startsWith("pg") ? "postgres" : db.engine.toLowerCase().startsWith("redis") ? "redis" : db.engine.toLowerCase().startsWith("mongo") ? "mongodb" : "mysql"}://sharexpress_user:••••@${db.name}.db.sharexpress.in:5432/main`;
               return (
                 <div key={db.id} className="rounded-lg border border-border bg-surface p-5 hover:border-border-strong transition-colors duration-200">
                   <div className="flex items-start justify-between">

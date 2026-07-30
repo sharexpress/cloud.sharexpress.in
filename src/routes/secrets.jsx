@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addSecret, deleteSecret } from "../store/index.js";
 
 export const Route = createFileRoute("/secrets")({
-    head: () => ({ meta: [{ title: "Secrets — Nimbus" }] }),
+    head: () => ({ meta: [{ title: "Secrets — Sharexpress Cloud" }] }),
     component: SecretsPage,
 });
 
