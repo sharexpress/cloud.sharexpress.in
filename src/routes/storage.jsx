@@ -16,13 +16,12 @@
 
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/shell";
-import { PageShell, PageHeader, Panel } from "@/components/app/primitives";
-import { 
-  HardDrive, Plus, Search, Grid3x3, List, ArrowRight, X, Check 
-} from "lucide-react";
-import { useState } from "react";
+import { PageShell, PageHeader, Panel, StatusBadge } from "@/components/app/primitives";
+import { HardDrive, Plus, Search, X, Grid3x3, List, Lock, Globe } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addBucket } from "../store/index.js";
+import { api } from "@/lib/api";
+import { setBuckets, addBucket } from "../store/index.js";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/storage")({
@@ -40,286 +39,220 @@ function StoragePage() {
 
     const dispatch = useDispatch();
     const buckets = useSelector((state) => state.storage?.buckets || []);
-    const workspaces = useSelector((state) => state.workspaces?.list || []);
-    const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId);
-    const activeWsName = workspaces.find((w) => w.id === activeWsId)?.name || "Workspace";
+    const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId || "ws_acme");
 
     const [query, setQuery] = useState("");
-    const [selectedVis, setSelectedVis] = useState("All");
     const [view, setView] = useState("grid");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    
-    // Form fields
-    const [bucketName, setBucketName] = useState("");
-    const [bucketVis, setBucketVis] = useState("public");
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Form state
+    const [name, setName] = useState("");
+    const [visibility, setVisibility] = useState("public");
     const [region, setRegion] = useState("iad1");
 
-    const visList = ["All", "Public", "Private"];
-
-    // Toast Simulator
-    const [toastMessage, setToastMessage] = useState("");
-    const showToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(""), 3000);
-    };
-
-    const filtered = buckets.filter((b) => {
-        const matchesQuery = b.name.toLowerCase().includes(query.toLowerCase());
-        const matchesVis = selectedVis === "All" || (b.visibility || "public").toLowerCase() === selectedVis.toLowerCase();
-        return matchesQuery && matchesVis;
-    });
-
-    const handleCreateBucket = (e) => {
-        e.preventDefault();
-        if (!bucketName.trim()) return;
-
-        const name = bucketName.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
-        dispatch(addBucket({
-            name,
-            visibility: bucketVis,
-            region,
-            size: "0 GB",
-            objectsCount: 0,
-        }));
-        setBucketName("");
-        setIsCreateOpen(false);
-        showToast(`Bucket "${name}" created successfully!`);
-    };
-
-    return (<AppShell breadcrumbs={[{ label: activeWsName }, { label: "Storage" }]}>
-      <PageShell>
-        
-        {toastMessage && (
-            <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-md bg-foreground px-4 py-3 text-[12.5px] font-medium text-background shadow-lg animate-in fade-in slide-in-from-bottom-5">
-                <Check className="h-4 w-4 text-status-success" />
-                {toastMessage}
-            </div>
-        )}
-
-        <PageHeader 
-            title="Storage" 
-            description={`Managed S3 bucket storage & CDN running in ${activeWsName}.`} 
-            actions={
-                <button 
-                    onClick={() => setIsCreateOpen(true)}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3.5 text-[12px] font-semibold text-background hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
-                >
-                    <Plus className="h-3.5 w-3.5"/> New bucket
-                </button>
+    useEffect(() => {
+        let isMounted = true;
+        async function loadBuckets() {
+            try {
+                setLoading(true);
+                const res = await api.listBuckets(activeWsId);
+                if (isMounted) {
+                    dispatch(setBuckets(res));
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error("Failed to load buckets:", err);
+                if (isMounted) setLoading(false);
             }
-        />
+        }
+        loadBuckets();
+        return () => { isMounted = false; };
+    }, [dispatch, activeWsId]);
 
-        {/* Filter Bar */}
-        <div className="mb-5 space-y-3">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-            <div className="relative min-w-0">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"/>
-              <input 
-                value={query} 
-                onChange={(e) => setQuery(e.target.value)} 
-                placeholder="Search storage buckets by name…" 
-                className="h-9 w-full rounded-md border border-border bg-card/60 pl-9 pr-3 text-[12.5px] text-text-primary placeholder:text-text-muted focus:border-border-strong focus:outline-none transition-all"
-              />
-            </div>
+    const handleCreateBucket = async (e) => {
+        e.preventDefault();
+        if (!name) return;
+        setSubmitting(true);
+        try {
+            const res = await api.createBucket({
+                name,
+                visibility,
+                region
+            }, activeWsId);
 
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 items-center rounded-md border border-border bg-card p-0.5">
-                <button 
-                  onClick={() => setView("grid")} 
-                  className={cn("grid h-8 w-8 place-items-center rounded transition-colors cursor-pointer", view === "grid" ? "bg-surface text-text-primary font-semibold" : "text-text-muted hover:text-text-primary")}
-                  title="Grid view"
-                >
-                  <Grid3x3 className="h-3.5 w-3.5"/>
-                </button>
-                <button 
-                  onClick={() => setView("list")} 
-                  className={cn("grid h-8 w-8 place-items-center rounded transition-colors cursor-pointer", view === "list" ? "bg-surface text-text-primary font-semibold" : "text-text-muted hover:text-text-primary")}
-                  title="List view"
-                >
-                  <List className="h-3.5 w-3.5"/>
-                </button>
-              </div>
-            </div>
-          </div>
+            if (res.success && res.bucket) {
+                dispatch(addBucket(res.bucket));
+                setIsCreateOpen(false);
+                setName("");
+            }
+        } catch (err) {
+            alert(err.message || "Failed to create bucket");
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
-          {/* Visibility pill tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-mono">
-            {visList.map((v) => (
-                <button
-                    key={v}
-                    onClick={() => setSelectedVis(v)}
-                    className={cn(
-                        "rounded px-2.5 py-1 transition-all cursor-pointer whitespace-nowrap",
-                        selectedVis === v
-                            ? "bg-surface text-text-primary border border-border font-semibold shadow-2xs"
-                            : "text-text-muted hover:text-text-primary hover:bg-surface/50 border border-transparent"
-                    )}
-                >
-                    {v}
-                </button>
-            ))}
-          </div>
-        </div>
+    const filtered = buckets.filter((b) => b.name.toLowerCase().includes(query.toLowerCase()));
 
-        {/* Bucket List / Grid */}
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/40 px-6 py-16 text-center">
-            <HardDrive className="h-9 w-9 text-text-muted mb-3 opacity-60" />
-            <h3 className="text-[13.5px] font-semibold text-text-primary">No storage buckets found</h3>
-            <p className="mt-1 max-w-sm text-[12px] text-text-muted">Create S3 storage buckets for files, images, and videos.</p>
-          </div>
-        ) : view === "grid" ? (
-          <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((b) => (
-              <Link 
-                to="/storage/$id"
-                params={{ id: b.id }}
-                key={b.id} 
-                className="group relative rounded-lg border border-border bg-card p-4.5 transition-all duration-150 hover:border-border-strong hover:bg-surface/30 flex flex-col justify-between"
-              >
-                <div>
-                  {/* Top Bar: Name + Visibility Badge */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="truncate text-[13.5px] font-semibold text-text-primary group-hover:text-text-primary transition-colors">
-                        {b.name}
-                      </div>
-                      <div className="truncate text-[10.5px] text-text-muted font-mono mt-0.5">
-                        {(b.region || "iad1").toUpperCase()} · Standard S3
-                      </div>
-                    </div>
-                    <span className={cn(
-                        "px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase",
-                        (b.visibility || "public") === "public" ? "bg-status-success/10 text-status-success border border-status-success/30" : "bg-surface text-text-muted border border-border"
-                    )}>
-                        {b.visibility || "public"}
-                    </span>
-                  </div>
-
-                  {/* Body: Specs */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 font-mono text-[11px] text-text-muted border-t border-b border-border/40 py-2.5 my-2">
-                    <div>
-                      <div className="text-[9.5px] uppercase">Size Used</div>
-                      <div className="mt-0.5 font-bold text-text-primary">{b.size || "42.8 GB"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[9.5px] uppercase">Objects</div>
-                      <div className="mt-0.5 font-bold text-text-primary">{(b.objectsCount || 12480).toLocaleString()}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer: View Details link */}
-                <div className="mt-2 flex items-center justify-between text-[10.5px] text-text-muted font-mono">
-                  <span>CDN Enabled</span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    View Bucket <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5"/>
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <Panel padded={false}>
-            <ul className="divide-y divide-border/60">
-              {filtered.map((b) => (
-                <li key={b.id}>
-                  <Link 
-                    to="/storage/$id"
-                    params={{ id: b.id }}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 hover:bg-surface/50 transition-colors group"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-[13px] font-medium text-text-primary">
-                        {b.name}
-                      </div>
-                      <div className="truncate text-[11px] text-text-muted font-mono mt-0.5">
-                        {(b.region || "iad1").toUpperCase()} · {b.size || "42.8 GB"} · {(b.objectsCount || 12480).toLocaleString()} objects
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-3.5 text-[11px]">
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface border border-border/60 uppercase">
-                        {b.visibility || "public"}
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5 text-text-muted group-hover:text-text-primary group-hover:translate-x-0.5 transition-all"/>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        )}
-      </PageShell>
-
-      {/* Creation Modal */}
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 font-mono">
-          <div className="w-full max-w-md border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-              <h2 className="text-[13.5px] font-bold text-text-primary">Create New Storage Bucket</h2>
-              <button onClick={() => setIsCreateOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <form onSubmit={handleCreateBucket} className="p-5 space-y-4">
-              <div>
-                <label className="block text-[11px] text-text-muted uppercase mb-1">Bucket Name</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g. media-assets"
-                  value={bucketName}
-                  onChange={(e) => setBucketName(e.target.value)}
-                  className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[12.5px] font-medium text-text-primary focus:border-border-strong focus:outline-none transition-colors"
+    return (
+        <AppShell>
+            <PageShell>
+                <PageHeader
+                    title="Object Storage"
+                    description="MinIO S3-compatible bucket management and presigned direct client uploads."
+                    action={
+                        <button
+                            onClick={() => setIsCreateOpen(true)}
+                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 rounded-md hover:bg-primary/90 transition-all shadow-sm"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Create Bucket
+                        </button>
+                    }
                 />
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] text-text-muted uppercase mb-1">Visibility</label>
-                  <select 
-                    value={bucketVis}
-                    onChange={(e) => setBucketVis(e.target.value)}
-                    className="h-9 w-full rounded-md border border-border bg-surface px-2.5 text-[12px] font-medium text-text-primary focus:border-border-strong focus:outline-none cursor-pointer"
-                  >
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                  </select>
+                {/* Filters */}
+                <div className="flex items-center justify-between gap-4 mb-6">
+                    <div className="relative flex-1 max-w-xs">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+                        <input
+                            type="text"
+                            placeholder="Search buckets..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            className="w-full bg-accent/50 border border-border/60 rounded-md pl-9 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-primary/50"
+                        />
+                    </div>
                 </div>
-                <div>
-                  <label className="block text-[11px] text-text-muted uppercase mb-1">Region</label>
-                  <select 
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    className="h-9 w-full rounded-md border border-border bg-surface px-2.5 text-[12px] font-medium text-text-primary focus:border-border-strong focus:outline-none cursor-pointer"
-                  >
-                    <option value="iad1">US East (iad1)</option>
-                    <option value="sfo1">US West (sfo1)</option>
-                    <option value="fra1">Europe (fra1)</option>
-                    <option value="sin1">Asia Pacific (sin1)</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="pt-3 flex justify-end gap-2 border-t border-border">
-                <button 
-                  type="button"
-                  onClick={() => setIsCreateOpen(false)}
-                  className="h-8.5 px-3.5 rounded-md border border-border bg-surface text-[12px] font-medium text-text-primary hover:bg-surface/80 cursor-pointer transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="h-8.5 px-3.5 rounded-md bg-foreground text-[12px] font-semibold text-background hover:opacity-90 cursor-pointer transition-opacity"
-                >
-                  Create Bucket
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </AppShell>);
+                {/* Bucket Grid */}
+                {loading ? (
+                    <div className="text-center py-20 text-muted">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mb-3" />
+                        <p className="text-xs">Loading MinIO buckets...</p>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <Panel>
+                        <div className="text-center py-16">
+                            <HardDrive className="h-10 w-10 text-muted mx-auto mb-3 opacity-40" />
+                            <h3 className="text-sm font-semibold mb-1">No Storage Buckets</h3>
+                            <p className="text-xs text-muted max-w-sm mx-auto mb-4">
+                                Create an S3-compatible MinIO bucket to store files and static assets.
+                            </p>
+                            <button
+                                onClick={() => setIsCreateOpen(true)}
+                                className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3.5 py-2 rounded-md"
+                            >
+                                <Plus className="h-3.5 w-3.5" /> Create Bucket
+                            </button>
+                        </div>
+                    </Panel>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filtered.map((b) => (
+                            <Link key={b.id} to={`/storage/${b.id}`} className="group block">
+                                <Panel className="h-full hover:border-primary/50 transition-all hover:shadow-md">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-8 w-8 rounded-md bg-accent flex items-center justify-center font-bold text-xs">
+                                                <HardDrive className="h-4 w-4 text-primary" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-sm group-hover:text-primary transition-colors">{b.name}</h4>
+                                                <p className="text-xs text-muted font-mono">{b.region || "iad1"}</p>
+                                            </div>
+                                        </div>
+                                        <span className="flex items-center gap-1 text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-accent text-muted">
+                                            {b.visibility === "public" ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                                            {b.visibility}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-muted font-mono truncate mb-4">
+                                        {b.endpoint || `https://${b.name}.s3.sharexpress.in`}
+                                    </p>
+                                    <div className="flex items-center justify-between text-xs text-muted pt-3 border-t border-border/40">
+                                        <span>{b.size || "0 GB"} · {b.objects_count || 0} objects</span>
+                                        <span className="group-hover:translate-x-0.5 transition-transform">Browse &rarr;</span>
+                                    </div>
+                                </Panel>
+                            </Link>
+                        ))}
+                    </div>
+                )}
+
+                {/* Create Bucket Modal */}
+                {isCreateOpen && (
+                    <div className="fixed inset-0 bg-background/80 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+                        <div className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-xl relative animate-in fade-in zoom-in-95">
+                            <button
+                                onClick={() => setIsCreateOpen(false)}
+                                className="absolute right-4 top-4 text-muted hover:text-foreground"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                            <h3 className="text-base font-bold mb-1">Create Storage Bucket</h3>
+                            <p className="text-xs text-muted mb-4">Provision new MinIO S3 object storage bucket.</p>
+
+                            <form onSubmit={handleCreateBucket} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-semibold mb-1">Bucket Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="e.g. acme-uploads"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-accent/40 border border-border rounded px-3 py-1.5 text-xs focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold mb-1">Visibility</label>
+                                        <select
+                                            value={visibility}
+                                            onChange={(e) => setVisibility(e.target.value)}
+                                            className="w-full bg-accent/40 border border-border rounded px-3 py-1.5 text-xs focus:outline-none focus:border-primary"
+                                        >
+                                            <option value="public">Public Read</option>
+                                            <option value="private">Private</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold mb-1">Region</label>
+                                        <select
+                                            value={region}
+                                            onChange={(e) => setRegion(e.target.value)}
+                                            className="w-full bg-accent/40 border border-border rounded px-3 py-1.5 text-xs focus:outline-none focus:border-primary"
+                                        >
+                                            <option value="iad1">US East (N. Virginia)</option>
+                                            <option value="fra1">EU Central (Frankfurt)</option>
+                                            <option value="sin1">Asia Pacific (Singapore)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="pt-2 flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCreateOpen(false)}
+                                        className="px-3 py-1.5 border border-border rounded text-xs hover:bg-accent"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="px-4 py-1.5 bg-primary text-primary-foreground rounded text-xs font-semibold hover:bg-primary/90 disabled:opacity-50"
+                                    >
+                                        {submitting ? "Creating..." : "Create Bucket"}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+            </PageShell>
+        </AppShell>
+    );
 }

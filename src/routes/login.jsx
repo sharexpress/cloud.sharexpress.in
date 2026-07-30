@@ -16,10 +16,11 @@
 
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { AuthLayout } from "@/components/app/auth-layout";
-import { Github } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { login, clearAuthError } from "../store/index.js";
+import { Github, Mail, ShieldCheck, KeyRound } from "lucide-react";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { api } from "@/lib/api";
+import { setUser } from "../store/index.js";
 
 export const Route = createFileRoute("/login")({
     head: () => ({ meta: [{ title: "Sign in — Sharexpress Cloud" }] }),
@@ -29,74 +30,146 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
     const dispatch = useDispatch();
     const router = useRouter();
-    const { isAuthenticated, error } = useSelector((state) => state.auth);
     
-    const [email, setEmail] = useState("jordan@acme.com");
-    const [password, setPassword] = useState("••••••••");
-    
-    useEffect(() => {
-        dispatch(clearAuthError());
-    }, [dispatch]);
+    const [step, setStep] = useState(1); // 1: Enter email, 2: Enter OTP
+    const [email, setEmail] = useState("");
+    const [otp, setOtp] = useState("");
+    const [transactionId, setTransactionId] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            router.navigate({ to: "/" });
-        }
-    }, [isAuthenticated, router]);
-
-    const handleSubmit = (e) => {
+    const handleSendOtp = async (e) => {
         e.preventDefault();
-        if (email.trim() && password.trim()) {
-            dispatch(login({ email, password }));
+        if (!email.trim()) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await api.sendOtp(email.trim());
+            if (res.success && res.transaction_id) {
+                setTransactionId(res.transaction_id);
+                setStep(2);
+            }
+        } catch (err) {
+            setError(err.message || "Failed to send verification OTP");
+        } finally {
+            setLoading(false);
         }
     };
 
-    return (<AuthLayout title="Sign in to Sharexpress Cloud" subtitle="Welcome back. Enter your credentials to continue." footer={<span>Don't have an account? <Link to="/register" className="text-foreground hover:underline">Sign up</Link></span>}>
-      <div className="space-y-3">
-        <button className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-surface text-[13px] font-medium text-foreground hover:border-border-strong transition-colors">
-          <Github className="h-4 w-4"/> Continue with GitHub
-        </button>
-        <button className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-surface text-[13px] font-medium text-foreground hover:border-border-strong transition-colors">
-          <span className="grid h-4 w-4 place-items-center rounded-sm bg-foreground text-[9px] font-bold text-background">G</span>
-          Continue with Google
-        </button>
-      </div>
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        if (!otp.trim()) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await api.verifyOtp(transactionId, otp.trim());
+            if (res.success && res.user) {
+                dispatch(setUser(res.user));
+                router.navigate({ to: "/" });
+            }
+        } catch (err) {
+            setError(err.message || "Invalid OTP code");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <div className="h-px flex-1 bg-border"/> or <div className="h-px flex-1 bg-border"/>
-      </div>
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-      {error && (
-        <div className="mb-4 rounded-md bg-destructive/15 border border-destructive/25 p-3 text-[12.5px] text-destructive">
-          {error}
-        </div>
-      )}
+    return (
+        <AuthLayout
+            title={step === 1 ? "Sign in to Sharexpress Cloud" : "Enter Verification Code"}
+            subtitle={step === 1 ? "Enter your email to receive a passwordless OTP code." : `We sent a 6-digit verification code to ${email}`}
+            footer={<span>Need help? Contact <a href="mailto:support@sharexpress.in" className="text-foreground hover:underline">support@sharexpress.in</a></span>}
+        >
+            <div className="space-y-3">
+                {step === 1 && (
+                    <>
+                        <a
+                            href={`${API_BASE}/auth/github/login`}
+                            className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-surface text-[13px] font-medium text-foreground hover:border-border-strong transition-colors"
+                        >
+                            <Github className="h-4 w-4"/> Continue with GitHub
+                        </a>
+                        <a
+                            href={`${API_BASE}/auth/google/login`}
+                            className="flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-surface text-[13px] font-medium text-foreground hover:border-border-strong transition-colors"
+                        >
+                            <span className="grid h-4 w-4 place-items-center rounded-sm bg-foreground text-[9px] font-bold text-background">G</span>
+                            Continue with Google
+                        </a>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="text-[11.5px] text-muted-foreground">Email</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-[13px] text-foreground focus:border-accent focus:outline-none transition-colors"
-          />
-        </div>
-        <div>
-          <div className="flex items-center justify-between">
-            <label className="text-[11.5px] text-muted-foreground">Password</label>
-            <Link to="/forgot-password" className="text-[11.5px] text-muted-foreground hover:text-foreground">Forgot?</Link>
-          </div>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-[13px] text-foreground focus:border-accent focus:outline-none transition-colors"
-          />
-        </div>
-        <button type="submit" className="flex h-10 w-full items-center justify-center rounded-md bg-foreground text-[13px] font-medium text-background hover:opacity-90 transition-opacity">
-          Sign in
-        </button>
-      </form>
-    </AuthLayout>);
+                        <div className="relative py-2 flex items-center justify-center">
+                            <span className="w-full border-t border-border/40" />
+                            <span className="absolute bg-background px-2 text-[11px] text-muted uppercase">or email OTP</span>
+                        </div>
+                    </>
+                )}
+
+                {error && (
+                    <div className="bg-destructive/10 border border-destructive/30 rounded p-2.5 text-xs text-destructive font-medium">
+                        {error}
+                    </div>
+                )}
+
+                {step === 1 ? (
+                    <form onSubmit={handleSendOtp} className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-semibold mb-1">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+                                <input
+                                    type="email"
+                                    required
+                                    placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-accent/40 border border-border rounded-md pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-primary"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-semibold rounded-md hover:bg-primary/90 disabled:opacity-50 transition-all"
+                        >
+                            {loading ? "Sending Code..." : "Send Verification Code"}
+                        </button>
+                    </form>
+                ) : (
+                    <form onSubmit={handleVerifyOtp} className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-semibold mb-1">6-Digit OTP Code</label>
+                            <div className="relative">
+                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+                                <input
+                                    type="text"
+                                    required
+                                    maxLength={6}
+                                    placeholder="123456"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    className="w-full bg-accent/40 border border-border rounded-md pl-9 pr-3 py-2 text-xs font-mono text-center tracking-widest text-sm focus:outline-none focus:border-primary"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-semibold rounded-md hover:bg-primary/90 disabled:opacity-50 transition-all"
+                        >
+                            {loading ? "Verifying..." : "Verify & Sign In"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            className="w-full text-center text-xs text-muted hover:text-foreground pt-1"
+                        >
+                            &larr; Back to Email
+                        </button>
+                    </form>
+                )}
+            </div>
+        </AuthLayout>
+    );
 }
