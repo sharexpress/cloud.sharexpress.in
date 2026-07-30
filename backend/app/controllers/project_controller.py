@@ -15,15 +15,17 @@
 from fastapi import HTTPException
 from typing import Dict, Any, List
 from slugify import slugify
-from app.models.schemas import ProjectCreate, ProjectEnvCreate
-from app.core.db import get_db
+import asyncio
 import logging
 import uuid
 import datetime
+from app.models.schemas import ProjectCreate, ProjectEnvCreate
+from app.core.db import get_db
+from app.utils.encryption import encrypt_secret, decrypt_secret
+from app.services.build_service import execute_docker_build
 
 logger = logging.getLogger(__name__)
 
-# Mock initial project data for fallback
 INITIAL_PROJECTS = [
     {
         "id": "p_1",
@@ -89,7 +91,7 @@ class ProjectController:
         proj_id = str(res.inserted_id)
         proj_doc["id"] = proj_id
 
-        # Trigger initial build deployment
+        # Trigger deployment build task
         await ProjectController.trigger_deployment(proj_id, user)
 
         return {"success": True, "project": proj_doc}
@@ -121,7 +123,6 @@ class ProjectController:
             proj = await db.projects.find_one({"slug": project_id})
 
         if not proj:
-            # Fallback to mock projects
             match = next((p for p in INITIAL_PROJECTS if p["id"] == project_id or p["slug"] == project_id), None)
             if match:
                 return match
@@ -134,6 +135,8 @@ class ProjectController:
     @staticmethod
     async def trigger_deployment(project_id: str, user: Dict[str, Any]):
         db = get_db()
+        proj = await ProjectController.get_project(project_id)
+        
         dep_id = f"dpl_{uuid.uuid4().hex[:8]}"
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -141,20 +144,30 @@ class ProjectController:
             "id": dep_id,
             "project_id": project_id,
             "commit_sha": uuid.uuid4().hex[:7],
-            "status": "live",
+            "status": "building",
             "triggered_by": str(user.get("_id")),
             "deployed_at": now,
-            "build_log": " Cloned git repository...\n Executing build command...\n Container image built successfully.\n Deployed to K8s cluster cluster-us-east.\n Routing enabled for *.project.sharexpress.in\n Health check passed: 200 OK"
+            "build_log": "Starting build pipeline..."
         }
 
         await db.deployments.insert_one(dep_doc)
         
-        # Update project status to live
-        try:
-            from bson import ObjectId
-            await db.projects.update_one({"_id": ObjectId(project_id)}, {"$set": {"status": "live"}})
-        except Exception:
-            pass
+        # Trigger background Docker build task
+        env_vars_raw = await ProjectController.get_env_vars(project_id, mask=False)
+        env_dict = {e["key"]: e["value"] for e in env_vars_raw}
+        
+        asyncio.create_task(
+            execute_docker_build(
+                deployment_id=dep_id,
+                project_name=proj["name"],
+                framework=proj.get("framework", "nextjs"),
+                type_=proj.get("type", "web_service"),
+                build_cmd=proj.get("build_command", "npm run build"),
+                start_cmd=proj.get("start_command", "npm start"),
+                port=proj.get("port", 3000),
+                env_vars=env_dict
+            )
+        )
 
         return {"success": True, "deployment": dep_doc}
 
@@ -170,7 +183,7 @@ class ProjectController:
                     "commit_sha": "a4b8c9d",
                     "status": "live",
                     "deployed_at": "Just now",
-                    "build_log": "Build successful. All health checks passed."
+                    "build_log": "Build successful. Container deployed."
                 }
             ]
         
@@ -188,26 +201,35 @@ class ProjectController:
         envs = await db.env_vars.find({"project_id": project_id}).to_list(100)
         if not envs:
             envs = [
-                {"key": "DATABASE_URL", "value": "postgresql://user:pass@primary-pg:5432/main", "is_secret": True},
+                {"key": "DATABASE_URL", "value": encrypt_secret("postgresql://user:pass@primary-pg:5432/main"), "is_secret": True},
                 {"key": "NEXT_PUBLIC_API_URL", "value": "https://api.acme.com", "is_secret": False},
                 {"key": "NODE_ENV", "value": "production", "is_secret": False}
             ]
         
         out = []
         for e in envs:
-            val = e["value"]
-            if mask and (e.get("is_secret") or "SECRET" in e["key"] or "PASS" in e["key"] or "URL" in e["key"]):
+            is_sec = e.get("is_secret", False)
+            raw_val = e["value"]
+            if is_sec:
+                # Decrypt AES-256 secret
+                raw_val = decrypt_secret(raw_val)
+
+            val = raw_val
+            if mask and (is_sec or "SECRET" in e["key"] or "PASS" in e["key"]):
                 val = "••••••••••••••••••••••••"
-            out.append({"key": e["key"], "value": val, "is_secret": e.get("is_secret", False)})
+
+            out.append({"key": e["key"], "value": val, "is_secret": is_sec})
             
         return out
 
     @staticmethod
     async def add_env_var(project_id: str, payload: ProjectEnvCreate):
         db = get_db()
+        stored_value = encrypt_secret(payload.value) if payload.is_secret else payload.value
+        
         await db.env_vars.update_one(
             {"project_id": project_id, "key": payload.key},
-            {"$set": {"value": payload.value, "is_secret": payload.is_secret}},
+            {"$set": {"value": stored_value, "is_secret": payload.is_secret}},
             upsert=True
         )
-        return {"success": True, "message": f"Environment variable '{payload.key}' updated."}
+        return {"success": True, "message": f"Environment variable '{payload.key}' updated with AES-256 encryption."}

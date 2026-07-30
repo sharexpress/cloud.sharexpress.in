@@ -27,6 +27,7 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = os.getenv("DB_NAME", "sharexpress_cloud")
 
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY", "sharexpress-session-secret-key-2026")
+ENCRYPTION_MASTER_KEY = os.getenv("ENCRYPTION_MASTER_KEY", "sharexpress-secret-key-32bytes-master-2026!")
 
 # REDIS CONFIGURATION
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")

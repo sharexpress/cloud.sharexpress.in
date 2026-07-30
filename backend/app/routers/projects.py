@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+import asyncio
 from app.models.schemas import ProjectCreate, ProjectEnvCreate
 from app.controllers.project_controller import ProjectController
 from app.middleware.auth import get_current_user, require_identity_verified
+from app.services.build_service import log_subscribers
 from typing import Dict, Any
 
 router = APIRouter(prefix="/projects", tags=["Project Hosting & Deployments"])
@@ -52,3 +54,24 @@ async def add_env_var(id: str, payload: ProjectEnvCreate, user: Dict[str, Any] =
 @router.get("/{id}/env/reveal")
 async def reveal_env_vars(id: str, user: Dict[str, Any] = Depends(require_identity_verified)):
     return await ProjectController.get_env_vars(id, mask=False)
+
+# WEBSOCKET REAL-TIME BUILD LOG STREAMING
+@router.websocket("/{id}/logs/ws")
+async def websocket_build_logs(websocket: WebSocket, id: str):
+    await websocket.accept()
+    queue = asyncio.Queue()
+    
+    if id not in log_subscribers:
+        log_subscribers[id] = []
+    log_subscribers[id].append(queue)
+    
+    try:
+        await websocket.send_text(f"Connected to deployment build stream for '{id}'...")
+        while True:
+            log_line = await queue.get()
+            await websocket.send_text(log_line)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        if id in log_subscribers and queue in log_subscribers[id]:
+            log_subscribers[id].remove(queue)
