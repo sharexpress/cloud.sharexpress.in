@@ -30,6 +30,9 @@ load_dotenv(override=True)
 from app.core.config import SESSION_SECRET_KEY, BACKEND_URL
 from app.routers.auth import router as auth_router
 from app.routers.workspaces import router as workspaces_router
+from app.routers.projects import router as projects_router
+from app.routers.databases import router as databases_router
+from app.routers.storage import router as storage_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sharexpress-cloud")
@@ -66,6 +69,9 @@ app.add_middleware(
 # --- ROUTES ---
 app.include_router(auth_router)
 app.include_router(workspaces_router)
+app.include_router(projects_router)
+app.include_router(databases_router)
+app.include_router(storage_router)
 
 @app.get("/", tags=["Health"])
 async def root():
@@ -73,7 +79,14 @@ async def root():
         "service": "Sharexpress Cloud API",
         "version": "1.0.0",
         "status": "online",
-        "docs": f"{BACKEND_URL}/docs"
+        "docs": f"{BACKEND_URL}/docs",
+        "endpoints": [
+            "/auth",
+            "/workspaces",
+            "/projects",
+            "/databases",
+            "/storage"
+        ]
     }
 
 if __name__ == "__main__":
