@@ -29,3 +29,7 @@ export const team = [];
 export const invoices = [];
 export const apiKeys = [];
 export const logLines = [];
+
+export const metricSeries = (seed = 1, len = 32, base = 40, spread = 40) => {
+  return Array.from({ length: len }, (_, i) => Math.floor(base + Math.sin(i + seed) * (spread / 2)));
+};

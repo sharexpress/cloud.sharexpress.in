@@ -33,6 +33,14 @@ const authSlice = createSlice({
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
     },
+    login: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+    },
+    register: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+    },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
@@ -40,6 +48,12 @@ const authSlice = createSlice({
     },
     setTwoFactorVerified: (state, action) => {
       state.twoFactorVerified = action.payload;
+    },
+    verifyTwoFactor: (state) => { state.twoFactorVerified = true; },
+    verifyEmailLink: (state) => { state.emailVerified = true; },
+    forgotPassword: (state) => { state.verificationCodeSent = true; },
+    clearAuthError: (state) => {
+      state.error = null;
     }
   },
 });
@@ -60,6 +74,14 @@ const workspacesSlice = createSlice({
       }
     },
     setActiveWorkspace: (state, action) => {
+      state.activeWorkspaceId = action.payload;
+    },
+    createWorkspace: (state, action) => {
+      const newWs = { id: `ws_${Date.now()}`, name: action.payload, slug: action.payload.toLowerCase().replace(/\s+/g, "-") };
+      state.list.push(newWs);
+      state.activeWorkspaceId = newWs.id;
+    },
+    switchWorkspace: (state, action) => {
       state.activeWorkspaceId = action.payload;
     },
     addWorkspace: (state, action) => {
@@ -83,6 +105,9 @@ const projectsSlice = createSlice({
     addProject: (state, action) => {
       state.list.unshift(action.payload);
     },
+    deleteProject: (state, action) => {
+      state.list = state.list.filter(p => p.id !== action.payload);
+    }
   },
 });
 
@@ -99,6 +124,7 @@ const deploymentsSlice = createSlice({
     addDeployment: (state, action) => {
       state.list.unshift(action.payload);
     },
+    triggerRollback: (state) => {},
   },
 });
 
@@ -115,6 +141,8 @@ const databasesSlice = createSlice({
     addDatabase: (state, action) => {
       state.list.unshift(action.payload);
     },
+    restartDatabase: (state) => {},
+    completeDatabaseRestart: (state) => {},
   },
 });
 
@@ -138,6 +166,62 @@ const storageSlice = createSlice({
   },
 });
 
+// --- Generic Stub Slice for auxiliary routes ---
+const auxSlice = createSlice({
+  name: "aux",
+  initialState: {
+    functions: [],
+    team: [],
+    apiKeys: [],
+    secrets: [],
+    domains: [],
+    compute: [],
+    invoices: [],
+    theme: "dark"
+  },
+  reducers: {
+    addFunction: (state, action) => { state.functions.unshift(action.payload); },
+    triggerFunction: (state) => {},
+    inviteMember: (state, action) => { state.team.unshift(action.payload); },
+    cancelInvite: (state) => {},
+    updateRole: (state) => {},
+    removeMember: (state) => {},
+    createApiKey: (state, action) => { state.apiKeys.unshift(action.payload); },
+    revokeApiKey: (state) => {},
+    generateKey: (state) => {},
+    rotateKey: (state) => {},
+    revokeKey: (state) => {},
+    addSecret: (state, action) => { state.secrets.unshift(action.payload); },
+    deleteSecret: (state) => {},
+    addDomain: (state, action) => { state.domains.unshift(action.payload); },
+    verifyDomain: (state) => {},
+    deleteDomain: (state) => {},
+    addCompute: (state, action) => { state.compute.unshift(action.payload); },
+    scaleReplicas: (state) => {},
+    completeScaling: (state) => {},
+    restartContainer: (state) => {},
+    completeRestart: (state) => {},
+    addInvoice: (state, action) => { state.invoices.unshift(action.payload); },
+    changePlan: (state) => {},
+    toggleAlert: (state) => {},
+    addAlert: (state) => {},
+    uploadMediaFile: (state) => {},
+    deleteMediaFile: (state) => {},
+    uploadFile: (state) => {},
+    deleteFile: (state) => {},
+    updateNotifications: (state) => {},
+    toggleTheme: (state) => { state.theme = state.theme === "dark" ? "light" : "dark"; },
+    addLogLine: (state) => {},
+    clearLogs: (state) => {},
+    toggleStreaming: (state) => {},
+    setFilterLevel: (state) => {},
+    setSearchQuery: (state) => {},
+    setMetricRange: (state) => {},
+    toggleLiveUpdates: (state) => {},
+    setRegionFilter: (state) => {},
+  }
+});
+
 // --- Observability / Stats Slice ---
 const statsSlice = createSlice({
   name: "stats",
@@ -151,12 +235,19 @@ const statsSlice = createSlice({
   }
 });
 
-export const { setUser, logout, setTwoFactorVerified } = authSlice.actions;
-export const { setWorkspaces, setActiveWorkspace, addWorkspace } = workspacesSlice.actions;
-export const { setProjects, addProject } = projectsSlice.actions;
-export const { setDeployments, addDeployment } = deploymentsSlice.actions;
-export const { setDatabases, addDatabase } = databasesSlice.actions;
+export const { setUser, login, register, logout, setTwoFactorVerified, verifyTwoFactor, verifyEmailLink, forgotPassword, clearAuthError } = authSlice.actions;
+export const { setWorkspaces, setActiveWorkspace, createWorkspace, switchWorkspace, addWorkspace } = workspacesSlice.actions;
+export const { setProjects, addProject, deleteProject } = projectsSlice.actions;
+export const { setDeployments, addDeployment, triggerRollback } = deploymentsSlice.actions;
+export const { setDatabases, addDatabase, restartDatabase, completeDatabaseRestart } = databasesSlice.actions;
 export const { setBuckets, addBucket, setObjects } = storageSlice.actions;
+export const { 
+  addFunction, triggerFunction, inviteMember, cancelInvite, updateRole, removeMember, 
+  createApiKey, revokeApiKey, generateKey, rotateKey, revokeKey, addSecret, deleteSecret, addDomain, verifyDomain, deleteDomain, 
+  addCompute, scaleReplicas, completeScaling, restartContainer, completeRestart,
+  addInvoice, changePlan, toggleAlert, addAlert, uploadMediaFile, deleteMediaFile, uploadFile, deleteFile, updateNotifications, toggleTheme,
+  addLogLine, clearLogs, toggleStreaming, setFilterLevel, setSearchQuery, setMetricRange, toggleLiveUpdates, setRegionFilter
+} = auxSlice.actions;
 export const { setStats } = statsSlice.actions;
 
 export const store = configureStore({
@@ -167,6 +258,7 @@ export const store = configureStore({
     deployments: deploymentsSlice.reducer,
     databases: databasesSlice.reducer,
     storage: storageSlice.reducer,
+    aux: auxSlice.reducer,
     stats: statsSlice.reducer,
   },
 });
