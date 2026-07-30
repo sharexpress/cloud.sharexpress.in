@@ -14,13 +14,25 @@
 
 import os
 import base64
-import hashlib
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 from app.core.config import ENCRYPTION_MASTER_KEY
 
+# Static salt — unique per application, not secret, but must not change
+_KDF_SALT = b"sharexpress-cloud-aes-kdf-salt-v1"
+
 def _derive_key() -> bytes:
-    """Derive 256-bit key from master key string."""
-    return hashlib.sha256(ENCRYPTION_MASTER_KEY.encode()).digest()
+    """Derive 256-bit AES key from master key using HKDF (RFC 5869)."""
+    hkdf = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=_KDF_SALT,
+        info=b"sharexpress-envelope-encryption",
+        backend=default_backend()
+    )
+    return hkdf.derive(ENCRYPTION_MASTER_KEY.encode())
 
 def encrypt_secret(plaintext: str) -> str:
     """Encrypt plaintext using AES-256-GCM. Returns base64 encoded payload (nonce + ciphertext)."""

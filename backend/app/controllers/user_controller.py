@@ -42,8 +42,8 @@ class UserController:
         return {
             "success": True,
             "message": f"Verification OTP sent to {email}",
-            "transaction_id": tx_res["transaction_id"],
-            "otp_debug": otp_code # Logged for testing
+            "transaction_id": tx_res["transaction_id"]
+            # otp_debug intentionally excluded from response (security)
         }
 
     @staticmethod

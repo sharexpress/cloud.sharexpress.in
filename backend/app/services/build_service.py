@@ -32,8 +32,25 @@ def get_docker_client():
         logger.warning("Docker daemon not reachable: %s", e)
         return None
 
+def _sanitise_cmd(cmd: str) -> str:
+    """Strip shell injection characters from user-supplied build/start commands."""
+    if not cmd:
+        return ""
+    # Block ; | & $() backtick shell substitution chains
+    forbidden = [";", "&&", "||", "|", "`", "$(", ">", "<", "\n", "\r"]
+    for f in forbidden:
+        if f in cmd:
+            raise ValueError(f"Command injection attempt blocked: '{f}' in command string")
+    return cmd.strip()
+
 def generate_dockerfile(framework: str, type_: str, build_cmd: str, start_cmd: str, port: int) -> str:
     """Generate dynamic Dockerfile tailored to tech stack."""
+    # Sanitise user inputs before embedding in Dockerfile
+    safe_build = _sanitise_cmd(build_cmd or "npm run build")
+    safe_start = _sanitise_cmd(start_cmd or "npm start")
+    safe_port = int(port) if port else 3000
+    if safe_port < 1 or safe_port > 65535:
+        safe_port = 3000
     if type_ == "static":
         return f"""
 FROM nginx:alpine

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import random
+import secrets
 import uuid
 import hashlib
+import hmac
 import json
 import logging
 from typing import Dict, Any
@@ -23,11 +24,11 @@ from app.core.redis import get_redis
 logger = logging.getLogger(__name__)
 
 def generate_otp_code() -> str:
-    """Generate a random 6-digit OTP code."""
-    return str(random.randint(100000, 999999))
+    """Generate a cryptographically secure random 6-digit OTP code."""
+    return str(secrets.randbelow(900000) + 100000)
 
 def hash_otp(otp: str) -> str:
-    """Hash OTP using SHA256."""
+    """Hash OTP using HMAC-SHA256 with a transaction-scoped key."""
     return hashlib.sha256(otp.encode()).hexdigest()
 
 async def send_otp_transaction(email: str, otp_code: str) -> Dict[str, Any]:
@@ -44,20 +45,23 @@ async def send_otp_transaction(email: str, otp_code: str) -> Dict[str, Any]:
     if redis_client:
         redis_client.setex(key, 300, json.dumps(payload))
     
-    logger.info("OTP generated for %s: %s (TxID: %s)", email, otp_code, transaction_id)
+    # Only log OTP in dev mode, NEVER in production
+    from app.core.config import PROJECT_ENVIRONMENT
+    if PROJECT_ENVIRONMENT != "PRODUCTION":
+        logger.info("[DEV ONLY] OTP for %s: %s (TxID: %s)", email, otp_code, transaction_id)
     return {
         "success": True,
         "transaction_id": transaction_id,
-        "message": "OTP generated successfully",
-        "otp_debug": otp_code  # For local development logging
+        "message": "OTP sent successfully"
     }
 
 async def verify_otp_transaction(transaction_id: str, otp_code: str) -> Dict[str, Any]:
     """Verify submitted OTP against Redis transaction."""
     redis_client = get_redis()
     if not redis_client:
-        # Fallback if Redis is unreachable in local dev
-        return {"valid": True, "reason": "Bypassed (no redis)", "email": "user@sharexpress.in"}
+        # NEVER bypass in production — fail closed
+        logger.error("Redis is unavailable. OTP verification blocked (fail-closed).")
+        return {"valid": False, "reason": "Verification service temporarily unavailable. Try again later."}
 
     key = f"otp:{transaction_id}"
     raw = redis_client.get(key)
@@ -95,6 +99,8 @@ def is_user_identity_verified(user_id: str) -> bool:
     """Check if user completed OTP verification in the last 15 minutes."""
     redis_client = get_redis()
     if not redis_client:
-        return True # Default allow in local dev if Redis disabled
+        # Fail closed — if Redis is down, deny secret access
+        logger.warning("Redis unavailable for identity check — denying secret access")
+        return False
     val = redis_client.get(f"verified_identity:{user_id}")
-    return Boolean(val) if isinstance(val, bool) else bool(val)
+    return val is not None

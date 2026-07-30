@@ -17,7 +17,12 @@ from typing import Dict, Any
 from app.services.jwt_service import verify_token
 from app.services.otp_service import is_user_identity_verified
 from app.core.db import get_db
+from app.core.config import PROJECT_ENVIRONMENT
 from bson import ObjectId
+import logging
+
+logger = logging.getLogger(__name__)
+IS_PRODUCTION = PROJECT_ENVIRONMENT == "PRODUCTION"
 
 async def get_current_user(request: Request) -> Dict[str, Any]:
     """Extract and verify user from RS256 JWT cookie or Authorization header."""
@@ -28,7 +33,11 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
             token = auth_header.split(" ")[1]
 
     if not token:
-        # Development fallback user if no token provided
+        if IS_PRODUCTION:
+            # In production, always require a valid JWT token
+            raise HTTPException(status_code=401, detail="Authentication required.")
+        # Development only: return a default dev user when no token provided
+        logger.warning("No JWT token provided — using dev fallback (development mode only)")
         return {
             "_id": "66a01b2f9c8d7e0011223344",
             "email": "dev@sharexpress.in",

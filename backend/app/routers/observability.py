@@ -21,8 +21,8 @@ from typing import Dict, Any
 router = APIRouter(prefix="/observability", tags=["Observability & Metrics"])
 
 @router.get("/metrics")
-async def prometheus_metrics():
-    """Prometheus metrics endpoint scrapable by Prometheus server / Grafana Agent."""
+async def prometheus_metrics(user: Dict[str, Any] = Depends(get_current_user)):
+    """Prometheus metrics endpoint — authenticated. Scrape via bearer token in Prometheus config."""
     content = collect_telemetry_metrics()
     return Response(content=content, media_type=CONTENT_TYPE_LATEST)
 

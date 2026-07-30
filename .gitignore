@@ -24,6 +24,12 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Secrets — NEVER commit these
+*.pem
+*.key
+backend/.env
+.env
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
