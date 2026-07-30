@@ -29,6 +29,7 @@ import {
   addDomain, verifyDomain, deleteDomain, addFunction, triggerFunction,
   deleteProject, uploadFile, deleteFile
 } from "../store/index.js";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$id")({
     validateSearch: (search) => ({
