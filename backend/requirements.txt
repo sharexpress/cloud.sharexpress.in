@@ -33,6 +33,8 @@ aiofiles>=23.2.1
 # Storage
 boto3>=1.34.0
 
-# Utilities
+# Utilities & Observability
 python-slugify>=8.0.4
 Pillow>=10.0.0
+prometheus-client>=0.20.0
+psutil>=5.9.8

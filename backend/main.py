@@ -33,6 +33,7 @@ from app.routers.workspaces import router as workspaces_router
 from app.routers.projects import router as projects_router
 from app.routers.databases import router as databases_router
 from app.routers.storage import router as storage_router
+from app.routers.observability import router as observability_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sharexpress-cloud")
@@ -72,6 +73,7 @@ app.include_router(workspaces_router)
 app.include_router(projects_router)
 app.include_router(databases_router)
 app.include_router(storage_router)
+app.include_router(observability_router)
 
 @app.get("/", tags=["Health"])
 async def root():
@@ -85,7 +87,8 @@ async def root():
             "/workspaces",
             "/projects",
             "/databases",
-            "/storage"
+            "/storage",
+            "/observability"
         ]
     }
 
