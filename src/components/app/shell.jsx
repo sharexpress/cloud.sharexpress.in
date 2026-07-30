@@ -15,8 +15,108 @@
  */
 
 import { AppSidebar } from "./sidebar";
-import { History } from "lucide-react";
+import { History, ChevronDown, Check } from "lucide-react";
 import { SharexpressLogo } from "./logo";
+import { Link } from "@tanstack/react-router";
+import { useState, useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
+
+function BreadcrumbDropdown({ item, isLast }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        if (!open) return;
+        function handleClick(e) {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, [open]);
+
+    const hasOptions = item.options && item.options.length > 0;
+
+    return (
+        <div className="relative inline-flex items-center" ref={ref}>
+            {item.to ? (
+                <div className="inline-flex items-center gap-0.5">
+                    <Link
+                        to={item.to}
+                        params={item.params}
+                        search={item.search}
+                        className={cn(
+                            "flex items-center gap-1 transition-colors rounded px-1.5 py-0.5 -mx-1 hover:bg-surface/80 cursor-pointer",
+                            isLast ? "text-text-primary font-semibold" : "text-text-muted hover:text-text-primary"
+                        )}
+                    >
+                        <span>{item.label}</span>
+                    </Link>
+
+                    {hasOptions && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setOpen((v) => !v);
+                            }}
+                            className="p-0.5 hover:text-text-primary text-text-muted/60 transition-colors cursor-pointer"
+                        >
+                            <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
+                        </button>
+                    )}
+                </div>
+            ) : hasOptions ? (
+                <button
+                    type="button"
+                    onClick={() => setOpen((v) => !v)}
+                    className={cn(
+                        "flex items-center gap-1 transition-colors rounded px-1.5 py-0.5 -mx-1 hover:bg-surface/80 cursor-pointer",
+                        isLast ? "text-text-primary font-semibold" : "text-text-muted hover:text-text-primary"
+                    )}
+                >
+                    <span>{item.label}</span>
+                    <ChevronDown className={cn("h-3 w-3 text-text-muted/60 transition-transform", open && "rotate-180")} />
+                </button>
+            ) : (
+                <span className={isLast ? "text-text-primary font-semibold" : "text-text-muted"}>
+                    {item.label}
+                </span>
+            )}
+
+            {/* Interactive Dropdown Menu */}
+            {open && hasOptions && (
+                <div className="absolute left-0 top-[calc(100%+6px)] z-50 min-w-[160px] max-w-[220px] rounded-xl border border-border bg-card/95 backdrop-blur-md p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-150 font-mono text-[11.5px]">
+                    <div className="max-h-56 overflow-y-auto space-y-0.5">
+                        {item.options.map((opt, idx) => {
+                            const isSelected = opt.label === item.label;
+                            return (
+                                <Link
+                                    key={idx}
+                                    to={opt.to}
+                                    params={opt.params}
+                                    search={opt.search}
+                                    onClick={() => setOpen(false)}
+                                    className={cn(
+                                        "flex items-center justify-between px-2.5 py-1.5 rounded-md text-left transition-colors cursor-pointer",
+                                        isSelected
+                                            ? "bg-surface text-text-primary font-bold border border-border/60"
+                                            : "text-text-muted hover:bg-surface/50 hover:text-text-primary border border-transparent"
+                                    )}
+                                >
+                                    <span className="truncate">{opt.label}</span>
+                                    {isSelected && <Check className="h-3 w-3 text-accent-purple shrink-0 ml-2" />}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export function AppShell({ breadcrumbs, title, actions, children }) {
     return (
@@ -35,8 +135,8 @@ export function AppShell({ breadcrumbs, title, actions, children }) {
                                 <nav className="flex items-center gap-1.5 text-[12px] font-medium text-text-muted">
                                     {breadcrumbs.map((b, i) => (
                                         <span key={i} className="flex items-center gap-1.5">
-                                            {i > 0 && <span className="text-text-muted/40">/</span>}
-                                            <span className={i === breadcrumbs.length - 1 ? "text-text-primary font-semibold" : "hover:text-text-primary cursor-pointer transition-colors"}>{b.label}</span>
+                                            {i > 0 && <span className="text-text-muted/40 font-mono text-[11px]">/</span>}
+                                            <BreadcrumbDropdown item={b} isLast={i === breadcrumbs.length - 1} />
                                         </span>
                                     ))}
                                 </nav>
@@ -56,7 +156,7 @@ export function AppShell({ breadcrumbs, title, actions, children }) {
                         {children}
                     </div>
 
-                    {/* Bottom Ask Sharexpress AI floating bar matching Linear screenshot */}
+                    {/* Bottom Ask Sharexpress AI floating bar */}
                     <div className="absolute bottom-3 right-4 z-40 flex items-center gap-2 bg-card/90 backdrop-blur border border-border px-3.5 py-1.5 rounded-full text-[11.5px] text-text-secondary hover:text-text-primary transition-all shadow-md hover:border-border-strong cursor-pointer select-none">
                         <SharexpressLogo className="h-3.5 w-3.5" />
                         <span className="font-medium">Ask Sharexpress AI</span>

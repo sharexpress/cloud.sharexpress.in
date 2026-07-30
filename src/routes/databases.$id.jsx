@@ -129,7 +129,31 @@ function DatabaseDetailPage() {
     };
 
     return (
-        <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Databases" }, { label: database.name }, { label: tab }]}>
+        <AppShell breadcrumbs={[
+            { label: activeWsName, to: "/dashboard" },
+            { label: "Databases", to: "/databases" },
+            { 
+                label: database.name, 
+                to: "/databases/$id", 
+                params: { id: database.id },
+                search: { tab: tab },
+                options: databases.map((d) => ({
+                    label: d.name,
+                    to: "/databases/$id",
+                    params: { id: d.id },
+                    search: { tab: tab }
+                }))
+            },
+            { 
+                label: tab, 
+                options: DB_TABS.map((t) => ({
+                    label: t,
+                    to: "/databases/$id",
+                    params: { id: database.id },
+                    search: { tab: t }
+                }))
+            }
+        ]}>
             <PageShell>
                 {/* Dynamic Toast */}
                 {toastMessage && (

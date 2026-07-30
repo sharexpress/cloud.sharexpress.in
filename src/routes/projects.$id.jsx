@@ -137,7 +137,31 @@ function ProjectDetailPage() {
         showToast(`Triggering rollback to commit ${dpl.commit}...`);
     };
 
-    return (<AppShell breadcrumbs={[{ label: activeWsName }, { label: "Projects" }, { label: project.name }, { label: tab }]}>
+    return (<AppShell breadcrumbs={[
+        { label: activeWsName, to: "/dashboard" },
+        { label: "Projects", to: "/projects" },
+        { 
+            label: project.name, 
+            to: "/projects/$id", 
+            params: { id: projectSlug },
+            search: { tab: tab },
+            options: projects.map((p) => ({
+                label: p.name,
+                to: "/projects/$id",
+                params: { id: p.slug },
+                search: { tab: tab }
+            }))
+        },
+        { 
+            label: tab, 
+            options: TABS.map((t) => ({
+                label: t,
+                to: "/projects/$id",
+                params: { id: projectSlug },
+                search: { tab: t }
+            }))
+        }
+    ]}>
       <PageShell>
         
         {/* Dynamic Toast Indicator */}
