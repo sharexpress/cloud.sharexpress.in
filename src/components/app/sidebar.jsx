@@ -286,7 +286,7 @@ function ProjectDetailSidebar({ projectSlug }) {
     const projects = useSelector((s) => s.projects?.list || []);
     const project = projects.find((p) => p.slug === projectSlug) || projects[0];
     const dispatch = useDispatch();
-    const currentTheme = useSelector((state) => state.settings.appearance.theme);
+    const currentTheme = useSelector((state) => state.settings?.appearance?.theme || "dark");
     const locationSearch = useRouterState({ select: (s) => s.location.search });
 
     const activeTab = locationSearch?.tab || "Overview";
@@ -387,7 +387,7 @@ function DatabaseDetailSidebar({ dbId }) {
     const databases = useSelector((s) => s.databases?.list || []);
     const database = databases.find((d) => d.id === dbId || d.name.toLowerCase() === dbId.toLowerCase()) || databases[0];
     const dispatch = useDispatch();
-    const currentTheme = useSelector((state) => state.settings.appearance.theme);
+    const currentTheme = useSelector((state) => state.settings?.appearance?.theme || "dark");
     const locationSearch = useRouterState({ select: (s) => s.location.search });
 
     const activeTab = locationSearch?.tab || "Overview";
@@ -486,7 +486,7 @@ function StorageDetailSidebar({ bucketId }) {
     const buckets = useSelector((s) => s.storage?.buckets || []);
     const bucket = buckets.find((b) => b.id === bucketId || b.name.toLowerCase() === bucketId.toLowerCase()) || buckets[0];
     const dispatch = useDispatch();
-    const currentTheme = useSelector((state) => state.settings.appearance.theme);
+    const currentTheme = useSelector((state) => state.settings?.appearance?.theme || "dark");
     const locationSearch = useRouterState({ select: (s) => s.location.search });
 
     const activeTab = locationSearch?.tab || "Overview";
@@ -582,7 +582,7 @@ function StorageDetailSidebar({ bucketId }) {
 
 export function AppSidebar() {
     const dispatch = useDispatch();
-    const currentTheme = useSelector((state) => state.settings.appearance.theme);
+    const currentTheme = useSelector((state) => state.settings?.appearance?.theme || "dark");
     const path = useRouterState({ select: (s) => s.location.pathname });
 
     // Detect if we are inside a specific project details route (/projects/:id)

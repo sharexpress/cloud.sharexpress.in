@@ -74,6 +74,12 @@ import storageReducer, {
   setObjects,
 } from "./slices/storageSlice";
 
+import settingsReducer, {
+  toggleTheme,
+  updateAppearance,
+  updateNotifications,
+} from "./slices/settingsSlice";
+
 import auxReducer, {
   addFunction,
   triggerFunction,
@@ -104,8 +110,6 @@ import auxReducer, {
   deleteMediaFile,
   uploadFile,
   deleteFile,
-  updateNotifications,
-  toggleTheme,
   addLogLine,
   clearLogs,
   toggleStreaming,
@@ -160,6 +164,9 @@ export {
   setBuckets,
   addBucket,
   setObjects,
+  toggleTheme,
+  updateAppearance,
+  updateNotifications,
   addFunction,
   triggerFunction,
   inviteMember,
@@ -189,8 +196,6 @@ export {
   deleteMediaFile,
   uploadFile,
   deleteFile,
-  updateNotifications,
-  toggleTheme,
   addLogLine,
   clearLogs,
   toggleStreaming,
@@ -211,6 +216,7 @@ export const store = configureStore({
     deployments: deploymentsReducer,
     databases: databasesReducer,
     storage: storageReducer,
+    settings: settingsReducer,
     aux: auxReducer,
     stats: statsReducer,
   },
