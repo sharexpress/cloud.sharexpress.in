@@ -14,10 +14,37 @@
  * limitations under the License.
  */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "@/lib/api";
+
+// --- Async Thunks ---
+export const fetchDatabases = createAsyncThunk(
+  "databases/fetchDatabases",
+  async (workspace_id = "ws_acme", { rejectWithValue }) => {
+    try {
+      return await api.listDatabases(workspace_id);
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to fetch databases");
+    }
+  }
+);
+
+export const createDatabaseThunk = createAsyncThunk(
+  "databases/createDatabase",
+  async ({ dbData, workspace_id = "ws_acme" }, { rejectWithValue }) => {
+    try {
+      const res = await api.createDatabase(dbData, workspace_id);
+      return res.database;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to provision database cluster");
+    }
+  }
+);
 
 const initialState = {
   list: [],
+  loading: false,
+  error: null,
 };
 
 export const databasesSlice = createSlice({
@@ -30,8 +57,37 @@ export const databasesSlice = createSlice({
     addDatabase: (state, action) => {
       state.list.unshift(action.payload);
     },
-    restartDatabase: (state) => {},
-    completeDatabaseRestart: (state) => {},
+    restartDatabase: () => {},
+    completeDatabaseRestart: () => {},
+  },
+  extraReducers: (builder) => {
+    builder
+      // fetchDatabases
+      .addCase(fetchDatabases.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDatabases.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(fetchDatabases.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // createDatabaseThunk
+      .addCase(createDatabaseThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createDatabaseThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.unshift(action.payload);
+      })
+      .addCase(createDatabaseThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

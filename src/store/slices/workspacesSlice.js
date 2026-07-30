@@ -14,12 +14,38 @@
  * limitations under the License.
  */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "@/lib/api";
+
+// --- Async Thunks ---
+export const fetchWorkspaces = createAsyncThunk(
+  "workspaces/fetchWorkspaces",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await api.listWorkspaces();
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to fetch workspaces");
+    }
+  }
+);
+
+export const createWorkspaceThunk = createAsyncThunk(
+  "workspaces/createWorkspace",
+  async ({ name, slug }, { rejectWithValue }) => {
+    try {
+      const res = await api.createWorkspace(name, slug);
+      return res.workspace;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to create workspace");
+    }
+  }
+);
 
 const initialState = {
   list: [],
   activeWorkspaceId: null,
   loading: false,
+  error: null,
 };
 
 export const workspacesSlice = createSlice({
@@ -51,6 +77,39 @@ export const workspacesSlice = createSlice({
       state.list.unshift(action.payload);
       state.activeWorkspaceId = action.payload.id;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      // fetchWorkspaces
+      .addCase(fetchWorkspaces.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchWorkspaces.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+        if (!state.activeWorkspaceId && action.payload.length > 0) {
+          state.activeWorkspaceId = action.payload[0].id;
+        }
+      })
+      .addCase(fetchWorkspaces.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // createWorkspaceThunk
+      .addCase(createWorkspaceThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createWorkspaceThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.unshift(action.payload);
+        state.activeWorkspaceId = action.payload.id;
+      })
+      .addCase(createWorkspaceThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

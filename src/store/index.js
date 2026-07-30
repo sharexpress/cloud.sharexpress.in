@@ -17,6 +17,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import authReducer, {
+  fetchCurrentUser,
+  sendOtpThunk,
+  verifyOtpThunk,
+  logoutThunk,
   setUser,
   login,
   register,
@@ -29,6 +33,8 @@ import authReducer, {
 } from "./slices/authSlice";
 
 import workspacesReducer, {
+  fetchWorkspaces,
+  createWorkspaceThunk,
   setWorkspaces,
   setActiveWorkspace,
   createWorkspace,
@@ -37,6 +43,8 @@ import workspacesReducer, {
 } from "./slices/workspacesSlice";
 
 import projectsReducer, {
+  fetchProjects,
+  createProjectThunk,
   setProjects,
   addProject,
   deleteProject,
@@ -49,6 +57,8 @@ import deploymentsReducer, {
 } from "./slices/deploymentsSlice";
 
 import databasesReducer, {
+  fetchDatabases,
+  createDatabaseThunk,
   setDatabases,
   addDatabase,
   restartDatabase,
@@ -56,6 +66,9 @@ import databasesReducer, {
 } from "./slices/databasesSlice";
 
 import storageReducer, {
+  fetchBuckets,
+  createBucketThunk,
+  fetchObjectsThunk,
   setBuckets,
   addBucket,
   setObjects,
@@ -103,10 +116,14 @@ import auxReducer, {
   setRegionFilter,
 } from "./slices/auxSlice";
 
-import statsReducer, { setStats } from "./slices/statsSlice";
+import statsReducer, { fetchSystemStats, setStats } from "./slices/statsSlice";
 
-// Re-export all actions for backward compatibility and domain imports
+// Re-export all async thunks & actions for enterprise clean imports
 export {
+  fetchCurrentUser,
+  sendOtpThunk,
+  verifyOtpThunk,
+  logoutThunk,
   setUser,
   login,
   register,
@@ -116,21 +133,30 @@ export {
   verifyEmailLink,
   forgotPassword,
   clearAuthError,
+  fetchWorkspaces,
+  createWorkspaceThunk,
   setWorkspaces,
   setActiveWorkspace,
   createWorkspace,
   switchWorkspace,
   addWorkspace,
+  fetchProjects,
+  createProjectThunk,
   setProjects,
   addProject,
   deleteProject,
   setDeployments,
   addDeployment,
   triggerRollback,
+  fetchDatabases,
+  createDatabaseThunk,
   setDatabases,
   addDatabase,
   restartDatabase,
   completeDatabaseRestart,
+  fetchBuckets,
+  createBucketThunk,
+  fetchObjectsThunk,
   setBuckets,
   addBucket,
   setObjects,
@@ -173,6 +199,7 @@ export {
   setMetricRange,
   toggleLiveUpdates,
   setRegionFilter,
+  fetchSystemStats,
   setStats,
 };
 

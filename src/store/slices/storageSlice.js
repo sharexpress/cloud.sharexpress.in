@@ -14,11 +14,50 @@
  * limitations under the License.
  */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "@/lib/api";
+
+// --- Async Thunks ---
+export const fetchBuckets = createAsyncThunk(
+  "storage/fetchBuckets",
+  async (workspace_id = "ws_acme", { rejectWithValue }) => {
+    try {
+      return await api.listBuckets(workspace_id);
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to fetch storage buckets");
+    }
+  }
+);
+
+export const createBucketThunk = createAsyncThunk(
+  "storage/createBucket",
+  async ({ bucketData, workspace_id = "ws_acme" }, { rejectWithValue }) => {
+    try {
+      const res = await api.createBucket(bucketData, workspace_id);
+      return res.bucket;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to create storage bucket");
+    }
+  }
+);
+
+export const fetchObjectsThunk = createAsyncThunk(
+  "storage/fetchObjects",
+  async (bucketName, { rejectWithValue }) => {
+    try {
+      const res = await api.listBucketObjects(bucketName);
+      return res.objects;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to list bucket objects");
+    }
+  }
+);
 
 const initialState = {
   buckets: [],
   currentObjects: [],
+  loading: false,
+  error: null,
 };
 
 export const storageSlice = createSlice({
@@ -34,6 +73,39 @@ export const storageSlice = createSlice({
     setObjects: (state, action) => {
       state.currentObjects = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      // fetchBuckets
+      .addCase(fetchBuckets.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBuckets.fulfilled, (state, action) => {
+        state.loading = false;
+        state.buckets = action.payload;
+      })
+      .addCase(fetchBuckets.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // createBucketThunk
+      .addCase(createBucketThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createBucketThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.buckets.unshift(action.payload);
+      })
+      .addCase(createBucketThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // fetchObjectsThunk
+      .addCase(fetchObjectsThunk.fulfilled, (state, action) => {
+        state.currentObjects = action.payload;
+      });
   },
 });
 

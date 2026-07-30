@@ -14,11 +14,37 @@
  * limitations under the License.
  */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "@/lib/api";
+
+// --- Async Thunks ---
+export const fetchProjects = createAsyncThunk(
+  "projects/fetchProjects",
+  async (workspace_id = "ws_acme", { rejectWithValue }) => {
+    try {
+      return await api.listProjects(workspace_id);
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to fetch projects");
+    }
+  }
+);
+
+export const createProjectThunk = createAsyncThunk(
+  "projects/createProject",
+  async ({ projectData, workspace_id = "ws_acme" }, { rejectWithValue }) => {
+    try {
+      const res = await api.createProject(projectData, workspace_id);
+      return res.project;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to create project");
+    }
+  }
+);
 
 const initialState = {
   list: [],
   loading: false,
+  error: null,
 };
 
 export const projectsSlice = createSlice({
@@ -34,6 +60,35 @@ export const projectsSlice = createSlice({
     deleteProject: (state, action) => {
       state.list = state.list.filter((p) => p.id !== action.payload);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      // fetchProjects
+      .addCase(fetchProjects.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProjects.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(fetchProjects.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // createProjectThunk
+      .addCase(createProjectThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createProjectThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.unshift(action.payload);
+      })
+      .addCase(createProjectThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

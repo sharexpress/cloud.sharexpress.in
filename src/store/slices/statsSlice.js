@@ -14,10 +14,26 @@
  * limitations under the License.
  */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { api } from "@/lib/api";
+
+// --- Async Thunks ---
+export const fetchSystemStats = createAsyncThunk(
+  "stats/fetchSystemStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.getSystemStats();
+      return res.metrics;
+    } catch (err) {
+      return rejectWithValue(err.message || "Failed to fetch telemetry stats");
+    }
+  }
+);
 
 const initialState = {
   metrics: null,
+  loading: false,
+  error: null,
 };
 
 export const statsSlice = createSlice({
@@ -27,6 +43,21 @@ export const statsSlice = createSlice({
     setStats: (state, action) => {
       state.metrics = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchSystemStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSystemStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.metrics = action.payload;
+      })
+      .addCase(fetchSystemStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
