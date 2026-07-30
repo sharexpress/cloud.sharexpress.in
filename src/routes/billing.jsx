@@ -35,8 +35,9 @@ const pricingOptions = [
 
 function BillingPage() {
     const dispatch = useDispatch();
-    const billing = useSelector((state) => state.billing);
-    const invoices = useSelector((state) => state.billing.invoices);
+    const billing = useSelector((state) => state.billing || {});
+    const invoices = useSelector((state) => state.billing?.invoices || []);
+    const subscription = billing.subscription || { plan: "Pro", nextBill: "Aug 1, 2026", amount: "$120/mo" };
     
     const [isPlanOpen, setIsPlanOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
@@ -85,7 +86,7 @@ function BillingPage() {
             </div>
         )}
 
-        <PageHeader title="Billing" description={`Current plan: ${billing.subscription.plan} · next bill due ${billing.subscription.nextBill}`} actions={
+        <PageHeader title="Billing" description={`Current plan: ${subscription.plan} · next bill due ${subscription.nextBill}`} actions={
             <button 
                 onClick={() => setIsPlanOpen(true)}
                 className="h-8 rounded-md border border-border bg-surface px-3 text-[12px] text-foreground hover:border-border-strong cursor-pointer transition-colors"
@@ -95,9 +96,9 @@ function BillingPage() {
         }/>
 
         <div className="grid gap-4 md:grid-cols-4">
-          <Metric label="Current month" value={billing.subscription.amount === "$4,800/mo" ? "$4,812" : "$142"} hint="Jun 2026 · projected" delta={{ value: "+9.1%", positive: false }}/>
+          <Metric label="Current month" value={subscription.amount === "$4,800/mo" ? "$4,812" : "$142"} hint="Jun 2026 · projected" delta={{ value: "+9.1%", positive: false }}/>
           <Metric label="Last month" value="$4,412" hint="May 2026"/>
-          <Metric label="Annual run rate" value={billing.subscription.plan === "Enterprise" ? "$52.8k" : "$1.7k"} hint="based on trailing 3 months"/>
+          <Metric label="Annual run rate" value={subscription.plan === "Enterprise" ? "$52.8k" : "$1.7k"} hint="based on trailing 3 months"/>
           <Metric label="Payment method" value="•••• 4242" hint="Visa · exp 09/28" icon={<CreditCard className="h-3.5 w-3.5"/>}/>
         </div>
 

@@ -18,8 +18,17 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   plan: "Pro",
+  subscription: {
+    plan: "Pro",
+    nextBill: "Aug 1, 2026",
+    amount: "$120/mo",
+  },
   usage: { bandwidth_gb: 184, compute_hours: 742 },
-  invoices: [],
+  invoices: [
+    { id: "INV-2026-006", period: "Jun 2026", issued: "Jun 1, 2026", amount: "$120.00", status: "paid" },
+    { id: "INV-2026-005", period: "May 2026", issued: "May 1, 2026", amount: "$120.00", status: "paid" },
+    { id: "INV-2026-004", period: "Apr 2026", issued: "Apr 1, 2026", amount: "$120.00", status: "paid" }
+  ],
 };
 
 export const billingSlice = createSlice({
@@ -27,7 +36,11 @@ export const billingSlice = createSlice({
   initialState,
   reducers: {
     changePlan: (state, action) => {
-      state.plan = action.payload;
+      const planName = typeof action.payload === "string" ? action.payload : action.payload?.plan || "Pro";
+      const amount = typeof action.payload === "object" && action.payload?.amount ? action.payload.amount : "$120/mo";
+      state.plan = planName;
+      state.subscription.plan = planName;
+      state.subscription.amount = amount;
     },
     addInvoice: (state, action) => {
       state.invoices.unshift(action.payload);
