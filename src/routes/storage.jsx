@@ -14,54 +14,47 @@
  * limitations under the License.
  */
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/shell";
-import { PageShell, PageHeader, Panel, Metric, Sparkline } from "@/components/app/primitives";
+import { PageShell, PageHeader, Panel } from "@/components/app/primitives";
 import { 
-  FileVideo, FileText, Folder, HardDrive, ImageIcon, Upload, 
-  Copy, X, Check, Eye, Trash, Key, RefreshCw
+  HardDrive, Plus, Search, Grid3x3, List, ArrowRight, X, Check 
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  setActiveBucket, addBucket, uploadFile, deleteFile, 
-  selectMediaFile, updateTransformations, addMediaFile
-} from "../store/index.js";
+import { addBucket } from "../store/index.js";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/storage")({
-    head: () => ({ meta: [{ title: "Storage & CDN — Sharexpress Cloud" }] }),
+    head: () => ({ meta: [{ title: "Storage — Sharexpress Cloud" }] }),
     component: StoragePage,
 });
 
 function StoragePage() {
+    const path = useRouterState({ select: (s) => s.location.pathname });
+    const isDetail = path !== "/storage" && path !== "/storage/";
+
+    if (isDetail) {
+        return <Outlet />;
+    }
+
     const dispatch = useDispatch();
-    
-    // Selectors
-    const buckets = useSelector((state) => state.storage.buckets);
-    const activeBucketId = useSelector((state) => state.storage.activeBucketId);
-    const files = useSelector((state) => state.storage.files);
-    const mediaFiles = useSelector((state) => state.media.files);
-    const activeFileId = useSelector((state) => state.media.transformations.activeFileId);
-    const transformations = useSelector((state) => state.media.transformations);
+    const buckets = useSelector((state) => state.storage?.buckets || []);
+    const workspaces = useSelector((state) => state.workspaces?.list || []);
+    const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId);
+    const activeWsName = workspaces.find((w) => w.id === activeWsId)?.name || "Workspace";
 
-    // Active items
-    const activeBucket = buckets.find(b => b.id === activeBucketId) || buckets[0];
-    const filteredFiles = files.filter(f => f.bucketId === activeBucketId);
-    const activeFile = mediaFiles.find(f => f.id === activeFileId) || mediaFiles[0];
-
-    // Dialog state
+    const [query, setQuery] = useState("");
+    const [selectedVis, setSelectedVis] = useState("All");
+    const [view, setView] = useState("grid");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [isSignedOpen, setIsSignedOpen] = useState(false);
     
-    // Form inputs
+    // Form fields
     const [bucketName, setBucketName] = useState("");
-    const [bucketVis, setBucketVis] = useState("private");
-    const [signedHours, setSignedHours] = useState("24");
-    const [generatedSignedUrl, setGeneratedSignedUrl] = useState("");
+    const [bucketVis, setBucketVis] = useState("public");
+    const [region, setRegion] = useState("iad1");
 
-    // Upload simulation
-    const [uploading, setUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
+    const visList = ["All", "Public", "Private"];
 
     // Toast Simulator
     const [toastMessage, setToastMessage] = useState("");
@@ -69,6 +62,12 @@ function StoragePage() {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(""), 3000);
     };
+
+    const filtered = buckets.filter((b) => {
+        const matchesQuery = b.name.toLowerCase().includes(query.toLowerCase());
+        const matchesVis = selectedVis === "All" || (b.visibility || "public").toLowerCase() === selectedVis.toLowerCase();
+        return matchesQuery && matchesVis;
+    });
 
     const handleCreateBucket = (e) => {
         e.preventDefault();
@@ -78,366 +77,249 @@ function StoragePage() {
         dispatch(addBucket({
             name,
             visibility: bucketVis,
+            region,
+            size: "0 GB",
+            objectsCount: 0,
         }));
         setBucketName("");
         setIsCreateOpen(false);
         showToast(`Bucket "${name}" created successfully!`);
     };
 
-    const handleUpload = () => {
-        setUploading(true);
-        setUploadProgress(0);
-
-        const timer = setInterval(() => {
-            setUploadProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(timer);
-                    setTimeout(() => {
-                        const randomNames = ["hero_banner.png", "pricing_tier.pdf", "avatar_active.jpg", "product_mockup.mp4"];
-                        const name = randomNames[Math.floor(Math.random() * randomNames.length)];
-                        const type = name.endsWith(".png") || name.endsWith(".jpg") ? "image" : name.endsWith(".mp4") ? "video" : "doc";
-                        
-                        // Add to files list
-                        dispatch(uploadFile({
-                            name: `uploads/${name}`,
-                            size: type === "video" ? "12 MB" : "412 KB",
-                            type: type === "image" ? "image/png" : type === "video" ? "video/mp4" : "application/pdf",
-                        }));
-
-                        // Add to media gallery
-                        dispatch(addMediaFile({
-                            name,
-                            type,
-                            size: type === "video" ? "12 MB" : "412 KB",
-                        }));
-
-                        setUploading(false);
-                        setUploadProgress(0);
-                        showToast(`Uploaded ${name} to bucket!`);
-                    }, 500);
-                    return 100;
-                }
-                return prev + 20;
-            });
-        }, 150);
-    };
-
-    const handleDeleteFile = (id) => {
-        if (confirm("Are you sure you want to delete this file?")) {
-            dispatch(deleteFile(id));
-            showToast("Object deleted from bucket.");
-        }
-    };
-
-    const handleCopy = (text) => {
-        navigator.clipboard.writeText(text);
-        showToast("Copied CDN link!");
-    };
-
-    const handleGenerateSignedUrl = () => {
-        const signature = Math.random().toString(36).substring(2, 12);
-        const url = `https://cdn.acme.com/bucket-${activeBucketId}/${activeFile.name}?expires=${Date.now() + parseInt(signedHours) * 3600000}&signature=${signature}`;
-        setGeneratedSignedUrl(url);
-        setIsSignedOpen(true);
-    };
-
-    // Calculate CDN Url with transformations
-    const transformedUrl = `https://cdn.acme.com/hero/${activeFile.name}?w=${transformations.width}&h=${transformations.height}&q=${transformations.quality}&fmt=${transformations.format}&comp=${transformations.compression}`;
-
-    // Helper functions for mock charts
-    const metricSeries = (seed, len = 32, base = 40, spread = 40) => {
-        const out = [];
-        for (let i = 0; i < len; i++) {
-            const v = Math.sin((i + seed) * 0.6) * (spread / 2) + Math.cos((i + seed) * 0.31) * (spread / 4) + base;
-            out.push(Math.max(4, Math.min(100, Math.round(v))));
-        }
-        return out;
-    };
-
-    return (<AppShell breadcrumbs={[{ label: "Acme Inc" }, { label: "Storage" }, { label: activeBucket.name }]}>
+    return (<AppShell breadcrumbs={[{ label: activeWsName }, { label: "Storage" }]}>
       <PageShell>
         
         {toastMessage && (
             <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-md bg-foreground px-4 py-3 text-[12.5px] font-medium text-background shadow-lg animate-in fade-in slide-in-from-bottom-5">
-                <Check className="h-4 w-4 text-success" />
+                <Check className="h-4 w-4 text-status-success" />
                 {toastMessage}
             </div>
         )}
 
-        <PageHeader title="Object storage" description="Buckets, media library, and CDN-backed transformations." actions={
-            <div className="flex gap-2">
+        <PageHeader 
+            title="Storage" 
+            description={`Managed S3 bucket storage & CDN running in ${activeWsName}.`} 
+            actions={
                 <button 
                     onClick={() => setIsCreateOpen(true)}
-                    className="h-8 rounded-md border border-border bg-surface px-3 text-[12px] text-foreground hover:border-border-strong cursor-pointer transition-colors"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3.5 text-[12px] font-semibold text-background hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
                 >
-                    New bucket
+                    <Plus className="h-3.5 w-3.5"/> New bucket
+                </button>
+            }
+        />
+
+        {/* Filter Bar */}
+        <div className="mb-5 space-y-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+            <div className="relative min-w-0">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"/>
+              <input 
+                value={query} 
+                onChange={(e) => setQuery(e.target.value)} 
+                placeholder="Search storage buckets by name…" 
+                className="h-9 w-full rounded-md border border-border bg-card/60 pl-9 pr-3 text-[12.5px] text-text-primary placeholder:text-text-muted focus:border-border-strong focus:outline-none transition-all"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 items-center rounded-md border border-border bg-card p-0.5">
+                <button 
+                  onClick={() => setView("grid")} 
+                  className={cn("grid h-8 w-8 place-items-center rounded transition-colors cursor-pointer", view === "grid" ? "bg-surface text-text-primary font-semibold" : "text-text-muted hover:text-text-primary")}
+                  title="Grid view"
+                >
+                  <Grid3x3 className="h-3.5 w-3.5"/>
                 </button>
                 <button 
-                    disabled={uploading}
-                    onClick={handleUpload}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 text-[12px] font-medium text-accent-foreground hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
+                  onClick={() => setView("list")} 
+                  className={cn("grid h-8 w-8 place-items-center rounded transition-colors cursor-pointer", view === "list" ? "bg-surface text-text-primary font-semibold" : "text-text-muted hover:text-text-primary")}
+                  title="List view"
                 >
-                    <Upload className="h-3.5 w-3.5"/> {uploading ? "Uploading..." : "Upload File"}
+                  <List className="h-3.5 w-3.5"/>
                 </button>
+              </div>
             </div>
-        }/>
+          </div>
 
-        {uploading && (
-            <div className="mb-4 border border-border p-4 rounded-md bg-surface-elevated animate-in slide-in-from-top-2 duration-150 max-w-xl">
-                <div className="flex items-center justify-between text-[12px] text-muted-foreground mb-2">
-                    <span>Uploading static file assets to S3 edge...</span>
-                    <span className="font-bold text-foreground">{uploadProgress}%</span>
-                </div>
-                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-accent transition-all duration-150" style={{ width: `${uploadProgress}%` }} />
-                </div>
-            </div>
-        )}
-
-        <div className="grid gap-4 md:grid-cols-4">
-          <Metric label="Total size" value="1.68 TB" hint="across 3 buckets" series={metricSeries(31)} icon={<HardDrive className="h-3.5 w-3.5"/>}/>
-          <Metric label="Objects" value={files.length.toString()} hint="+2.4k today" series={metricSeries(32)}/>
-          <Metric label="Egress" value="88 GB" hint="last 24h" delta={{ value: "+4.1%", positive: true }} series={metricSeries(33)}/>
-          <Metric label="CDN hit rate" value="97.4%" hint="global" delta={{ value: "+0.3%", positive: true }} series={metricSeries(34)}/>
+          {/* Visibility pill tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-mono">
+            {visList.map((v) => (
+                <button
+                    key={v}
+                    onClick={() => setSelectedVis(v)}
+                    className={cn(
+                        "rounded px-2.5 py-1 transition-all cursor-pointer whitespace-nowrap",
+                        selectedVis === v
+                            ? "bg-surface text-text-primary border border-border font-semibold shadow-2xs"
+                            : "text-text-muted hover:text-text-primary hover:bg-surface/50 border border-transparent"
+                    )}
+                >
+                    {v}
+                </button>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          
-          {/* BUCKETS LIST */}
-          <Panel title="Buckets" className="lg:col-span-1" padded={false}>
-            <ul className="divide-y divide-border">
-              {buckets.map((b) => (
-                <li 
-                    key={b.id} 
-                    onClick={() => dispatch(setActiveBucket(b.id))}
-                    className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3.5 transition-colors cursor-pointer ${b.id === activeBucketId ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-surface-elevated/40"}`}
-                >
-                  <Folder className={`h-4 w-4 ${b.id === activeBucketId ? "text-accent" : "text-muted-foreground"}`}/>
-                  <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-foreground">{b.name}</div>
-                    <div className="truncate text-[11px] text-muted-foreground">{b.objects} objects · {b.region.toUpperCase()}</div>
+        {/* Bucket List / Grid */}
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/40 px-6 py-16 text-center">
+            <HardDrive className="h-9 w-9 text-text-muted mb-3 opacity-60" />
+            <h3 className="text-[13.5px] font-semibold text-text-primary">No storage buckets found</h3>
+            <p className="mt-1 max-w-sm text-[12px] text-text-muted">Create S3 storage buckets for files, images, and videos.</p>
+          </div>
+        ) : view === "grid" ? (
+          <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((b) => (
+              <Link 
+                to="/storage/$id"
+                params={{ id: b.id }}
+                key={b.id} 
+                className="group relative rounded-lg border border-border bg-card p-4.5 transition-all duration-150 hover:border-border-strong hover:bg-surface/30 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Top Bar: Name + Visibility Badge */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-[13.5px] font-semibold text-text-primary group-hover:text-text-primary transition-colors">
+                        {b.name}
+                      </div>
+                      <div className="truncate text-[10.5px] text-text-muted font-mono mt-0.5">
+                        {(b.region || "iad1").toUpperCase()} · Standard S3
+                      </div>
+                    </div>
+                    <span className={cn(
+                        "px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase",
+                        (b.visibility || "public") === "public" ? "bg-status-success/10 text-status-success border border-status-success/30" : "bg-surface text-text-muted border border-border"
+                    )}>
+                        {b.visibility || "public"}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">{b.size}</span>
+
+                  {/* Body: Specs */}
+                  <div className="mt-4 grid grid-cols-2 gap-2 font-mono text-[11px] text-text-muted border-t border-b border-border/40 py-2.5 my-2">
+                    <div>
+                      <div className="text-[9.5px] uppercase">Size Used</div>
+                      <div className="mt-0.5 font-bold text-text-primary">{b.size || "42.8 GB"}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9.5px] uppercase">Objects</div>
+                      <div className="mt-0.5 font-bold text-text-primary">{(b.objectsCount || 12480).toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer: View Details link */}
+                <div className="mt-2 flex items-center justify-between text-[10.5px] text-text-muted font-mono">
+                  <span>CDN Enabled</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    View Bucket <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5"/>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Panel padded={false}>
+            <ul className="divide-y divide-border/60">
+              {filtered.map((b) => (
+                <li key={b.id}>
+                  <Link 
+                    to="/storage/$id"
+                    params={{ id: b.id }}
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 hover:bg-surface/50 transition-colors group"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-[13px] font-medium text-text-primary">
+                        {b.name}
+                      </div>
+                      <div className="truncate text-[11px] text-text-muted font-mono mt-0.5">
+                        {(b.region || "iad1").toUpperCase()} · {b.size || "42.8 GB"} · {(b.objectsCount || 12480).toLocaleString()} objects
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-3.5 text-[11px]">
+                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface border border-border/60 uppercase">
+                        {b.visibility || "public"}
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 text-text-muted group-hover:text-text-primary group-hover:translate-x-0.5 transition-all"/>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>
           </Panel>
-
-          {/* ACTIVE BUCKET OBJECTS / GALLERY */}
-          <Panel title={`Bucket Assets: ${activeBucket.name}`} description={`${activeBucket.name} / uploads/`} className="lg:col-span-2" padded={false}>
-            {filteredFiles.length === 0 ? (
-                <div className="p-12 text-center text-muted-foreground text-[13px]">
-                    No files found in bucket. Upload assets to get started.
-                </div>
-            ) : (
-                <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-3 lg:grid-cols-4">
-                    {filteredFiles.map((f) => (
-                        <div 
-                            key={f.id} 
-                            onClick={() => {
-                                // Find matching media file or select
-                                const mediaMatch = mediaFiles.find(mf => mf.name.includes(f.name.split("/")[1]));
-                                if (mediaMatch) dispatch(selectMediaFile(mediaMatch.id));
-                            }}
-                            className={`group rounded-md border p-2.5 transition-all cursor-pointer ${activeFile.name.includes(f.name.split("/")[1]) ? "border-accent bg-accent/5 shadow-sm" : "border-border bg-background hover:border-border-strong"}`}
-                        >
-                            <div className="grid aspect-square place-items-center rounded bg-gradient-to-br from-surface-elevated to-surface text-muted-foreground">
-                                {f.type.startsWith("image") ? <ImageIcon className="h-5 w-5 text-accent"/> : f.type.startsWith("video") ? <FileVideo className="h-5 w-5 text-info"/> : <FileText className="h-5 w-5 text-muted-foreground"/>}
-                            </div>
-                            <div className="mt-2 truncate text-[11.5px] font-medium text-foreground">{f.name.replace("uploads/", "")}</div>
-                            <div className="text-[10px] text-muted-foreground mt-0.5">{f.size}</div>
-                        </div>
-                    ))}
-                </div>
-            )}
-          </Panel>
-        </div>
-
-        {/* DETAILS AND TRANSFORMATIONS */}
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          
-          {/* FILE DETAILS */}
-          <Panel title="File details" description={activeFile.name}>
-            <div className="grid aspect-[16/9] place-items-center rounded-md border border-border bg-gradient-to-br from-surface-elevated to-background">
-                {activeFile.type === "image" ? <ImageIcon className="h-8 w-8 text-accent"/> : activeFile.type === "video" ? <FileVideo className="h-8 w-8 text-info"/> : <FileText className="h-8 w-8 text-muted-foreground"/>}
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
-              <Field label="Size" value={activeFile.size}/>
-              <Field label="Type" value={activeFile.type === "image" ? "PNG/JPEG Image" : activeFile.type === "video" ? "MP4 Video" : "Static PDF Document"}/>
-              <Field label="Dimensions" value={activeFile.type === "image" ? `${transformations.width} × ${transformations.height}` : "—"}/>
-              <Field label="Format Option" value={activeFile.type === "image" ? `${transformations.format.toUpperCase()} compression` : "Direct Stream"}/>
-            </div>
-            <div className="mt-4 rounded-md border border-border bg-background px-3 py-2 flex items-center justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">CDN URL</div>
-                <div className="truncate font-mono text-[11.5px] text-foreground">{transformedUrl}</div>
-              </div>
-              <button 
-                onClick={() => handleCopy(transformedUrl)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-surface hover:text-foreground cursor-pointer transition-colors"
-              >
-                <Copy className="h-3.5 w-3.5"/>
-              </button>
-            </div>
-          </Panel>
-
-          {/* TRANSFORMATIONS GENERATOR */}
-          <Panel title="On-the-fly Image pipeline" description="Configure real-time asset cropping and scaling parameters.">
-            <div className="space-y-4 text-[12.5px]">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="text-[11px] text-muted-foreground block mb-1">Width (px)</label>
-                        <input 
-                            type="number" value={transformations.width} onChange={(e) => dispatch(updateTransformations({ width: parseInt(e.target.value) || 800 }))}
-                            className="h-8 w-full rounded border border-border bg-background px-2 text-[12px] text-foreground focus:outline-none"
-                        />
-                    </div>
-                    <div>
-                        <label className="text-[11px] text-muted-foreground block mb-1">Height (px)</label>
-                        <input 
-                            type="number" value={transformations.height} onChange={(e) => dispatch(updateTransformations({ height: parseInt(e.target.value) || 600 }))}
-                            className="h-8 w-full rounded border border-border bg-background px-2 text-[12px] text-foreground focus:outline-none"
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="text-[11px] text-muted-foreground block mb-1">Format</label>
-                        <select 
-                            value={transformations.format} onChange={(e) => dispatch(updateTransformations({ format: e.target.value }))}
-                            className="h-8 w-full rounded border border-border bg-background px-2 text-[11.5px] text-foreground focus:outline-none"
-                        >
-                            <option value="webp">WebP (Optimized)</option>
-                            <option value="avif">AVIF (Ultra Lossless)</option>
-                            <option value="png">PNG (Lossless)</option>
-                            <option value="jpg">JPEG (Standard)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="text-[11px] text-muted-foreground block mb-1">Quality</label>
-                        <input 
-                            type="range" min="10" max="100" value={transformations.quality} onChange={(e) => dispatch(updateTransformations({ quality: parseInt(e.target.value) }))}
-                            className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-accent mt-3"
-                        />
-                    </div>
-                </div>
-
-                <div className="border-t border-border pt-4 flex justify-between items-center gap-3">
-                    <div>
-                        <span className="text-[11px] text-muted-foreground block">Signed CDN Access URL</span>
-                        <span className="text-[12px] text-foreground font-medium">Require signature parameters</span>
-                    </div>
-                    <button 
-                        onClick={handleGenerateSignedUrl}
-                        className="inline-flex h-8 items-center gap-1 rounded border border-border bg-background px-3 text-[11.5px] font-semibold text-foreground hover:bg-surface-elevated hover:border-border-strong cursor-pointer transition-colors"
-                    >
-                        <Key className="h-3.5 w-3.5" /> Sign URL
-                    </button>
-                </div>
-            </div>
-          </Panel>
-        </div>
+        )}
       </PageShell>
 
-      {/* New Bucket Modal */}
+      {/* Creation Modal */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm border border-border bg-surface rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <h2 className="text-[14px] font-semibold text-foreground">Create Storage Bucket</h2>
-              <button onClick={() => setIsCreateOpen(false)} className="rounded p-1 text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 font-mono">
+          <div className="w-full max-w-md border border-border bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+              <h2 className="text-[13.5px] font-bold text-text-primary">Create New Storage Bucket</h2>
+              <button onClick={() => setIsCreateOpen(false)} className="rounded p-1 text-text-muted hover:bg-surface hover:text-text-primary transition-colors cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <form onSubmit={handleCreateBucket} className="p-5 space-y-4">
               <div>
-                <label className="block text-[11.5px] text-muted-foreground">Bucket Name (Lowercase, hyphens only)</label>
+                <label className="block text-[11px] text-text-muted uppercase mb-1">Bucket Name</label>
                 <input 
-                  type="text" required placeholder="e.g. static-assets-prod" value={bucketName} onChange={(e) => setBucketName(e.target.value)}
-                  className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-[13px] text-foreground focus:border-accent focus:outline-none"
+                  type="text" 
+                  required
+                  placeholder="e.g. media-assets"
+                  value={bucketName}
+                  onChange={(e) => setBucketName(e.target.value)}
+                  className="h-9 w-full rounded-md border border-border bg-surface px-3 text-[12.5px] font-medium text-text-primary focus:border-border-strong focus:outline-none transition-colors"
                 />
               </div>
-              <div>
-                <label className="block text-[11.5px] text-muted-foreground mb-1">Access Control Visibility</label>
-                <select 
-                  value={bucketVis} onChange={(e) => setBucketVis(e.target.value)}
-                  className="h-9 w-full rounded-md border border-border bg-background px-2 text-[12.5px] text-foreground focus:border-accent focus:outline-none"
-                >
-                  <option value="private">Private (Signed URLs only)</option>
-                  <option value="public">Public Read (Open CDN-cacheable)</option>
-                </select>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] text-text-muted uppercase mb-1">Visibility</label>
+                  <select 
+                    value={bucketVis}
+                    onChange={(e) => setBucketVis(e.target.value)}
+                    className="h-9 w-full rounded-md border border-border bg-surface px-2.5 text-[12px] font-medium text-text-primary focus:border-border-strong focus:outline-none cursor-pointer"
+                  >
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] text-text-muted uppercase mb-1">Region</label>
+                  <select 
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    className="h-9 w-full rounded-md border border-border bg-surface px-2.5 text-[12px] font-medium text-text-primary focus:border-border-strong focus:outline-none cursor-pointer"
+                  >
+                    <option value="iad1">US East (iad1)</option>
+                    <option value="sfo1">US West (sfo1)</option>
+                    <option value="fra1">Europe (fra1)</option>
+                    <option value="sin1">Asia Pacific (sin1)</option>
+                  </select>
+                </div>
               </div>
-              <div className="pt-2 flex justify-end gap-2 border-t border-border">
-                <button type="button" onClick={() => setIsCreateOpen(false)} className="h-9 px-4 rounded border border-border bg-surface text-[12.5px] text-foreground hover:bg-surface-elevated hover:border-border-strong cursor-pointer">Cancel</button>
-                <button type="submit" className="h-9 px-4 rounded bg-foreground text-[12.5px] font-medium text-background hover:opacity-90 cursor-pointer">Create Bucket</button>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-border">
+                <button 
+                  type="button"
+                  onClick={() => setIsCreateOpen(false)}
+                  className="h-8.5 px-3.5 rounded-md border border-border bg-surface text-[12px] font-medium text-text-primary hover:bg-surface/80 cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="h-8.5 px-3.5 rounded-md bg-foreground text-[12px] font-semibold text-background hover:opacity-90 cursor-pointer transition-opacity"
+                >
+                  Create Bucket
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {/* Generate Signed URL Modal */}
-      {isSignedOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md border border-border bg-surface rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <h2 className="text-[14px] font-semibold text-foreground">Generate Signed Access URL</h2>
-              <button onClick={() => setIsSignedOpen(false)} className="rounded p-1 text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="text-[12.5px] text-muted-foreground">
-                Generate a temporary URL that grants read-only visibility access to the private file <span className="font-semibold text-foreground">{activeFile.name}</span>.
-              </div>
-              <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
-                <div>
-                  <label className="text-[11px] text-muted-foreground block mb-1">Expiration time (Hours)</label>
-                  <select 
-                    value={signedHours} onChange={(e) => setSignedHours(e.target.value)}
-                    className="h-9 w-full rounded border border-border bg-background px-2 text-[12px] text-foreground"
-                  >
-                    <option value="1">1 hour</option>
-                    <option value="24">24 hours</option>
-                    <option value="168">7 days (max)</option>
-                  </select>
-                </div>
-                <button 
-                  onClick={handleGenerateSignedUrl}
-                  className="h-9 px-4 rounded bg-foreground text-[12px] font-medium text-background hover:opacity-90 cursor-pointer flex items-center gap-1 shrink-0"
-                >
-                  <RefreshCw className="h-3 w-3" /> Refresh Code
-                </button>
-              </div>
-              {generatedSignedUrl && (
-                <div className="rounded-md border border-border bg-background px-3 py-2 flex items-center justify-between gap-4 font-mono text-[11px] text-foreground mt-3">
-                  <span className="truncate break-all">{generatedSignedUrl}</span>
-                  <button 
-                    onClick={() => {
-                        navigator.clipboard.writeText(generatedSignedUrl);
-                        showToast("Copied signed URL!");
-                    }}
-                    className="rounded border border-border p-1 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
-              <div className="flex justify-end pt-2 border-t border-border">
-                <button onClick={() => setIsSignedOpen(false)} className="h-9 px-4 rounded border border-border bg-surface text-[12.5px] text-foreground hover:bg-surface-elevated hover:border-border-strong cursor-pointer">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
     </AppShell>);
-}
-
-function Field({ label, value }) {
-    return (<div>
-      <div className="text-[11px] text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-[12.5px] font-semibold text-foreground">{value}</div>
-    </div>);
 }

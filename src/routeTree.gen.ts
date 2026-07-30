@@ -32,6 +32,7 @@ import { Route as ComputeRouteImport } from './routes/compute'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StorageIdRouteImport } from './routes/storage.$id'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 import { Route as DatabasesIdRouteImport } from './routes/databases.$id'
 
@@ -150,6 +151,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StorageIdRoute = StorageIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StorageRoute,
+} as any)
 const ProjectsIdRoute = ProjectsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -181,12 +187,13 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
-  '/storage': typeof StorageRoute
+  '/storage': typeof StorageRouteWithChildren
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
+  '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -208,12 +215,13 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
-  '/storage': typeof StorageRoute
+  '/storage': typeof StorageRouteWithChildren
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
+  '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -236,12 +244,13 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/secrets': typeof SecretsRoute
   '/settings': typeof SettingsRoute
-  '/storage': typeof StorageRoute
+  '/storage': typeof StorageRouteWithChildren
   '/team': typeof TeamRoute
   '/two-factor': typeof TwoFactorRoute
   '/verify': typeof VerifyRoute
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
+  '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/databases/$id'
     | '/projects/$id'
+    | '/storage/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/databases/$id'
     | '/projects/$id'
+    | '/storage/$id'
   id:
     | '__root__'
     | '/'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/databases/$id'
     | '/projects/$id'
+    | '/storage/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -347,7 +359,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SecretsRoute: typeof SecretsRoute
   SettingsRoute: typeof SettingsRoute
-  StorageRoute: typeof StorageRoute
+  StorageRoute: typeof StorageRouteWithChildren
   TeamRoute: typeof TeamRoute
   TwoFactorRoute: typeof TwoFactorRoute
   VerifyRoute: typeof VerifyRoute
@@ -516,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/storage/$id': {
+      id: '/storage/$id'
+      path: '/$id'
+      fullPath: '/storage/$id'
+      preLoaderRoute: typeof StorageIdRouteImport
+      parentRoute: typeof StorageRoute
+    }
     '/projects/$id': {
       id: '/projects/$id'
       path: '/$id'
@@ -557,6 +576,17 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
   ProjectsRouteChildren,
 )
 
+interface StorageRouteChildren {
+  StorageIdRoute: typeof StorageIdRoute
+}
+
+const StorageRouteChildren: StorageRouteChildren = {
+  StorageIdRoute: StorageIdRoute,
+}
+
+const StorageRouteWithChildren =
+  StorageRoute._addFileChildren(StorageRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
@@ -577,7 +607,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SecretsRoute: SecretsRoute,
   SettingsRoute: SettingsRoute,
-  StorageRoute: StorageRoute,
+  StorageRoute: StorageRouteWithChildren,
   TeamRoute: TeamRoute,
   TwoFactorRoute: TwoFactorRoute,
   VerifyRoute: VerifyRoute,
