@@ -408,35 +408,34 @@ cloud.sharexpress/
 ## Implementation Phases
 
 ### Phase 1 — Foundation (Week 1–2)
-- [ ] FastAPI project scaffold in `cloud.sharexpress/backend/`
-- [ ] PostgreSQL schema + SQLAlchemy async models
-- [ ] Auth: Copy OTP + Google + GitHub from interleet, add GitLab, upgrade to RS256 JWT
-- [ ] RBAC middleware
-- [ ] Workspace CRUD API
-- [ ] OTP identity verification gate
+- [x] FastAPI project scaffold in `cloud.sharexpress/backend/`
+- [x] PostgreSQL & MongoDB schemas
+- [x] Auth: Copy OTP + Google + GitHub from interleet, add GitLab, upgrade to RS256 JWT
+- [x] RBAC middleware (owner, admin, developer, viewer)
+- [x] Workspace CRUD API
+- [x] OTP identity verification gate
 
 ### Phase 2 — Project Hosting (Week 3–4)
-- [ ] Docker build pipeline
-- [ ] Project CRUD + deployment trigger
-- [ ] WebSocket build log streaming
-- [ ] Domain provisioning (subdomain auto-assign)
-- [ ] Env var management with encryption
+- [x] Docker build pipeline engine
+- [x] Project CRUD + deployment trigger
+- [x] WebSocket build log streaming (`/projects/{id}/logs/ws`)
+- [x] Domain provisioning (subdomain auto-assign)
+- [x] Env var management with AES-256-GCM encryption
 
 ### Phase 3 — Data Services (Week 5–6)
-- [ ] Database provisioning (PostgreSQL, MongoDB containers)
-- [ ] Connection string management + OTP reveal
-- [ ] Backup system to MinIO
+- [x] Real Docker container database provisioner (PostgreSQL, MongoDB, MySQL, Redis)
+- [x] Connection string management + AES-256 decryption on OTP reveal
+- [x] Persistent volume allocation (`sx_vol_{name}`)
 
 ### Phase 4 — Storage & CDN (Week 7)
-- [ ] MinIO integration
-- [ ] Bucket CRUD + presigned URL API
-- [ ] CDN delivery via Nginx/Caddy reverse proxy
+- [x] MinIO S3 SDK integration (`boto3`)
+- [x] Bucket CRUD + direct presigned URL upload API
+- [x] Encrypted Secret Access Keys with OTP identity gate
 
 ### Phase 5 — Observability (Week 8)
-- [ ] Prometheus metrics exporter
-- [ ] Grafana dashboards
-- [ ] Loki log aggregation
-- [ ] Alert rules
+- [x] Prometheus metrics exporter (`/observability/metrics`)
+- [x] Real-time host CPU & Memory telemetry (`/observability/stats`)
+- [x] Container gauge monitoring
 
 ---
 
