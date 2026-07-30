@@ -32,7 +32,7 @@ export function PageHeader({ title, description, actions, action }) {
 }
 function renderIcon(icon, className = "h-4 w-4") {
     if (!icon) return null;
-    if (typeof icon === "function" || (typeof icon === "object" && icon && !icon.$$typeof && !icon.type)) {
+    if (typeof icon === "function" || (typeof icon === "object" && icon && icon.render)) {
         const IconComp = icon;
         return <IconComp className={className} />;
     }
