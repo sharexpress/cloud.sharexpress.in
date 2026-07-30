@@ -72,6 +72,8 @@ import storageReducer, {
   setBuckets,
   addBucket,
   setObjects,
+  uploadFile,
+  deleteFile,
 } from "./slices/storageSlice";
 
 import settingsReducer, {
@@ -80,45 +82,70 @@ import settingsReducer, {
   updateNotifications,
 } from "./slices/settingsSlice";
 
-import auxReducer, {
+import secretsReducer, {
+  setSecrets,
+  addSecret,
+  deleteSecret,
+} from "./slices/secretsSlice";
+
+import domainsReducer, {
+  setDomains,
+  addDomain,
+  verifyDomain,
+  deleteDomain,
+} from "./slices/domainsSlice";
+
+import functionsReducer, {
+  setFunctions,
   addFunction,
   triggerFunction,
+} from "./slices/functionsSlice";
+
+import teamReducer, {
+  setMembers,
   inviteMember,
   cancelInvite,
   updateRole,
   removeMember,
-  createApiKey,
-  revokeApiKey,
+} from "./slices/teamSlice";
+
+import billingReducer, {
+  changePlan,
+  addInvoice,
+} from "./slices/billingSlice";
+
+import apiKeysReducer, {
   generateKey,
   rotateKey,
   revokeKey,
-  addSecret,
-  deleteSecret,
-  addDomain,
-  verifyDomain,
-  deleteDomain,
-  addCompute,
-  scaleReplicas,
-  completeScaling,
-  restartContainer,
-  completeRestart,
-  addInvoice,
-  changePlan,
-  toggleAlert,
-  addAlert,
-  uploadMediaFile,
-  deleteMediaFile,
-  uploadFile,
-  deleteFile,
+  createApiKey,
+  revokeApiKey,
+} from "./slices/apiKeysSlice";
+
+import logsReducer, {
   addLogLine,
   clearLogs,
   toggleStreaming,
   setFilterLevel,
   setSearchQuery,
+} from "./slices/logsSlice";
+
+import monitoringReducer, {
+  toggleAlert,
+  addAlert,
   setMetricRange,
   toggleLiveUpdates,
   setRegionFilter,
-} from "./slices/auxSlice";
+} from "./slices/monitoringSlice";
+
+import computeReducer, {
+  setCompute,
+  addCompute,
+  scaleReplicas,
+  completeScaling,
+  restartContainer,
+  completeRestart,
+} from "./slices/computeSlice";
 
 import statsReducer, { fetchSystemStats, setStats } from "./slices/statsSlice";
 
@@ -164,46 +191,49 @@ export {
   setBuckets,
   addBucket,
   setObjects,
+  uploadFile,
+  deleteFile,
   toggleTheme,
   updateAppearance,
   updateNotifications,
+  setSecrets,
+  addSecret,
+  deleteSecret,
+  setDomains,
+  addDomain,
+  verifyDomain,
+  deleteDomain,
+  setFunctions,
   addFunction,
   triggerFunction,
+  setMembers,
   inviteMember,
   cancelInvite,
   updateRole,
   removeMember,
-  createApiKey,
-  revokeApiKey,
+  changePlan,
+  addInvoice,
   generateKey,
   rotateKey,
   revokeKey,
-  addSecret,
-  deleteSecret,
-  addDomain,
-  verifyDomain,
-  deleteDomain,
-  addCompute,
-  scaleReplicas,
-  completeScaling,
-  restartContainer,
-  completeRestart,
-  addInvoice,
-  changePlan,
-  toggleAlert,
-  addAlert,
-  uploadMediaFile,
-  deleteMediaFile,
-  uploadFile,
-  deleteFile,
+  createApiKey,
+  revokeApiKey,
   addLogLine,
   clearLogs,
   toggleStreaming,
   setFilterLevel,
   setSearchQuery,
+  toggleAlert,
+  addAlert,
   setMetricRange,
   toggleLiveUpdates,
   setRegionFilter,
+  setCompute,
+  addCompute,
+  scaleReplicas,
+  completeScaling,
+  restartContainer,
+  completeRestart,
   fetchSystemStats,
   setStats,
 };
@@ -217,7 +247,15 @@ export const store = configureStore({
     databases: databasesReducer,
     storage: storageReducer,
     settings: settingsReducer,
-    aux: auxReducer,
+    secrets: secretsReducer,
+    domains: domainsReducer,
+    functions: functionsReducer,
+    team: teamReducer,
+    billing: billingReducer,
+    apiKeys: apiKeysReducer,
+    logs: logsReducer,
+    monitoring: monitoringReducer,
+    compute: computeReducer,
     stats: statsReducer,
   },
 });

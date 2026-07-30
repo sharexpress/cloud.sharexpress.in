@@ -80,7 +80,7 @@ function DatabaseDetailPage() {
     const dbParam = params.id;
 
     // Redux selectors
-    const databases = useSelector((state) => state.databases.list);
+    const databases = useSelector((state) => state.databases?.list || []);
     const workspaces = useSelector((state) => state.workspaces?.list || []);
     const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId);
     const activeWsName = workspaces.find((w) => w.id === activeWsId)?.name || "Workspace";

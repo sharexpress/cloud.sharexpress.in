@@ -29,8 +29,8 @@ export const Route = createFileRoute("/deployments")({
 
 function DeploymentsPage() {
     const dispatch = useDispatch();
-    const deployments = useSelector((state) => state.deployments.list);
-    const projects = useSelector((state) => state.projects.list);
+    const deployments = useSelector((state) => state.deployments?.list || []);
+    const projects = useSelector((state) => state.projects?.list || []);
 
     const [filterEnv, setFilterEnv] = useState("all");
     const [filterStatus, setFilterStatus] = useState("all");

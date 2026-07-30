@@ -30,12 +30,20 @@ export function PageHeader({ title, description, actions, action }) {
       {actionContent && <div className="flex shrink-0 items-center gap-2">{actionContent}</div>}
     </div>);
 }
+function renderIcon(icon, className = "h-4 w-4") {
+    if (!icon) return null;
+    if (typeof icon === "function" || (typeof icon === "object" && icon && !icon.$$typeof && !icon.type)) {
+        const IconComp = icon;
+        return <IconComp className={className} />;
+    }
+    return icon;
+}
+
 export function Panel({ title, description, actions, icon, children, className, padded = true, }) {
-    const Icon = icon;
     return (<section className={cn("rounded-lg border border-border-primary bg-bg-card shadow-sm", className)}>
       {(title || actions || icon) && (<header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border-primary px-4 py-3">
           <div className="flex items-center gap-2 min-w-0">
-            {Icon && <Icon className="h-4 w-4 text-text-muted shrink-0" />}
+            {icon && <span className="text-text-muted shrink-0">{renderIcon(icon, "h-4 w-4")}</span>}
             <div className="min-w-0">
               {title && <h2 className="truncate text-[11px] font-bold tracking-wider uppercase font-mono text-text-secondary">{title}</h2>}
               {description && <p className="mt-0.5 truncate text-[11px] text-text-muted">{description}</p>}
@@ -77,12 +85,11 @@ export function Tag({ children, className }) {
 }
 /* ---------------- Metric card ---------------- */
 export function Metric({ title, label, value, change, trend, hint, delta, series, icon, }) {
-    const Icon = icon;
     const displayLabel = title ?? label;
     return (<div className="rounded-lg border border-border-primary bg-bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="text-xs text-text-muted font-medium">{displayLabel}</span>
-        {Icon && <span className="text-text-muted"><Icon className="h-4 w-4" /></span>}
+        {icon && <span className="text-text-muted">{renderIcon(icon, "h-4 w-4")}</span>}
       </div>
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-[22px] font-semibold tracking-tight text-text-primary">{value}</span>

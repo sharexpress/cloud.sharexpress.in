@@ -125,22 +125,22 @@ function OverviewPage() {
                     {/* Live Projects Panel */}
                     <Panel title="Active Projects" icon={FolderGit2}>
                         {projects.length === 0 ? (
-                            <div className="text-center py-10 text-muted">
-                                <FolderGit2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                <p className="text-sm font-medium">No projects deployed yet.</p>
-                                <p className="text-xs text-muted mt-1">Create a project from the Projects tab to get started.</p>
+                            <div className="text-center py-10 text-text-muted">
+                                <FolderGit2 className="h-8 w-8 mx-auto mb-2 opacity-50 text-text-muted" />
+                                <p className="text-sm font-medium text-text-primary">No projects deployed yet.</p>
+                                <p className="text-xs text-text-muted mt-1">Create a project from the Projects tab to get started.</p>
                             </div>
                         ) : (
-                            <div className="divide-y divide-border/40">
+                            <div className="divide-y divide-border-primary">
                                 {projects.map((p) => (
                                     <div key={p.id} className="py-3 flex items-center justify-between">
                                         <div>
-                                            <p className="font-semibold text-sm">{p.name}</p>
-                                            <p className="text-xs text-muted">{p.subdomain || `${p.slug}.project.sharexpress.in`}</p>
+                                            <p className="font-semibold text-sm text-text-primary">{p.name}</p>
+                                            <p className="text-xs text-text-muted font-mono">{p.subdomain || `${p.slug}.project.sharexpress.in`}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-xs font-mono uppercase bg-accent px-2 py-0.5 rounded text-muted">{p.framework || p.type}</span>
-                                            <StatusBadge status={p.status || "live"} />
+                                            <span className="text-xs font-mono uppercase bg-bg-secondary border border-border-primary px-2 py-0.5 rounded text-text-muted">{p.framework || p.type}</span>
+                                            <StatusBadge status={p.status || "ready"} />
                                         </div>
                                     </div>
                                 ))}
@@ -151,22 +151,22 @@ function OverviewPage() {
                     {/* Live Databases Panel */}
                     <Panel title="Database Containers" icon={Database}>
                         {databases.length === 0 ? (
-                            <div className="text-center py-10 text-muted">
-                                <Database className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                <p className="text-sm font-medium">No databases provisioned yet.</p>
-                                <p className="text-xs text-muted mt-1">Provision PostgreSQL, MongoDB, or Redis in the Databases tab.</p>
+                            <div className="text-center py-10 text-text-muted">
+                                <Database className="h-8 w-8 mx-auto mb-2 opacity-50 text-text-muted" />
+                                <p className="text-sm font-medium text-text-primary">No databases provisioned yet.</p>
+                                <p className="text-xs text-text-muted mt-1">Provision PostgreSQL, MongoDB, or Redis in the Databases tab.</p>
                             </div>
                         ) : (
-                            <div className="divide-y divide-border/40">
+                            <div className="divide-y divide-border-primary">
                                 {databases.map((db) => (
                                     <div key={db.id} className="py-3 flex items-center justify-between">
                                         <div>
-                                            <p className="font-semibold text-sm">{db.name}</p>
-                                            <p className="text-xs text-muted">{db.host || `${db.name}.internal.sharexpress.in`}:{db.port || 5432}</p>
+                                            <p className="font-semibold text-sm text-text-primary">{db.name}</p>
+                                            <p className="text-xs text-text-muted font-mono">{db.host || `${db.name}.internal.sharexpress.in`}:{db.port || 5432}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-xs font-mono uppercase bg-accent px-2 py-0.5 rounded text-muted">{db.engine}</span>
-                                            <StatusBadge status={db.status || "running"} />
+                                            <span className="text-xs font-mono uppercase bg-bg-secondary border border-border-primary px-2 py-0.5 rounded text-text-muted">{db.engine}</span>
+                                            <StatusBadge status={db.status || "healthy"} />
                                         </div>
                                     </div>
                                 ))}

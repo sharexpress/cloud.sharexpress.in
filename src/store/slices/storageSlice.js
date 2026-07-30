@@ -73,6 +73,12 @@ export const storageSlice = createSlice({
     setObjects: (state, action) => {
       state.currentObjects = action.payload;
     },
+    uploadFile: (state, action) => {
+      state.currentObjects.unshift(action.payload);
+    },
+    deleteFile: (state, action) => {
+      state.currentObjects = state.currentObjects.filter((o) => o.name !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -109,6 +115,6 @@ export const storageSlice = createSlice({
   },
 });
 
-export const { setBuckets, addBucket, setObjects } = storageSlice.actions;
+export const { setBuckets, addBucket, setObjects, uploadFile, deleteFile } = storageSlice.actions;
 
 export default storageSlice.reducer;

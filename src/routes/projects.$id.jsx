@@ -58,14 +58,14 @@ function ProjectDetailPage() {
     const search = Route.useSearch();
     const projectSlug = params.id;
 
-    // Redux selectors
-    const projects = useSelector((state) => state.projects.list);
-    const deployments = useSelector((state) => state.deployments.list);
-    const secrets = useSelector((state) => state.secrets.list);
-    const domains = useSelector((state) => state.domains.list);
-    const functions = useSelector((state) => state.functions.list);
-    const storeStorage = useSelector((state) => state.storage);
-    const teamMembers = useSelector((state) => state.team.members);
+    // Redux selectors with null-safety
+    const projects = useSelector((state) => state.projects?.list || []);
+    const deployments = useSelector((state) => state.deployments?.list || []);
+    const secrets = useSelector((state) => state.secrets?.list || []);
+    const domains = useSelector((state) => state.domains?.list || []);
+    const functions = useSelector((state) => state.functions?.list || []);
+    const storeStorage = useSelector((state) => state.storage || {});
+    const teamMembers = useSelector((state) => state.team?.members || []);
     const workspaces = useSelector((state) => state.workspaces?.list || []);
     const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId);
     const activeWsName = workspaces.find((w) => w.id === activeWsId)?.name || "Workspace";
