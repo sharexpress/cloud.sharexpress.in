@@ -20,21 +20,26 @@ import { cn } from "@/lib/utils";
 export function PageShell({ children }) {
     return <div className="mx-auto w-full max-w-[1400px] px-2 py-4 md:px-4 md:py-6">{children}</div>;
 }
-export function PageHeader({ title, description, actions, }) {
+export function PageHeader({ title, description, actions, action }) {
+    const actionContent = actions ?? action;
     return (<div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary pb-4">
       <div className="min-w-0">
         <h1 className="text-[18px] font-bold tracking-tight text-text-primary">{title}</h1>
         {description && (<p className="mt-1 text-xs text-text-muted">{description}</p>)}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actionContent && <div className="flex shrink-0 items-center gap-2">{actionContent}</div>}
     </div>);
 }
-export function Panel({ title, description, actions, children, className, padded = true, }) {
+export function Panel({ title, description, actions, icon, children, className, padded = true, }) {
+    const Icon = icon;
     return (<section className={cn("rounded-lg border border-border-primary bg-bg-card shadow-sm", className)}>
-      {(title || actions) && (<header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border-primary px-4 py-3">
-          <div className="min-w-0">
-            {title && <h2 className="truncate text-[11px] font-bold tracking-wider uppercase font-mono text-text-secondary">{title}</h2>}
-            {description && <p className="mt-0.5 truncate text-[11px] text-text-muted">{description}</p>}
+      {(title || actions || icon) && (<header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border-primary px-4 py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            {Icon && <Icon className="h-4 w-4 text-text-muted shrink-0" />}
+            <div className="min-w-0">
+              {title && <h2 className="truncate text-[11px] font-bold tracking-wider uppercase font-mono text-text-secondary">{title}</h2>}
+              {description && <p className="mt-0.5 truncate text-[11px] text-text-muted">{description}</p>}
+            </div>
           </div>
           {actions && <div className="flex shrink-0 items-center gap-1.5">{actions}</div>}
         </header>)}
@@ -71,14 +76,21 @@ export function Tag({ children, className }) {
     </span>);
 }
 /* ---------------- Metric card ---------------- */
-export function Metric({ label, value, hint, delta, series, icon, }) {
+export function Metric({ title, label, value, change, trend, hint, delta, series, icon, }) {
+    const Icon = icon;
+    const displayLabel = title ?? label;
     return (<div className="rounded-lg border border-border-primary bg-bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-text-muted font-medium">{label}</span>
-        {icon && <span className="text-text-muted">{icon}</span>}
+        <span className="text-xs text-text-muted font-medium">{displayLabel}</span>
+        {Icon && <span className="text-text-muted"><Icon className="h-4 w-4" /></span>}
       </div>
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-[22px] font-semibold tracking-tight text-text-primary">{value}</span>
+        {change && (
+          <span className={cn("text-[11px] font-medium", trend === 'up' ? "text-status-success" : trend === 'down' ? "text-status-danger" : "text-text-muted")}>
+            {change}
+          </span>
+        )}
         {delta && (<span className={cn("text-[11px] font-medium", delta.positive ? "text-status-success" : "text-status-danger")}>
             {delta.value}
           </span>)}
