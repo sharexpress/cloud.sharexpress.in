@@ -19,7 +19,6 @@ import { store } from "../store/index.js";
 import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts, } from "@tanstack/react-router";
 import { useEffect } from "react";
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { useSelector } from "react-redux";
 
 function NotFoundComponent() {
@@ -44,9 +43,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }) {
     console.error("Root Route Error:", error);
     const router = useRouter();
-    useEffect(() => {
-        reportLovableError(error, { boundary: "tanstack_root_error_component" });
-    }, [error]);
     return (<div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-xl text-center">
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-destructive/30 bg-destructive/10 text-destructive font-mono font-bold text-sm">
@@ -132,7 +128,9 @@ export const Route = createRootRouteWithContext()({
         ],
         links: [
             { rel: "stylesheet", href: appCss },
-            { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+            { rel: "icon", href: "/logo.png", type: "image/png" },
+            { rel: "shortcut icon", href: "/logo.png", type: "image/png" },
+            { rel: "apple-touch-icon", href: "/logo.png" },
             { rel: "preconnect", href: "https://fonts.googleapis.com" },
             { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
             {
