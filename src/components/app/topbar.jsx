@@ -42,7 +42,7 @@ export function Topbar({ title, breadcrumbs, actions }) {
       <button className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground">
         <Bell className="h-4 w-4"/>
       </button>
-      <button className="flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3 text-[12px] font-medium text-background transition-opacity hover:opacity-90">
+      <button className="flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-[12px] font-medium text-white shadow-sm transition-all hover:bg-blue-500 cursor-pointer">
         <Plus className="h-3.5 w-3.5"/> New
       </button>
     </header>);

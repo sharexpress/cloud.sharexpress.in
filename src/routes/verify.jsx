@@ -49,7 +49,7 @@ function VerifyPage() {
       <div className="mt-6 space-y-3">
         <button 
           onClick={handleVerify}
-          className="flex h-10 w-full items-center justify-center rounded-md bg-foreground text-[13px] font-medium text-background hover:opacity-90 transition-opacity"
+          className="flex h-10 w-full items-center justify-center rounded-md bg-blue-600 text-[13px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer shadow-sm"
         >
           Confirm Email Verification
         </button>

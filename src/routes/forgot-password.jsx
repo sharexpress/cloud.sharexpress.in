@@ -66,7 +66,7 @@ function ForgotPage() {
             className="mt-1 h-10 w-full rounded-md border border-border bg-background px-3 text-[13px] text-foreground focus:border-accent focus:outline-none transition-colors"
           />
         </div>
-        <button type="submit" className="flex h-10 w-full items-center justify-center rounded-md bg-foreground text-[13px] font-medium text-background hover:opacity-90 transition-opacity">
+        <button type="submit" className="flex h-10 w-full items-center justify-center rounded-md bg-blue-600 text-[13px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer shadow-sm">
           Send reset link
         </button>
       </form>

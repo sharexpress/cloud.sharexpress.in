@@ -89,7 +89,7 @@ function SettingsPage() {
             {tab === "General" && (<>
                 <form onSubmit={handleSaveGeneral}>
                     <Panel title="Workspace" actions={
-                        <button type="submit" className="h-7 rounded bg-foreground px-3 text-[11px] font-medium text-background hover:opacity-90 transition-opacity">Save</button>
+                        <button type="submit" className="h-7 rounded bg-blue-600 px-3 text-[11px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer">Save</button>
                     }>
                       <div className="space-y-4 max-w-md">
                         <div>
@@ -142,7 +142,7 @@ function SettingsPage() {
               </Panel>)}
 
             {tab === "Account" && (<Panel title="Profile" actions={
-                <button onClick={() => showToast("User profile saved.")} className="h-7 rounded bg-foreground px-3 text-[11px] font-medium text-background hover:opacity-90">Save</button>
+                <button onClick={() => showToast("User profile saved.")} className="h-7 rounded bg-blue-600 px-3 text-[11px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer">Save</button>
             }>
                 <div className="space-y-4 max-w-md">
                     <div>

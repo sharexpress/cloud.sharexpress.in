@@ -206,7 +206,7 @@ function DeploymentsPage() {
                 {selectedDpl.status === "ready" && (
                     <button 
                         onClick={() => handleRollback(selectedDpl)}
-                        className="h-9 px-4 rounded bg-foreground text-[12.5px] font-medium text-background hover:opacity-90 cursor-pointer"
+                        className="h-9 px-4 rounded bg-blue-600 text-[12.5px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer"
                     >
                         Rollback
                     </button>

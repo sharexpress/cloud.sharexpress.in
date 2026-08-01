@@ -32,7 +32,7 @@ function NotFoundComponent() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
-          <Link to="/dashboard" className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90">
+          <Link to="/dashboard" className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-blue-500">
             Back to Overview
           </Link>
         </div>
@@ -60,7 +60,7 @@ function ErrorComponent({ error, reset }) {
           <button onClick={() => {
             router.invalidate();
             reset();
-        }} className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90 cursor-pointer">
+        }} className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-blue-500 cursor-pointer">
             Try again
           </button>
           <a href="/" className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:border-border-strong">

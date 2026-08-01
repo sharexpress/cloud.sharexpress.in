@@ -88,7 +88,7 @@ function TwoFactorPage() {
       
       <button 
         onClick={handleVerify}
-        className="mt-6 flex h-10 w-full items-center justify-center rounded-md bg-foreground text-[13px] font-medium text-background hover:opacity-90 transition-opacity"
+        className="mt-6 flex h-10 w-full items-center justify-center rounded-md bg-blue-600 text-[13px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer shadow-sm"
       >
         Verify and continue
       </button>
