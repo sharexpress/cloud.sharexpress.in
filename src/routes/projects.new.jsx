@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/shell";
 import { PageShell } from "@/components/app/primitives";
 import { 
@@ -27,6 +27,9 @@ import { createProjectThunk } from "@/store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/new")({
+    validateSearch: (search) => ({
+        type: typeof search?.type === "string" ? search.type : "web_service",
+    }),
     head: () => ({ meta: [{ title: "New Resource — Sharexpress Cloud" }] }),
     component: NewProjectOnboardingPage,
 });
@@ -43,12 +46,12 @@ const MOCK_REPOSITORIES = [
 
 function NewProjectOnboardingPage() {
     const navigate = useNavigate();
-    const search = useSearch({ strict: false });
+    const search = Route.useSearch();
     const dispatch = useDispatch();
     const activeWsId = useSelector((state) => state.workspaces?.activeWorkspaceId || "ws_acme");
 
     // Type of service being created (static site, web service, etc)
-    const initialType = search?.type === "static" ? "Static Site" : "Web Service";
+    const initialType = search.type === "static" ? "Static Site" : "Web Service";
     const [serviceType, setServiceType] = useState(initialType);
     
     // Step state: 1 = Repo selection, 2 = Service Configuration
