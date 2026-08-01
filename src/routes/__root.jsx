@@ -131,20 +131,24 @@ function ThemeApplier({ children }) {
                     [
                         {
                             clipPath: "circle(0px at 0 0)",
-                            filter: "blur(6px) drop-shadow(0 0 25px rgba(95, 106, 210, 0.8))"
+                            filter: "blur(12px) drop-shadow(0 0 40px rgba(95, 106, 210, 0.9))"
                         },
                         {
-                            clipPath: `circle(${radius * 0.5}px at 0 0)`,
-                            filter: "blur(3px) drop-shadow(0 0 35px rgba(95, 106, 210, 0.6))"
+                            clipPath: `circle(${radius * 0.35}px at 0 0)`,
+                            filter: "blur(8px) drop-shadow(0 0 50px rgba(95, 106, 210, 0.8))"
                         },
                         {
-                            clipPath: `circle(${radius * 1.05}px at 0 0)`,
+                            clipPath: `circle(${radius * 0.75}px at 0 0)`,
+                            filter: "blur(4px) drop-shadow(0 0 40px rgba(16, 185, 129, 0.6))"
+                        },
+                        {
+                            clipPath: `circle(${radius * 1.1}px at 0 0)`,
                             filter: "blur(0px) drop-shadow(0 0 0px transparent)"
                         }
                     ],
                     {
-                        duration: 700,
-                        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                        duration: 1200,
+                        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
                         pseudoElement: "::view-transition-new(root)"
                     }
                 );
