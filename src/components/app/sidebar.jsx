@@ -707,84 +707,175 @@ export function AppSidebar() {
     const dispatch = useDispatch();
     const currentTheme = useSelector((state) => state.settings?.appearance?.theme || "dark");
     const path = useRouterState({ select: (s) => s.location.pathname });
+    const locationSearch = useRouterState({ select: (s) => s.location.search });
 
-    // Detect if we are inside a specific service details route (/services/:id)
-    const serviceMatch = path.match(/^\/services\/([^\/]+)/);
-    const isServiceDetail = Boolean(serviceMatch && serviceMatch[1] !== "new");
-    const serviceId = serviceMatch ? serviceMatch[1] : null;
-
-    if (isServiceDetail && serviceId) {
-        return <ServiceDetailSidebar serviceId={serviceId} />;
-    }
-
-    // Detect if we are inside a specific project details route (/projects/:id)
+    // Detect Contexts
     const projectMatch = path.match(/^\/projects\/([^\/]+)/);
     const isProjectDetail = Boolean(projectMatch && projectMatch[1] !== "new");
     const projectSlug = projectMatch ? projectMatch[1] : null;
 
-    if (isProjectDetail && projectSlug) {
-        return <ProjectDetailSidebar projectSlug={projectSlug} />;
-    }
+    const serviceMatch = path.match(/^\/services\/([^\/]+)/);
+    const isServiceDetail = Boolean(serviceMatch && serviceMatch[1] !== "new");
+    const serviceId = serviceMatch ? serviceMatch[1] : null;
 
-    // Detect if we are inside a specific database details route (/databases/:id)
     const dbMatch = path.match(/^\/databases\/([^\/]+)/);
     const isDbDetail = Boolean(dbMatch && dbMatch[1] !== "new");
     const dbId = dbMatch ? dbMatch[1] : null;
 
-    if (isDbDetail && dbId) {
-        return <DatabaseDetailSidebar dbId={dbId} />;
-    }
-
-    // Detect if we are inside a specific storage details route (/storage/:id)
     const storageMatch = path.match(/^\/storage\/([^\/]+)/);
     const isStorageDetail = Boolean(storageMatch && storageMatch[1] !== "new");
     const bucketId = storageMatch ? storageMatch[1] : null;
 
-    if (isStorageDetail && bucketId) {
-        return <StorageDetailSidebar bucketId={bucketId} />;
+    const activeTab = locationSearch?.tab ? String(locationSearch.tab) : "Overview";
+
+    // Helper for rendering tab-based sub-nav section
+    function renderTabSection(label, items, routePrefix, routeParamId) {
+        return (
+            <div className="px-2 mb-1">
+                {label ? (
+                    <div className="px-2.5 pb-1 pt-3 text-[10px] font-bold text-text-muted/70 flex items-center justify-between font-mono uppercase tracking-wider">
+                        <span>{label}</span>
+                        <ChevronRight className="h-3 w-3 opacity-60" />
+                    </div>
+                ) : null}
+                <ul className="space-y-0.5">
+                    {items.map((it) => {
+                        const Icon = it.icon;
+                        const active = (activeTab || "").toLowerCase() === (it.tab || "").toLowerCase();
+                        return (
+                            <li key={it.tab}>
+                                <Link
+                                    to={routePrefix}
+                                    params={{ id: routeParamId }}
+                                    search={{ tab: it.tab }}
+                                    className={cn(
+                                        "group flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors cursor-pointer",
+                                        active
+                                            ? "bg-surface text-text-primary font-semibold border border-border/50 shadow-xs"
+                                            : "text-text-secondary hover:bg-surface/60 hover:text-text-primary border border-transparent"
+                                    )}
+                                >
+                                    <Icon className={cn("h-4 w-4 shrink-0 transition-colors", active ? "text-text-primary" : "text-text-muted group-hover:text-text-primary")} />
+                                    <span className="truncate">{it.label}</span>
+                                </Link>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </div>
+        );
     }
 
-    return (<aside className="hidden md:flex h-screen w-[220px] shrink-0 flex-col bg-sidebar text-text-secondary select-none relative z-20 transition-colors">
+    return (
+        <aside className="hidden md:flex h-screen w-[220px] shrink-0 flex-col bg-sidebar text-text-secondary select-none relative z-20 transition-colors border-r border-border/50">
+            {/* Master Header: Sharexpress Logo + Workspace Selector */}
+            <div className="flex h-12 items-center justify-between px-3.5 pt-2 shrink-0 border-b border-border/40 pb-2">
+                <WorkspaceHeaderSwitcher />
+            </div>
 
-      {/* Header: Sharexpress Logo + Workspace Selector */}
-      <div className="flex h-12 items-center justify-between px-3.5 pt-2 shrink-0">
-        <WorkspaceHeaderSwitcher />
-      </div>
+            {/* Middle Nav Section */}
+            <nav className="flex-1 overflow-y-auto py-3 space-y-1">
+                {isServiceDetail && serviceId ? (
+                    <>
+                        <div className="px-3 pb-2 pt-1">
+                            <Link to="/projects" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-muted hover:text-text-primary transition-colors group">
+                                <ArrowLeft className="h-3.5 w-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
+                                <span>Back to Overview</span>
+                            </Link>
+                            <div className="mt-2 p-2 rounded-lg bg-surface/80 border border-border/80 text-left shrink-0">
+                                <div className="truncate text-xs font-bold text-text-primary">{serviceId}</div>
+                                <div className="text-[10px] text-text-muted font-mono">Web Service · Node</div>
+                            </div>
+                        </div>
+                        {renderTabSection("Service Context", serviceNavPrimary, "/services/$id", serviceId)}
+                        {renderTabSection("MONITOR", serviceNavMonitor, "/services/$id", serviceId)}
+                        {renderTabSection("MANAGE", serviceNavManage, "/services/$id", serviceId)}
+                    </>
+                ) : isProjectDetail && projectSlug ? (
+                    <>
+                        <div className="px-3 pb-2 pt-1">
+                            <Link to="/projects" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-muted hover:text-text-primary transition-colors group">
+                                <ArrowLeft className="h-3.5 w-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
+                                <span>Back to Projects</span>
+                            </Link>
+                            <div className="mt-2 p-2 rounded-lg bg-surface/80 border border-border/80 text-left shrink-0">
+                                <div className="truncate text-xs font-bold text-text-primary">{projectSlug}</div>
+                                <div className="text-[10px] text-text-muted font-mono">Project Folder</div>
+                            </div>
+                        </div>
+                        {renderTabSection("Project Context", projectNavPrimary, "/projects/$id", projectSlug)}
+                        {renderTabSection("Resources", projectNavInfra, "/projects/$id", projectSlug)}
+                        {renderTabSection("Observability", projectNavObserve, "/projects/$id", projectSlug)}
+                        {renderTabSection("Management", projectNavSettings, "/projects/$id", projectSlug)}
+                    </>
+                ) : isDbDetail && dbId ? (
+                    <>
+                        <div className="px-3 pb-2 pt-1">
+                            <Link to="/databases" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-muted hover:text-text-primary transition-colors group">
+                                <ArrowLeft className="h-3.5 w-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
+                                <span>Back to Databases</span>
+                            </Link>
+                            <div className="mt-2 p-2 rounded-lg bg-surface/80 border border-border/80 text-left shrink-0">
+                                <div className="truncate text-xs font-bold text-text-primary">{dbId}</div>
+                                <div className="text-[10px] text-text-muted font-mono">PostgreSQL Database</div>
+                            </div>
+                        </div>
+                        {renderTabSection("Database Context", dbNavPrimary, "/databases/$id", dbId)}
+                        {renderTabSection("Management", dbNavManagement, "/databases/$id", dbId)}
+                    </>
+                ) : isStorageDetail && bucketId ? (
+                    <>
+                        <div className="px-3 pb-2 pt-1">
+                            <Link to="/storage" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-muted hover:text-text-primary transition-colors group">
+                                <ArrowLeft className="h-3.5 w-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
+                                <span>Back to Storage</span>
+                            </Link>
+                            <div className="mt-2 p-2 rounded-lg bg-surface/80 border border-border/80 text-left shrink-0">
+                                <div className="truncate text-xs font-bold text-text-primary">{bucketId}</div>
+                                <div className="text-[10px] text-text-muted font-mono">S3 Storage Bucket</div>
+                            </div>
+                        </div>
+                        {renderTabSection("Storage Context", storageNavPrimary, "/storage/$id", bucketId)}
+                        {renderTabSection("Management", storageNavManagement, "/storage/$id", bucketId)}
+                    </>
+                ) : (
+                    <>
+                        <Section items={primary} />
+                        <Section label="Workspace" items={infra} />
+                        <Section label="Observability" items={observe} />
+                        <Section label="Account" items={account} />
+                    </>
+                )}
+            </nav>
 
-      <nav className="flex-1 overflow-y-auto py-3 space-y-1">
-        <Section items={primary}/>
-        <Section label="Workspace" items={infra}/>
-        <Section label="Observability" items={observe}/>
-        <Section label="Account" items={account}/>
-      </nav>
+            {/* "What's new" card matching Linear screenshot */}
+            <div className="mx-2.5 mb-2.5 p-3 rounded-xl bg-surface border border-border/80 text-left shrink-0 shadow-xs">
+                <span className="text-[10px] text-text-muted font-medium block">What's new</span>
+                <span className="text-[11px] font-semibold text-text-primary mt-0.5 block leading-tight">
+                    Isolated workspaces with custom role permissions
+                </span>
+            </div>
 
-      {/* "What's new" card matching Linear screenshot */}
-      <div className="mx-2.5 mb-2.5 p-3 rounded-xl bg-surface border border-border/80 text-left shrink-0 shadow-xs">
-        <span className="text-[10px] text-text-muted font-medium block">What's new</span>
-        <span className="text-[11px] font-semibold text-text-primary mt-0.5 block leading-tight">
-          Isolated workspaces with custom role permissions
-        </span>
-      </div>
-
-      {/* Sidebar bottom footer with Theme toggle */}
-      <div className="border-t border-border/60 px-3 py-2 flex items-center justify-between bg-sidebar shrink-0 text-text-muted">
-        <button
-          onClick={() => dispatch(toggleTheme())}
-          className="flex items-center gap-2 text-[11px] hover:text-text-primary transition-colors cursor-pointer"
-        >
-          {currentTheme === "dark" ? (
-            <>
-              <Sun className="h-3.5 w-3.5 text-amber-400" />
-              <span>Light Theme</span>
-            </>
-          ) : (
-            <>
-              <Moon className="h-3.5 w-3.5 text-accent-purple" />
-              <span>Dark Theme</span>
-            </>
-          )}
-        </button>
-        <span className="font-mono text-[9px] text-text-muted opacity-60">v2.4</span>
-      </div>
-    </aside>);
+            {/* Master Footer with Theme Toggle */}
+            <div className="border-t border-border/60 px-3 py-2 flex items-center justify-between bg-sidebar shrink-0 text-text-muted">
+                <button
+                    onClick={() => dispatch(toggleTheme())}
+                    className="flex items-center gap-2 text-[11px] hover:text-text-primary transition-colors cursor-pointer"
+                >
+                    {currentTheme === "dark" ? (
+                        <>
+                            <Sun className="h-3.5 w-3.5 text-amber-400" />
+                            <span>Light Theme</span>
+                        </>
+                    ) : (
+                        <>
+                            <Moon className="h-3.5 w-3.5 text-accent-purple" />
+                            <span>Dark Theme</span>
+                        </>
+                    )}
+                </button>
+                <span className="font-mono text-[9px] text-text-muted opacity-60">v2.4</span>
+            </div>
+        </aside>
+    );
 }
