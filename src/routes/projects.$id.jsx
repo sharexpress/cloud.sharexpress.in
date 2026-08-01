@@ -298,34 +298,14 @@ function ProjectDetailPage() {
                         >
                             <div>
                                 <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        {svc.type.includes("Frontend") ? (
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-[#5F6AD2]/15 border border-[#5F6AD2]/30 text-[#5F6AD2] shrink-0 shadow-xs">
-                                                <Layout className="h-4 w-4" />
-                                            </div>
-                                        ) : svc.type.includes("Database") ? (
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0 shadow-xs">
-                                                <Database className="h-4 w-4" />
-                                            </div>
-                                        ) : svc.type.includes("Worker") ? (
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0 shadow-xs">
-                                                <Zap className="h-4 w-4" />
-                                            </div>
-                                        ) : (
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 shrink-0 shadow-xs">
-                                                <Server className="h-4 w-4" />
-                                            </div>
-                                        )}
-                                        <div className="min-w-0">
-                                            <span className="text-xs font-bold text-foreground truncate block group-hover:text-[#5F6AD2] transition-colors">{svc.name}</span>
-                                            <span className="text-[10px] text-muted-foreground font-mono truncate block">{svc.framework || svc.type}</span>
-                                        </div>
+                                    <div className="min-w-0">
+                                        <span className="text-xs font-bold text-foreground truncate block group-hover:text-[#5F6AD2] transition-colors">{svc.name}</span>
+                                        <span className="text-[10.5px] text-muted-foreground font-mono truncate block mt-0.5">{svc.type} · {svc.framework}</span>
                                     </div>
                                 </div>
 
-                                <div className="font-mono text-[11px] text-muted-foreground truncate my-3 bg-surface/60 px-2.5 py-1.5 rounded-md border border-border/40 flex items-center justify-between">
+                                <div className="font-mono text-[11px] text-muted-foreground truncate my-3 bg-surface/60 px-2.5 py-1.5 rounded-md border border-border/40">
                                     <span className="truncate">{svc.url}</span>
-                                    <ExternalLink className="h-3 w-3 opacity-50 shrink-0 ml-1 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             </div>
 
@@ -343,11 +323,10 @@ function ProjectDetailPage() {
                         onClick={() => setIsAddServiceModalOpen(true)}
                         className="rounded-xl border border-dashed border-border hover:border-[#5F6AD2] bg-surface/30 hover:bg-[#5F6AD2]/5 p-4.5 transition-all flex flex-col items-center justify-center text-center cursor-pointer group min-h-[120px]"
                     >
-                        <Plus className="h-4 w-4 text-muted-foreground group-hover:text-[#5F6AD2] transition-colors mb-1" />
                         <span className="text-xs font-semibold text-foreground group-hover:text-[#5F6AD2] transition-colors">
-                            Add Service to Project
+                            + Add Service to Project
                         </span>
-                        <span className="text-[10.5px] text-muted-foreground mt-0.5">
+                        <span className="text-[10.5px] text-muted-foreground mt-1">
                             Frontend, API, Postgres, or Worker
                         </span>
                     </button>
