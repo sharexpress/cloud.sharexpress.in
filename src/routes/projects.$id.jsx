@@ -288,9 +288,12 @@ function ProjectDetailPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                     {projectServices.map((svc) => (
-                        <div 
+                        <Link 
                             key={svc.id} 
-                            className="rounded-xl border border-border bg-card p-4.5 hover:border-border-strong transition-all flex flex-col justify-between"
+                            to="/services/$id"
+                            params={{ id: svc.name || svc.slug || "backend-setup-portfolio" }}
+                            search={{ tab: "Events" }}
+                            className="rounded-xl border border-border bg-card p-4.5 hover:border-[#5F6AD2]/60 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
                         >
                             <div>
                                 <div className="flex items-center justify-between mb-2">
@@ -298,7 +301,7 @@ function ProjectDetailPage() {
                                         {svc.type.includes("Frontend") ? <Globe className="h-4 w-4 text-[#5F6AD2] shrink-0" /> :
                                          svc.type.includes("Database") ? <Database className="h-4 w-4 text-emerald-400 shrink-0" /> :
                                          <Cpu className="h-4 w-4 text-sky-400 shrink-0" />}
-                                        <span className="text-xs font-semibold text-foreground truncate">{svc.name}</span>
+                                        <span className="text-xs font-semibold text-foreground truncate group-hover:text-[#5F6AD2] transition-colors">{svc.name}</span>
                                     </div>
                                     <span className="rounded bg-surface px-2 py-0.5 font-mono text-[9.5px] text-muted-foreground border border-border shrink-0">
                                         {svc.type}
@@ -316,7 +319,7 @@ function ProjectDetailPage() {
                                 </span>
                                 <span className="text-muted-foreground">{svc.region}</span>
                             </div>
-                        </div>
+                        </Link>
                     ))}
 
                     {/* Dashed Add Service Card */}

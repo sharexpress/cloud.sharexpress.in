@@ -314,9 +314,9 @@ function ProjectsPage() {
                                                     </div>
                                                     <div className="min-w-0">
                                                         <Link
-                                                            to="/projects/$id"
-                                                            params={{ id: service.id || "p_acme_web" }}
-                                                            search={{ tab: "Overview" }}
+                                                            to="/services/$id"
+                                                            params={{ id: service.name || service.slug || service.id || "backend-setup-portfolio" }}
+                                                            search={{ tab: "Events" }}
                                                             className="truncate font-semibold text-xs text-foreground hover:text-[#5F6AD2] transition-colors block cursor-pointer"
                                                         >
                                                             {service.name}
@@ -360,11 +360,11 @@ function ProjectsPage() {
                                                 {/* Actions */}
                                                 <div className="flex items-center justify-end gap-1">
                                                     <Link
-                                                        to="/projects/$id"
-                                                        params={{ id: service.id || "p_acme_web" }}
-                                                        search={{ tab: "Overview" }}
+                                                        to="/services/$id"
+                                                        params={{ id: service.name || service.slug || service.id || "backend-setup-portfolio" }}
+                                                        search={{ tab: "Events" }}
                                                         className="rounded p-1.5 text-muted-foreground hover:bg-surface-elevated hover:text-foreground transition-colors cursor-pointer"
-                                                        title="View Project"
+                                                        title="Manage Service"
                                                     >
                                                         <ExternalLink className="h-3.5 w-3.5" />
                                                     </Link>

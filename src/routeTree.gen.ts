@@ -35,6 +35,7 @@ import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as DatabasesIdRouteImport } from './routes/databases.$id'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
+import { Route as ServicesIdRouteImport } from './routes/services.$id'
 import { Route as StorageIdRouteImport } from './routes/storage.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -167,6 +168,11 @@ const ProjectsNewRoute = ProjectsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const ServicesIdRoute = ServicesIdRouteImport.update({
+  id: '/services/$id',
+  path: '/services/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StorageIdRoute = StorageIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -200,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
+  '/services/$id': typeof ServicesIdRoute
   '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRoutesByTo {
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
+  '/services/$id': typeof ServicesIdRoute
   '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRoutesById {
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/databases/$id': typeof DatabasesIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
+  '/services/$id': typeof ServicesIdRoute
   '/storage/$id': typeof StorageIdRoute
 }
 export interface FileRouteTypes {
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/databases/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/services/$id'
     | '/storage/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
     | '/databases/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/services/$id'
     | '/storage/$id'
   id:
     | '__root__'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/databases/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/services/$id'
     | '/storage/$id'
   fileRoutesById: FileRoutesById
 }
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   TeamRoute: typeof TeamRoute
   TwoFactorRoute: typeof TwoFactorRoute
   VerifyRoute: typeof VerifyRoute
+  ServicesIdRoute: typeof ServicesIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsNewRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/services/$id': {
+      id: '/services/$id'
+      path: '/services/$id'
+      fullPath: '/services/$id'
+      preLoaderRoute: typeof ServicesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/storage/$id': {
       id: '/storage/$id'
       path: '/$id'
@@ -632,6 +652,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamRoute: TeamRoute,
   TwoFactorRoute: TwoFactorRoute,
   VerifyRoute: VerifyRoute,
+  ServicesIdRoute: ServicesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
