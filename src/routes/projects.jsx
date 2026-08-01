@@ -16,7 +16,7 @@
 
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/shell";
-import { PageShell } from "@/components/app/primitives";
+import { PageShell, PageHeader } from "@/components/app/primitives";
 import { 
   GitBranch, Plus, Search, X, FolderPlus, ArrowRight,
   Globe, Cpu, UserPlus, MoreHorizontal, CheckCircle2, AlertCircle, Clock, ExternalLink, RefreshCw, Layers, Shield
@@ -141,38 +141,33 @@ function ProjectsPage() {
     };
 
     return (
-        <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Overview" }]}>
+        <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Projects" }]}>
             <PageShell>
-                <div className="mx-auto max-w-6xl py-2 space-y-8">
+                <div className="mx-auto max-w-6xl space-y-8">
                     {/* Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                                Overview
-                            </h1>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Managed services, deployment pipelines & environments in {activeWsName}.
-                            </p>
-                        </div>
+                    <PageHeader
+                        title="Projects"
+                        description={`Managed services, deployment pipelines & environments in ${activeWsName}.`}
+                        actions={
+                            <>
+                                <button
+                                    onClick={() => setIsInviteOpen(true)}
+                                    className="h-9 px-4 inline-flex items-center gap-2 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface-elevated active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+                                >
+                                    <UserPlus className="h-4 w-4 text-muted-foreground" />
+                                    Invite Team
+                                </button>
 
-                        <div className="flex items-center gap-2.5">
-                            <button
-                                onClick={() => setIsInviteOpen(true)}
-                                className="h-9 px-4 inline-flex items-center gap-2 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface-elevated active:scale-[0.98] transition-all cursor-pointer shadow-xs"
-                            >
-                                <UserPlus className="h-4 w-4 text-muted-foreground" />
-                                Invite Team
-                            </button>
-
-                            <Link
-                                to="/projects/new"
-                                className="h-9 px-4 inline-flex items-center gap-2 rounded-lg bg-[#5F6AD2] text-xs font-semibold text-white shadow-xs hover:bg-[#4F5ABF] active:scale-[0.98] transition-all cursor-pointer"
-                            >
-                                <Plus className="h-4 w-4" />
-                                New Resource
-                            </Link>
-                        </div>
-                    </div>
+                                <Link
+                                    to="/projects/new"
+                                    className="h-9 px-4 inline-flex items-center gap-2 rounded-lg bg-[#5F6AD2] text-xs font-semibold text-white shadow-xs hover:bg-[#4F5ABF] active:scale-[0.98] transition-all cursor-pointer"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    New Resource
+                                </Link>
+                            </>
+                        }
+                    />
 
                     {/* Projects Cards Grid (Render Screenshot 2) */}
                     <div className="space-y-4">

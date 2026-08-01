@@ -256,8 +256,10 @@ function OverviewPage() {
     const memTimeSeries = [22, 24, 25, 25, 26, 27, 26, 26, 28, 30, 29, 27, 26, 26, 27, 26, 25, 26, 26, 26];
     const hourlyRequests = [420, 380, 310, 290, 340, 480, 720, 950, 1240, 1480, 1320, 1280, 1450, 1600, 1520, 1380, 1250, 1100, 980, 850, 720, 610, 540, 460];
 
+    const activeWsName = useSelector((s) => s.workspaces?.list?.find(w => w.id === activeWsId)?.name || "Workspace");
+
     return (
-        <AppShell>
+        <AppShell breadcrumbs={[{ label: activeWsName }, { label: "Overview" }]}>
             <PageShell>
                 <PageHeader
                     title="Overview"

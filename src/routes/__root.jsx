@@ -90,51 +90,24 @@ function RootShell({ children }) {
 
 function ThemeApplier({ children }) {
     const theme = useSelector((state) => state.settings?.appearance?.theme || "dark");
-    const prevThemeRef = useRef(null);
 
     useEffect(() => {
         if (typeof document === "undefined") return;
         const root = document.documentElement;
 
-        try { localStorage.setItem("theme", theme); } catch (e) {}
+        try {
+            localStorage.setItem("theme", theme);
+        } catch (e) {}
 
-        const applyThemeDOM = () => {
-            root.classList.toggle("dark", theme === "dark");
-            root.classList.toggle("light", theme === "light");
-            root.style.colorScheme = theme;
-        };
-
-        // Initial render — apply instantly
-        if (prevThemeRef.current === null) {
-            prevThemeRef.current = theme;
-            applyThemeDOM();
-            return;
+        if (theme === "dark") {
+            root.classList.add("dark");
+            root.classList.remove("light");
+            root.style.colorScheme = "dark";
+        } else {
+            root.classList.add("light");
+            root.classList.remove("dark");
+            root.style.colorScheme = "light";
         }
-
-        if (prevThemeRef.current === theme) return;
-        prevThemeRef.current = theme;
-
-        if (!document.startViewTransition) {
-            applyThemeDOM();
-            return;
-        }
-
-        const origin = theme === "light" ? "0 0" : "100% 100%";
-        const radius = Math.hypot(window.innerWidth, window.innerHeight);
-
-        document.startViewTransition(applyThemeDOM).ready.then(() => {
-            document.documentElement.animate(
-                [
-                    { clipPath: `circle(0px at ${origin})` },
-                    { clipPath: `circle(${radius}px at ${origin})` }
-                ],
-                {
-                    duration: 600,
-                    easing: "ease-in-out",
-                    pseudoElement: "::view-transition-new(root)"
-                }
-            );
-        });
     }, [theme]);
 
     return children;
