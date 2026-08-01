@@ -20,7 +20,8 @@ import { PageShell, Panel, Metric, StatusBadge, AreaChart, Sparkline } from "@/c
 import { 
   Copy, ExternalLink, GitBranch, Rocket, ShieldCheck, Eye, EyeOff, 
   Trash2, Plus, X, Globe, Database, HardDrive, Cpu, Terminal, Play, 
-  Pause, Check, Settings2, Trash, AlertTriangle, FileText, ArrowRight, Layers
+  Pause, Check, Settings2, Trash, AlertTriangle, FileText, ArrowRight, Layers,
+  Server, Layout, Workflow, Boxes
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -296,20 +297,35 @@ function ProjectDetailPage() {
                             className="rounded-xl border border-border bg-card p-4.5 hover:border-[#5F6AD2]/60 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
                         >
                             <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        {svc.type.includes("Frontend") ? <Globe className="h-4 w-4 text-[#5F6AD2] shrink-0" /> :
-                                         svc.type.includes("Database") ? <Database className="h-4 w-4 text-emerald-400 shrink-0" /> :
-                                         <Cpu className="h-4 w-4 text-sky-400 shrink-0" />}
-                                        <span className="text-xs font-semibold text-foreground truncate group-hover:text-[#5F6AD2] transition-colors">{svc.name}</span>
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        {svc.type.includes("Frontend") ? (
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-[#5F6AD2]/15 border border-[#5F6AD2]/30 text-[#5F6AD2] shrink-0 shadow-xs">
+                                                <Layout className="h-4 w-4" />
+                                            </div>
+                                        ) : svc.type.includes("Database") ? (
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0 shadow-xs">
+                                                <Database className="h-4 w-4" />
+                                            </div>
+                                        ) : svc.type.includes("Worker") ? (
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0 shadow-xs">
+                                                <Zap className="h-4 w-4" />
+                                            </div>
+                                        ) : (
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 shrink-0 shadow-xs">
+                                                <Server className="h-4 w-4" />
+                                            </div>
+                                        )}
+                                        <div className="min-w-0">
+                                            <span className="text-xs font-bold text-foreground truncate block group-hover:text-[#5F6AD2] transition-colors">{svc.name}</span>
+                                            <span className="text-[10px] text-muted-foreground font-mono truncate block">{svc.framework || svc.type}</span>
+                                        </div>
                                     </div>
-                                    <span className="rounded bg-surface px-2 py-0.5 font-mono text-[9.5px] text-muted-foreground border border-border shrink-0">
-                                        {svc.type}
-                                    </span>
                                 </div>
 
-                                <div className="font-mono text-[11px] text-muted-foreground truncate my-3">
-                                    {svc.url}
+                                <div className="font-mono text-[11px] text-muted-foreground truncate my-3 bg-surface/60 px-2.5 py-1.5 rounded-md border border-border/40 flex items-center justify-between">
+                                    <span className="truncate">{svc.url}</span>
+                                    <ExternalLink className="h-3 w-3 opacity-50 shrink-0 ml-1 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             </div>
 
