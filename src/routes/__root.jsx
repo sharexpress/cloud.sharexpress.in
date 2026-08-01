@@ -119,7 +119,7 @@ function ThemeApplier({ children }) {
 
         prevThemeRef.current = theme;
 
-        // Perform ultra-smooth directional fluid water wave radial sweep:
+        // Perform ultra-smooth 60FPS hardware-accelerated directional circular sweep:
         // Top-Left (0 0) -> Bottom-Right for Light mode
         // Bottom-Right (100% 100%) -> Top-Left for Dark mode
         if (typeof document.startViewTransition === "function") {
@@ -130,32 +130,15 @@ function ThemeApplier({ children }) {
             transition.ready.then(() => {
                 const radius = Math.hypot(window.innerWidth, window.innerHeight);
                 const origin = theme === "light" ? "0 0" : "100% 100%";
-                const shadowColor = theme === "light" 
-                    ? "rgba(95, 106, 210, 0.8)" 
-                    : "rgba(16, 185, 129, 0.8)";
 
                 root.animate(
                     [
-                        {
-                            clipPath: `circle(0px at ${origin})`,
-                            filter: `blur(10px) drop-shadow(0 0 35px ${shadowColor})`
-                        },
-                        {
-                            clipPath: `circle(${radius * 0.4}px at ${origin})`,
-                            filter: `blur(6px) drop-shadow(0 0 45px ${shadowColor})`
-                        },
-                        {
-                            clipPath: `circle(${radius * 0.8}px at ${origin})`,
-                            filter: "blur(2px) drop-shadow(0 0 25px rgba(95, 106, 210, 0.5))"
-                        },
-                        {
-                            clipPath: `circle(${radius * 1.15}px at ${origin})`,
-                            filter: "blur(0px) drop-shadow(0 0 0px transparent)"
-                        }
+                        { clipPath: `circle(0px at ${origin})` },
+                        { clipPath: `circle(${radius * 1.15}px at ${origin})` }
                     ],
                     {
-                        duration: 1200,
-                        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+                        duration: 750,
+                        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
                         pseudoElement: "::view-transition-new(root)"
                     }
                 );
