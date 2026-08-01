@@ -134,11 +134,11 @@ function ThemeApplier({ children }) {
                 root.animate(
                     [
                         { clipPath: `circle(0px at ${origin})` },
-                        { clipPath: `circle(${radius * 1.2}px at ${origin})` }
+                        { clipPath: `circle(${radius * 1.5}px at ${origin})` }
                     ],
                     {
-                        duration: 950,
-                        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+                        duration: 800,
+                        easing: "linear",
                         pseudoElement: "::view-transition-new(root)"
                     }
                 );
