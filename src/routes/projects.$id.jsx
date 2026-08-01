@@ -1000,7 +1000,7 @@ function LogsTab({ project }) {
                 {streaming ? <><Pause className="h-3 w-3" /> Streaming</> : <><Play className="h-3 w-3" /> Paused</>}
             </button>
         }>
-            <div className="max-h-[320px] min-h-[220px] overflow-y-auto bg-black p-4 rounded-md border border-border/80 font-mono text-[11px] space-y-1.5 scrollbar-thin">
+            <div className="max-h-[320px] min-h-[220px] overflow-y-auto bg-transparent p-4 rounded-md border border-border/80 font-mono text-[11px] space-y-1.5 scrollbar-thin">
                 {logsList.map((log, index) => (
                     <div key={index} className="grid grid-cols-[100px_60px_1fr] gap-2 hover:bg-white/5 py-0.5 rounded px-1 transition-colors">
                         <span className="text-muted-foreground/60">{log.t}</span>

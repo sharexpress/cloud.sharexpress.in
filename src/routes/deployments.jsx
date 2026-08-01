@@ -188,7 +188,7 @@ function DeploymentsPage() {
 
               <div className="border-t border-border pt-4 space-y-1.5">
                 <span className="text-[11px] text-muted-foreground block font-mono">Build Outputs</span>
-                <div className="bg-black p-3 rounded text-[10.5px] font-mono text-neutral-300 space-y-0.5 leading-relaxed overflow-x-auto max-h-[140px]">
+                <div className="bg-transparent p-3 rounded border border-border/50 text-[10.5px] font-mono text-neutral-300 space-y-0.5 leading-relaxed overflow-x-auto max-h-[140px]">
                     <div>&gt; sharexpress cloud build --production</div>
                     <div>clone repository complete: 100%</div>
                     <div>running static checks: eslint/prettier passed</div>

@@ -132,10 +132,10 @@ function LogsPage() {
           </select>
         </div>
 
-        <Panel padded={false} className="overflow-hidden">
-          <div className="max-h-[500px] min-h-[300px] overflow-auto bg-black p-4 font-mono text-[11.5px] leading-relaxed scrollbar-thin">
+        <Panel padded={false} className="overflow-hidden bg-transparent">
+          <div className="max-h-[500px] min-h-[300px] overflow-auto bg-transparent p-4 font-mono text-[11.5px] leading-relaxed scrollbar-thin">
             {filteredLines.length === 0 ? (
-                <div className="text-center text-muted-foreground py-20 font-sans text-[13px]">
+                <div className="flex flex-col items-center justify-center text-muted-foreground py-20 font-sans text-[13px]">
                     No matching log events. Waiting for streams...
                 </div>
             ) : (
