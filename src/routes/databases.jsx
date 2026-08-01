@@ -183,7 +183,7 @@ function DatabasesPage() {
 
                 {/* Database List / Grid */}
                 {filtered.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/40 px-6 py-16 text-center">
+                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-transparent px-6 py-16 text-center">
                         <Database className="h-9 w-9 text-text-muted mb-3 opacity-60" />
                         <h3 className="text-[13.5px] font-semibold text-text-primary">No database clusters found</h3>
                         <p className="mt-1 max-w-sm text-[12px] text-text-muted">Provision managed high-availability database clusters in seconds.</p>

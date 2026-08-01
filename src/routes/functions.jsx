@@ -89,7 +89,7 @@ function FunctionsPage() {
         }/>
         
         {functions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface/50 px-6 py-16 text-center">
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-transparent px-6 py-16 text-center">
             <Zap className="h-10 w-10 text-muted-foreground mb-4" />
             <h3 className="text-[14px] font-semibold text-foreground">No Functions</h3>
             <p className="mt-1 max-w-sm text-[12.5px] text-muted-foreground">Deploy serverless scripts triggered on-demand by API triggers, scheduler jobs, or storage events.</p>
