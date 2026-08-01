@@ -126,10 +126,10 @@ const serviceNavManage = [
 function Section({ label, items }) {
     const path = useRouterState({ select: (s) => s.location.pathname });
     return (<div className="px-2 mb-1">
-      {label && (<div className="px-2.5 pb-1 pt-3 text-[10px] font-medium text-text-muted/70 flex items-center justify-between cursor-pointer hover:text-text-muted transition-colors">
+      {label ? (<div className="px-2.5 pb-1 pt-3 text-[10px] font-medium text-text-muted/70 flex items-center justify-between cursor-pointer hover:text-text-muted transition-colors">
           <span>{label}</span>
           <ChevronRight className="h-3 w-3 opacity-60" />
-        </div>)}
+        </div>) : null}
       <ul className="space-y-0.5">
         {items.map((it) => {
             const Icon = it.icon;
@@ -611,16 +611,16 @@ function ServiceDetailSidebar({ serviceId }) {
     function renderServiceSection(label, items) {
         return (
             <div className="px-2 mb-1">
-                {label && (
+                {label ? (
                     <div className="px-2.5 pb-1 pt-3 text-[10px] font-bold text-text-muted/70 flex items-center justify-between font-mono uppercase tracking-wider">
                         <span>{label}</span>
                         <ChevronRight className="h-3 w-3 opacity-60" />
                     </div>
-                )}
+                ) : null}
                 <ul className="space-y-0.5">
                     {items.map((it) => {
                         const Icon = it.icon;
-                        const active = activeTab.toLowerCase() === it.tab.toLowerCase();
+                        const active = (activeTab || "").toLowerCase() === it.tab.toLowerCase();
                         return (
                             <li key={it.tab}>
                                 <Link
