@@ -119,7 +119,7 @@ function ThemeApplier({ children }) {
 
         prevThemeRef.current = theme;
 
-        // Perform ultra-smooth diagonal radial sweep from top-left (0,0) to bottom-right
+        // Perform ultra-smooth fluid water wave radial sweep from top-left (0,0) to bottom-right
         if (typeof document.startViewTransition === "function") {
             const transition = document.startViewTransition(() => {
                 applyThemeDOM();
@@ -129,12 +129,22 @@ function ThemeApplier({ children }) {
                 const radius = Math.hypot(window.innerWidth, window.innerHeight);
                 root.animate(
                     [
-                        { clipPath: "circle(0px at 0 0)" },
-                        { clipPath: `circle(${radius}px at 0 0)` }
+                        {
+                            clipPath: "circle(0px at 0 0)",
+                            filter: "blur(6px) drop-shadow(0 0 25px rgba(95, 106, 210, 0.8))"
+                        },
+                        {
+                            clipPath: `circle(${radius * 0.5}px at 0 0)`,
+                            filter: "blur(3px) drop-shadow(0 0 35px rgba(95, 106, 210, 0.6))"
+                        },
+                        {
+                            clipPath: `circle(${radius * 1.05}px at 0 0)`,
+                            filter: "blur(0px) drop-shadow(0 0 0px transparent)"
+                        }
                     ],
                     {
-                        duration: 650,
-                        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+                        duration: 700,
+                        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
                         pseudoElement: "::view-transition-new(root)"
                     }
                 );

@@ -412,7 +412,7 @@ html {
   box-shadow: 0 0 20px rgba(94, 106, 210, 0.12);
 }
 
-/* --- Ultra-Smooth Top-Left to Bottom-Right Theme Sweep Transition --- */
+/* --- 60FPS Fluid Water Ripple / Blurred Boundary Theme Sweep Transition --- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -425,6 +425,7 @@ html {
 
 ::view-transition-new(root) {
   z-index: 9999;
+  will-change: clip-path, filter;
 }
 
 
