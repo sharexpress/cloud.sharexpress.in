@@ -155,21 +155,21 @@ function ProjectsPage() {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                             <button
                                 onClick={() => setIsInviteOpen(true)}
-                                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-elevated transition-colors cursor-pointer"
+                                className="h-9 px-4 inline-flex items-center gap-2 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface-elevated active:scale-[0.98] transition-all cursor-pointer shadow-xs"
                             >
-                                <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
-                                Invite your team
+                                <UserPlus className="h-4 w-4 text-muted-foreground" />
+                                Invite Team
                             </button>
 
                             <Link
                                 to="/projects/new"
-                                className="inline-flex items-center gap-1.5 rounded-md bg-[#5F6AD2] px-3.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-[#4F5ABF] transition-all cursor-pointer"
+                                className="h-9 px-4 inline-flex items-center gap-2 rounded-lg bg-[#5F6AD2] text-xs font-semibold text-white shadow-xs hover:bg-[#4F5ABF] active:scale-[0.98] transition-all cursor-pointer"
                             >
-                                <Plus className="h-3.5 w-3.5" />
-                                New
+                                <Plus className="h-4 w-4" />
+                                New Resource
                             </Link>
                         </div>
                     </div>
