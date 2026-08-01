@@ -20,7 +20,7 @@ import { PageShell, Panel, Metric, StatusBadge, AreaChart, Sparkline } from "@/c
 import { 
   Copy, ExternalLink, GitBranch, Rocket, ShieldCheck, Eye, EyeOff, 
   Trash2, Plus, X, Globe, Database, HardDrive, Cpu, Terminal, Play, 
-  Pause, Check, Settings2, Trash, AlertTriangle, FileText, ArrowRight
+  Pause, Check, Settings2, Trash, AlertTriangle, FileText, ArrowRight, Layers
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
