@@ -90,7 +90,8 @@ function RootShell({ children }) {
 
 function ThemeApplier({ children }) {
     const theme = useSelector((state) => state.settings?.appearance?.theme || "dark");
-    
+    const prevThemeRef = useRef(theme);
+
     useEffect(() => {
         if (typeof document === "undefined") return;
         const root = document.documentElement;
@@ -98,14 +99,48 @@ function ThemeApplier({ children }) {
             localStorage.setItem("theme", theme);
         } catch (e) {}
 
-        if (theme === "dark") {
-            root.classList.add("dark");
-            root.classList.remove("light");
-            root.style.colorScheme = "dark";
+        const applyThemeDOM = () => {
+            if (theme === "dark") {
+                root.classList.add("dark");
+                root.classList.remove("light");
+                root.style.colorScheme = "dark";
+            } else {
+                root.classList.add("light");
+                root.classList.remove("dark");
+                root.style.colorScheme = "light";
+            }
+        };
+
+        // If theme hasn't changed (initial render), apply immediately without view transition
+        if (prevThemeRef.current === theme) {
+            applyThemeDOM();
+            return;
+        }
+
+        prevThemeRef.current = theme;
+
+        // Perform ultra-smooth diagonal radial sweep from top-left (0,0) to bottom-right
+        if (typeof document.startViewTransition === "function") {
+            const transition = document.startViewTransition(() => {
+                applyThemeDOM();
+            });
+
+            transition.ready.then(() => {
+                const radius = Math.hypot(window.innerWidth, window.innerHeight);
+                root.animate(
+                    [
+                        { clipPath: "circle(0px at 0 0)" },
+                        { clipPath: `circle(${radius}px at 0 0)` }
+                    ],
+                    {
+                        duration: 650,
+                        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+                        pseudoElement: "::view-transition-new(root)"
+                    }
+                );
+            });
         } else {
-            root.classList.add("light");
-            root.classList.remove("dark");
-            root.style.colorScheme = "light";
+            applyThemeDOM();
         }
     }, [theme]);
 
