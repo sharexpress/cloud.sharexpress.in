@@ -41,8 +41,50 @@ export const createProjectThunk = createAsyncThunk(
   }
 );
 
+const defaultProjects = [
+  {
+    id: "p_acme_web",
+    name: "backend-setup-portfolio",
+    slug: "backend-setup-portfolio",
+    type: "web_service",
+    framework: "Node",
+    repo: "santusht06/backend-setup-portfolio",
+    branch: "main",
+    domain: "backend-setup-portfolio.sharexpress.in",
+    region: "fra1",
+    status: "ready",
+    updated: "1y",
+  },
+  {
+    id: "p_shop_api",
+    name: "shopground-api",
+    slug: "shopground-api",
+    type: "web_service",
+    framework: "Node",
+    repo: "santusht06/shopground-api",
+    branch: "main",
+    domain: "shopground-api.sharexpress.in",
+    region: "iad1",
+    status: "ready",
+    updated: "2d ago",
+  },
+  {
+    id: "p_leetcode_static",
+    name: "leetcode-notes",
+    slug: "leetcode-notes",
+    type: "static_site",
+    framework: "Vite + React",
+    repo: "santusht06/leetcode",
+    branch: "main",
+    domain: "leetcode.sharexpress.in",
+    region: "iad1",
+    status: "ready",
+    updated: "40m ago",
+  }
+];
+
 const initialState = {
-  list: [],
+  list: defaultProjects,
   loading: false,
   error: null,
 };
@@ -70,7 +112,7 @@ export const projectsSlice = createSlice({
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = (action.payload && action.payload.length > 0) ? action.payload : defaultProjects;
       })
       .addCase(fetchProjects.rejected, (state, action) => {
         state.loading = false;

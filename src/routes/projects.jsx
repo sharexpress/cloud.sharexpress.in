@@ -191,8 +191,10 @@ function ProjectsPage() {
                             {defaultGroupedProjects.map((proj) => (
                                 <Link
                                     key={proj.id}
-                                    to="/projects"
-                                    className="group rounded-xl border border-border bg-card p-5 hover:border-border-strong hover:shadow-md transition-all flex flex-col justify-between h-36"
+                                    to="/projects/$id"
+                                    params={{ id: proj.id || "p_acme_web" }}
+                                    search={{ tab: "Overview" }}
+                                    className="group rounded-xl border border-border bg-card p-5 hover:border-border-strong hover:shadow-md transition-all flex flex-col justify-between h-36 cursor-pointer"
                                 >
                                     <div>
                                         <div className="flex items-center justify-between">
@@ -312,8 +314,10 @@ function ProjectsPage() {
                                                     </div>
                                                     <div className="min-w-0">
                                                         <Link
-                                                            to={`/projects/${service.id}`}
-                                                            className="truncate font-semibold text-xs text-foreground hover:text-[#5F6AD2] transition-colors block"
+                                                            to="/projects/$id"
+                                                            params={{ id: service.id || "p_acme_web" }}
+                                                            search={{ tab: "Overview" }}
+                                                            className="truncate font-semibold text-xs text-foreground hover:text-[#5F6AD2] transition-colors block cursor-pointer"
                                                         >
                                                             {service.name}
                                                         </Link>
@@ -356,8 +360,10 @@ function ProjectsPage() {
                                                 {/* Actions */}
                                                 <div className="flex items-center justify-end gap-1">
                                                     <Link
-                                                        to={`/projects/${service.id}`}
-                                                        className="rounded p-1.5 text-muted-foreground hover:bg-surface-elevated hover:text-foreground transition-colors"
+                                                        to="/projects/$id"
+                                                        params={{ id: service.id || "p_acme_web" }}
+                                                        search={{ tab: "Overview" }}
+                                                        className="rounded p-1.5 text-muted-foreground hover:bg-surface-elevated hover:text-foreground transition-colors cursor-pointer"
                                                         title="View Project"
                                                     >
                                                         <ExternalLink className="h-3.5 w-3.5" />
