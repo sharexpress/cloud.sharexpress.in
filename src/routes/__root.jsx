@@ -119,7 +119,9 @@ function ThemeApplier({ children }) {
 
         prevThemeRef.current = theme;
 
-        // Perform ultra-smooth fluid water wave radial sweep from top-left (0,0) to bottom-right
+        // Perform ultra-smooth directional fluid water wave radial sweep:
+        // Top-Left (0 0) -> Bottom-Right for Light mode
+        // Bottom-Right (100% 100%) -> Top-Left for Dark mode
         if (typeof document.startViewTransition === "function") {
             const transition = document.startViewTransition(() => {
                 applyThemeDOM();
@@ -127,28 +129,33 @@ function ThemeApplier({ children }) {
 
             transition.ready.then(() => {
                 const radius = Math.hypot(window.innerWidth, window.innerHeight);
+                const origin = theme === "light" ? "0 0" : "100% 100%";
+                const shadowColor = theme === "light" 
+                    ? "rgba(95, 106, 210, 0.8)" 
+                    : "rgba(16, 185, 129, 0.8)";
+
                 root.animate(
                     [
                         {
-                            clipPath: "circle(0px at 0 0)",
-                            filter: "blur(12px) drop-shadow(0 0 40px rgba(95, 106, 210, 0.9))"
+                            clipPath: `circle(0px at ${origin})`,
+                            filter: `blur(10px) drop-shadow(0 0 35px ${shadowColor})`
                         },
                         {
-                            clipPath: `circle(${radius * 0.35}px at 0 0)`,
-                            filter: "blur(8px) drop-shadow(0 0 50px rgba(95, 106, 210, 0.8))"
+                            clipPath: `circle(${radius * 0.4}px at ${origin})`,
+                            filter: `blur(6px) drop-shadow(0 0 45px ${shadowColor})`
                         },
                         {
-                            clipPath: `circle(${radius * 0.75}px at 0 0)`,
-                            filter: "blur(4px) drop-shadow(0 0 40px rgba(16, 185, 129, 0.6))"
+                            clipPath: `circle(${radius * 0.8}px at ${origin})`,
+                            filter: "blur(2px) drop-shadow(0 0 25px rgba(95, 106, 210, 0.5))"
                         },
                         {
-                            clipPath: `circle(${radius * 1.1}px at 0 0)`,
+                            clipPath: `circle(${radius * 1.15}px at ${origin})`,
                             filter: "blur(0px) drop-shadow(0 0 0px transparent)"
                         }
                     ],
                     {
                         duration: 1200,
-                        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+                        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
                         pseudoElement: "::view-transition-new(root)"
                     }
                 );
