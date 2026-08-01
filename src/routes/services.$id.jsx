@@ -139,228 +139,146 @@ function ServiceDetailPage() {
                     </div>
                 )}
 
-                <div className="mx-auto max-w-7xl">
-                    <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
-                        {/* Left Sub-Navigation Sidebar (Matching Render Screenshot) */}
-                        <div className="space-y-6 border-r border-border/60 pr-6">
-                            <div>
-                                <Link
-                                    to="/projects"
-                                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4 cursor-pointer"
-                                >
-                                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Overview
-                                </Link>
+                <div className="mx-auto max-w-6xl space-y-6">
+                    {/* Top Header Section */}
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-border/60 pb-5">
+                        <div className="space-y-2 min-w-0">
+                            <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                                <Globe className="h-3.5 w-3.5 text-[#5F6AD2]" />
+                                <span>WEB SERVICE</span>
+                            </div>
 
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground truncate">
-                                    <Globe className="h-4 w-4 text-[#5F6AD2]" />
-                                    <span className="truncate">{serviceId}</span>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <h1 className="text-2xl font-bold tracking-tight text-foreground truncate">
+                                    {serviceId}
+                                </h1>
+                                <span className="rounded bg-surface px-2 py-0.5 font-mono text-xs font-medium text-foreground border border-border">
+                                    Node
+                                </span>
+                                <span className="rounded bg-[#5F6AD2]/15 text-[#5F6AD2] border border-[#5F6AD2]/30 px-2 py-0.5 font-mono text-xs font-semibold">
+                                    Free
+                                </span>
+                                <button className="text-xs font-medium text-[#5F6AD2] hover:underline cursor-pointer">
+                                    Upgrade your instance →
+                                </button>
+                            </div>
+
+                            {/* Service ID & Metadata */}
+                            <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground pt-1">
+                                <div className="flex items-center gap-1.5">
+                                    <span>ID: <span className="text-foreground font-semibold">srv-{serviceId.replace(/[^a-z0-9]/g, "")}</span></span>
+                                    <button 
+                                        onClick={() => copyToClipboard(`srv-${serviceId.replace(/[^a-z0-9]/g, "")}`)}
+                                        className="hover:text-foreground transition-colors cursor-pointer"
+                                        title="Copy Service ID"
+                                    >
+                                        <Copy className="h-3 w-3" />
+                                    </button>
                                 </div>
-                            </div>
-
-                            {/* Main Nav */}
-                            <nav className="space-y-1">
-                                {mainNav.map((item) => {
-                                    const Icon = item.icon;
-                                    const isActive = activeTab.toLowerCase() === item.label.toLowerCase();
-                                    return (
-                                        <Link
-                                            key={item.label}
-                                            to="/services/$id"
-                                            params={{ id: serviceId }}
-                                            search={{ tab: item.label }}
-                                            className={cn(
-                                                "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer",
-                                                isActive 
-                                                    ? "bg-[#5F6AD2]/15 text-[#5F6AD2] font-semibold border-l-2 border-[#5F6AD2]" 
-                                                    : "text-muted-foreground hover:text-foreground hover:bg-surface/50"
-                                            )}
-                                        >
-                                            <Icon className="h-4 w-4" />
-                                            {item.label}
-                                        </Link>
-                                    );
-                                })}
-                            </nav>
-
-                            {/* Monitor Nav */}
-                            <div className="space-y-1">
-                                <span className="px-3 font-mono text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
-                                    MONITOR
-                                </span>
-                                {monitorNav.map((item) => {
-                                    const Icon = item.icon;
-                                    const isActive = activeTab.toLowerCase() === item.label.toLowerCase();
-                                    return (
-                                        <Link
-                                            key={item.label}
-                                            to="/services/$id"
-                                            params={{ id: serviceId }}
-                                            search={{ tab: item.label }}
-                                            className={cn(
-                                                "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer",
-                                                isActive 
-                                                    ? "bg-[#5F6AD2]/15 text-[#5F6AD2] font-semibold border-l-2 border-[#5F6AD2]" 
-                                                    : "text-muted-foreground hover:text-foreground hover:bg-surface/50"
-                                            )}
-                                        >
-                                            <Icon className="h-4 w-4" />
-                                            {item.label}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Manage Nav */}
-                            <div className="space-y-1">
-                                <span className="px-3 font-mono text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
-                                    MANAGE
-                                </span>
-                                {manageNav.map((item) => {
-                                    const Icon = item.icon;
-                                    const isActive = activeTab.toLowerCase() === item.label.toLowerCase();
-                                    return (
-                                        <Link
-                                            key={item.label}
-                                            to="/services/$id"
-                                            params={{ id: serviceId }}
-                                            search={{ tab: item.label }}
-                                            className={cn(
-                                                "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer",
-                                                isActive 
-                                                    ? "bg-[#5F6AD2]/15 text-[#5F6AD2] font-semibold border-l-2 border-[#5F6AD2]" 
-                                                    : "text-muted-foreground hover:text-foreground hover:bg-surface/50"
-                                            )}
-                                        >
-                                            <Icon className="h-4 w-4" />
-                                            {item.label}
-                                        </Link>
-                                    );
-                                })}
+                                <span>·</span>
+                                <div className="flex items-center gap-1.5">
+                                    <GitBranch className="h-3.5 w-3.5" />
+                                    <span>santusht06 / {serviceId}</span>
+                                    <span className="rounded bg-surface px-1.5 py-0.5 text-[10px] border border-border">main</span>
+                                </div>
+                                <span>·</span>
+                                <button
+                                    onClick={() => copyToClipboard(`https://${serviceId}.sharexpress.in`)}
+                                    className="inline-flex items-center gap-1 text-[#5F6AD2] hover:underline font-semibold cursor-pointer"
+                                >
+                                    <span>https://{serviceId}.sharexpress.in</span>
+                                    <Copy className="h-3 w-3 opacity-80" />
+                                </button>
                             </div>
                         </div>
 
-                        {/* Right Main Content Panel */}
-                        <div className="space-y-6">
-                            {/* Service Header Section (Matching Render Screenshot) */}
-                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-border/60 pb-5">
-                                <div className="space-y-2 min-w-0">
-                                    <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                                        <Globe className="h-3.5 w-3.5 text-[#5F6AD2]" />
-                                        <span>WEB SERVICE</span>
-                                    </div>
+                        {/* Right Side Actions: Connect & Manual Deploy */}
+                        <div className="flex items-center gap-2.5 shrink-0">
+                            {/* Connect Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsConnectOpen(!isConnectOpen)}
+                                    className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface-elevated active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+                                >
+                                    Connect <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                </button>
 
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <h1 className="text-2xl font-bold tracking-tight text-foreground truncate">
-                                            {serviceId}
-                                        </h1>
-                                        <span className="rounded bg-surface px-2 py-0.5 font-mono text-xs font-medium text-foreground border border-border">
-                                            Node
-                                        </span>
-                                        <span className="rounded bg-[#5F6AD2]/15 text-[#5F6AD2] border border-[#5F6AD2]/30 px-2 py-0.5 font-mono text-xs font-semibold">
-                                            Free
-                                        </span>
-                                        <button className="text-xs font-medium text-[#5F6AD2] hover:underline cursor-pointer">
-                                            Upgrade your instance →
-                                        </button>
-                                    </div>
-
-                                    {/* Service ID & Metadata */}
-                                    <div className="space-y-1 font-mono text-xs text-muted-foreground pt-1">
-                                        <div className="flex items-center gap-2">
-                                            <span>Service ID: <span className="text-foreground font-semibold">srv-{serviceId.replace(/[^a-z0-9]/g, "")}</span></span>
-                                            <button 
-                                                onClick={() => copyToClipboard(`srv-${serviceId.replace(/[^a-z0-9]/g, "")}`)}
-                                                className="hover:text-foreground transition-colors cursor-pointer"
-                                                title="Copy Service ID"
-                                            >
-                                                <Copy className="h-3 w-3" />
-                                            </button>
+                                {isConnectOpen && (
+                                    <div className="absolute right-0 mt-2 w-64 rounded-xl border border-border bg-surface p-3 shadow-2xl z-50 animate-in fade-in duration-150">
+                                        <h4 className="text-xs font-bold text-foreground mb-2">Connection String</h4>
+                                        <div className="bg-background p-2 rounded border border-border font-mono text-[11px] text-muted-foreground truncate mb-2">
+                                            ssh service@{serviceId}.sharexpress.in
                                         </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <GitBranch className="h-3.5 w-3.5" />
-                                            <span>santusht06 / {serviceId}</span>
-                                            <span className="rounded bg-surface px-1.5 py-0.5 text-[10px] border border-border">main</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 pt-0.5">
-                                            <button
-                                                onClick={() => copyToClipboard(`https://${serviceId}.sharexpress.in`)}
-                                                className="inline-flex items-center gap-1.5 text-[#5F6AD2] hover:underline font-semibold cursor-pointer"
-                                            >
-                                                <span>https://{serviceId}.sharexpress.in</span>
-                                                <Copy className="h-3 w-3 opacity-80" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Right Side Actions: Connect & Manual Deploy */}
-                                <div className="flex items-center gap-2 shrink-0">
-                                    {/* Connect Dropdown */}
-                                    <div className="relative">
                                         <button
-                                            onClick={() => setIsConnectOpen(!isConnectOpen)}
-                                            className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface-elevated active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+                                            onClick={() => { copyToClipboard(`ssh service@${serviceId}.sharexpress.in`); setIsConnectOpen(false); }}
+                                            className="w-full h-8 rounded bg-[#5F6AD2] text-xs font-semibold text-white hover:bg-[#4F5ABF] transition-all"
                                         >
-                                            Connect <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                            Copy SSH Command
                                         </button>
-
-                                        {isConnectOpen && (
-                                            <div className="absolute right-0 mt-2 w-64 rounded-xl border border-border bg-surface p-3 shadow-2xl z-50 animate-in fade-in duration-150">
-                                                <h4 className="text-xs font-bold text-foreground mb-2">Connection String</h4>
-                                                <div className="bg-background p-2 rounded border border-border font-mono text-[11px] text-muted-foreground truncate mb-2">
-                                                    ssh service@{serviceId}.sharexpress.in
-                                                </div>
-                                                <button
-                                                    onClick={() => { copyToClipboard(`ssh service@${serviceId}.sharexpress.in`); setIsConnectOpen(false); }}
-                                                    className="w-full h-8 rounded bg-[#5F6AD2] text-xs font-semibold text-white hover:bg-[#4F5ABF] transition-all"
-                                                >
-                                                    Copy SSH Command
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
-
-                                    {/* Manual Deploy Dropdown */}
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => setIsDeployOpen(!isDeployOpen)}
-                                            disabled={isDeploying}
-                                            className="h-9 px-4 inline-flex items-center gap-2 rounded-lg bg-[#5F6AD2] text-xs font-semibold text-white hover:bg-[#4F5ABF] active:scale-[0.98] transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                                        >
-                                            {isDeploying ? (
-                                                <>
-                                                    <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Deploying...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Manual Deploy <ChevronDown className="h-3.5 w-3.5 opacity-80" />
-                                                </>
-                                            )}
-                                        </button>
-
-                                        {isDeployOpen && (
-                                            <div className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-surface py-1 shadow-2xl z-50 animate-in fade-in duration-150">
-                                                <button
-                                                    onClick={() => handleManualDeploy(false)}
-                                                    className="w-full px-4 py-2 text-left text-xs font-medium text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer"
-                                                >
-                                                    <RefreshCw className="h-3.5 w-3.5 text-[#5F6AD2]" />
-                                                    Deploy latest commit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleManualDeploy(true)}
-                                                    className="w-full px-4 py-2 text-left text-xs font-medium text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer border-t border-border/50"
-                                                >
-                                                    <Zap className="h-3.5 w-3.5 text-amber-400" />
-                                                    Clear build cache & deploy
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                )}
                             </div>
+
+                            {/* Manual Deploy Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsDeployOpen(!isDeployOpen)}
+                                    disabled={isDeploying}
+                                    className="h-9 px-4 inline-flex items-center gap-2 rounded-lg bg-[#5F6AD2] text-xs font-semibold text-white hover:bg-[#4F5ABF] active:scale-[0.98] transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                >
+                                    {isDeploying ? (
+                                        <>
+                                            <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Deploying...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Manual Deploy <ChevronDown className="h-3.5 w-3.5 opacity-80" />
+                                        </>
+                                    )}
+                                </button>
+
+                                {isDeployOpen && (
+                                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-surface py-1 shadow-2xl z-50 animate-in fade-in duration-150">
+                                        <button
+                                            onClick={() => handleManualDeploy(false)}
+                                            className="w-full px-4 py-2 text-left text-xs font-medium text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer"
+                                        >
+                                            <RefreshCw className="h-3.5 w-3.5 text-[#5F6AD2]" />
+                                            Deploy latest commit
+                                        </button>
+                                        <button
+                                            onClick={() => handleManualDeploy(true)}
+                                            className="w-full px-4 py-2 text-left text-xs font-medium text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer border-t border-border/50"
+                                        >
+                                            <Zap className="h-3.5 w-3.5 text-amber-400" />
+                                            Clear build cache & deploy
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Horizontal Tab Navigation Strip */}
+                    <div className="flex items-center gap-1 overflow-x-auto border-b border-border/60 pb-px">
+                        {NAV_ITEMS.map((item) => (
+                            <Link
+                                key={item.label}
+                                to="/services/$id"
+                                params={{ id: serviceId }}
+                                search={{ tab: item.label }}
+                                className={cn(
+                                    "whitespace-nowrap border-b-2 px-3.5 py-2 text-xs font-medium transition-all cursor-pointer relative flex items-center gap-1.5",
+                                    activeTab.toLowerCase() === item.label.toLowerCase()
+                                        ? "border-[#5F6AD2] text-foreground font-semibold"
+                                        : "border-transparent text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                <item.icon className="h-3.5 w-3.5 opacity-70" />
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
 
                             {/* Service Notice Card (Matching Render Screenshot) */}
                             <div className="rounded-xl border border-[#5F6AD2]/30 bg-[#5F6AD2]/10 p-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-foreground">
@@ -453,8 +371,6 @@ function ServiceDetailPage() {
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    </div>
                 </div>
             </PageShell>
         </AppShell>
