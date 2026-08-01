@@ -35,10 +35,6 @@ function DatabasesPage() {
     const path = useRouterState({ select: (s) => s.location.pathname });
     const isDetail = path !== "/databases" && path !== "/databases/";
 
-    if (isDetail) {
-        return <Outlet />;
-    }
-
     const dispatch = useDispatch();
     const databases = useSelector((state) => state.databases?.list || []);
     const workspaces = useSelector((state) => state.workspaces?.list || []);
@@ -61,8 +57,14 @@ function DatabasesPage() {
     const enginesList = ["All", "PostgreSQL", "Redis", "MongoDB", "MySQL"];
 
     useEffect(() => {
-        dispatch(fetchDatabases(activeWsId));
-    }, [dispatch, activeWsId]);
+        if (!isDetail) {
+            dispatch(fetchDatabases(activeWsId));
+        }
+    }, [dispatch, activeWsId, isDetail]);
+
+    if (isDetail) {
+        return <Outlet />;
+    }
 
     const showToast = (msg) => {
         setToastMessage(msg);

@@ -35,9 +35,6 @@ function ProjectsPage() {
     const path = useRouterState({ select: (s) => s.location.pathname });
     const isDetail = path !== "/projects" && path !== "/projects/";
 
-    if (isDetail) {
-        return <Outlet />;
-    }
     const dispatch = useDispatch();
     const projects = useSelector((state) => state.projects?.list || []);
     const workspaces = useSelector((state) => state.workspaces?.list || []);
@@ -62,8 +59,14 @@ function ProjectsPage() {
     const frameworksList = ["All", "Next.js", "Vite + React", "Astro", "Node.js", "Go", "Rust", "Bun"];
 
     useEffect(() => {
-        dispatch(fetchProjects(activeWsId));
-    }, [dispatch, activeWsId]);
+        if (!isDetail) {
+            dispatch(fetchProjects(activeWsId));
+        }
+    }, [dispatch, activeWsId, isDetail]);
+
+    if (isDetail) {
+        return <Outlet />;
+    }
 
     const filtered = projects.filter((p) => {
         const matchesQuery = (p.name || "").toLowerCase().includes(query.toLowerCase()) ||

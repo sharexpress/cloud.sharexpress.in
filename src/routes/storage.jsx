@@ -32,10 +32,6 @@ function StoragePage() {
     const path = useRouterState({ select: (s) => s.location.pathname });
     const isDetail = path !== "/storage" && path !== "/storage/";
 
-    if (isDetail) {
-        return <Outlet />;
-    }
-
     const dispatch = useDispatch();
     const buckets = useSelector((state) => state.storage?.buckets || []);
     const workspaces = useSelector((state) => state.workspaces?.list || []);
@@ -56,8 +52,14 @@ function StoragePage() {
     const visList = ["All", "public", "private"];
 
     useEffect(() => {
-        dispatch(fetchBuckets(activeWsId));
-    }, [dispatch, activeWsId]);
+        if (!isDetail) {
+            dispatch(fetchBuckets(activeWsId));
+        }
+    }, [dispatch, activeWsId, isDetail]);
+
+    if (isDetail) {
+        return <Outlet />;
+    }
 
     const filtered = buckets.filter((b) => {
         const matchesQuery = (b.name || "").toLowerCase().includes(query.toLowerCase());
