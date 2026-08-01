@@ -259,28 +259,7 @@ function ServiceDetailPage() {
                         </div>
                     </div>
 
-                    {/* Horizontal Tab Navigation Strip */}
-                    <div className="flex items-center gap-1 overflow-x-auto border-b border-border/60 pb-px">
-                        {NAV_ITEMS.map((item) => (
-                            <Link
-                                key={item.label}
-                                to="/services/$id"
-                                params={{ id: serviceId }}
-                                search={{ tab: item.label }}
-                                className={cn(
-                                    "whitespace-nowrap border-b-2 px-3.5 py-2 text-xs font-medium transition-all cursor-pointer relative flex items-center gap-1.5",
-                                    activeTab.toLowerCase() === item.label.toLowerCase()
-                                        ? "border-[#5F6AD2] text-foreground font-semibold"
-                                        : "border-transparent text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                <item.icon className="h-3.5 w-3.5 opacity-70" />
-                                <span>{item.label}</span>
-                            </Link>
-                        ))}
-                    </div>
-
-                            {/* Service Notice Card (Matching Render Screenshot) */}
+                    {/* Service Notice Card (Matching Render Screenshot) */}
                             <div className="rounded-xl border border-[#5F6AD2]/30 bg-[#5F6AD2]/10 p-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-foreground">
                                 <div className="flex items-center gap-2.5">
                                     <Zap className="h-4 w-4 text-[#5F6AD2] shrink-0" />
