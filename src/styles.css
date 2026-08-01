@@ -412,7 +412,7 @@ html {
   box-shadow: 0 0 20px rgba(94, 106, 210, 0.12);
 }
 
-/* --- 60FPS Pure Hardware-Accelerated Theme Sweep Transition --- */
+/* --- 60FPS Blurred Edge Hardware-Accelerated Theme Sweep --- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -425,6 +425,7 @@ html {
 
 ::view-transition-new(root) {
   z-index: 9999;
+  filter: drop-shadow(0 0 25px rgba(95, 106, 210, 0.45));
 }
 
 
