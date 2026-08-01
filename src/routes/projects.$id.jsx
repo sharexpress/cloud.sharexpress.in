@@ -205,43 +205,69 @@ function ProjectDetailPage() {
             </div>
         )}
 
-        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2.5">
-              <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">PROJECT CONTAINER</span>
-              <span className="text-muted-foreground">•</span>
-              <h1 className="truncate text-[22px] font-bold tracking-tight text-text-primary">{project.name}</h1>
-              <StatusBadge status={project.status}/>
+        {/* Ultra-Premium Hero Project Container Folder Header Card */}
+        <div className="mb-6 rounded-2xl border border-border bg-gradient-to-b from-card to-surface/40 p-6 shadow-xl backdrop-blur-md relative overflow-hidden">
+          {/* Subtle Accent Glow */}
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#5F6AD2]/10 blur-3xl" />
+          
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+            {/* Left Column: Project Folder Identity */}
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#5F6AD2]/10 border border-[#5F6AD2]/30 text-[#5F6AD2] shadow-inner">
+                <Layers className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="rounded-md bg-[#5F6AD2]/10 border border-[#5F6AD2]/20 px-2 py-0.5 font-mono text-[10px] font-bold text-[#5F6AD2] uppercase tracking-wider">
+                    Root Project Container
+                  </span>
+                  <h1 className="truncate text-2xl font-bold tracking-tight text-foreground">{project.name}</h1>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-emerald-400">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Healthy Stack
+                  </span>
+                </div>
+
+                <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-mono">
+                  <span className="flex items-center gap-1 rounded bg-background/80 px-2 py-1 border border-border/60">
+                    <span className="text-[#5F6AD2]">Env:</span> Production
+                  </span>
+                  <span className="flex items-center gap-1 rounded bg-background/80 px-2 py-1 border border-border/60">
+                    <GitBranch className="h-3.5 w-3.5 text-muted-foreground" /> {project.repo} ({project.branch})
+                  </span>
+                  <button 
+                    onClick={() => triggerCopy(project.domain)} 
+                    className="flex items-center gap-1.5 rounded bg-background/80 px-2 py-1 border border-border/60 hover:border-[#5F6AD2] hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    <Globe className="h-3.5 w-3.5 text-[#5F6AD2]" />
+                    <span>{project.domain}</span>
+                    <Copy className="h-3 w-3 opacity-60" />
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-text-muted font-mono">
-              <span className="rounded bg-surface px-1.5 py-0.5 text-[10.5px] border border-border/60">{project.framework}</span>
-              <span>·</span>
-              <span className="inline-flex items-center gap-1.5"><GitBranch className="h-3.5 w-3.5"/>{project.repo} ({project.branch})</span>
-              <span>·</span>
-              <button onClick={() => triggerCopy(project.domain)} className="inline-flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer group">
-                <Globe className="h-3.5 w-3.5"/>
-                <span>{project.domain}</span>
-                <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100"/>
+
+            {/* Right Column: CTA Actions */}
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button 
+                  onClick={() => setIsAddServiceModalOpen(true)}
+                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#5F6AD2] px-4 text-xs font-bold text-white hover:bg-[#4F5ABF] transition-all cursor-pointer shadow-lg shadow-[#5F6AD2]/20 active:scale-95"
+              >
+                <Plus className="h-4 w-4" /> Add Service to Folder
+              </button>
+              <button onClick={() => window.open(`https://${project.domain}`, "_blank")} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-background px-3.5 text-xs font-medium text-foreground hover:bg-surface transition-all cursor-pointer shadow-xs">
+                <ExternalLink className="h-3.5 w-3.5" /> Visit Domain
+              </button>
+              <button 
+                  onClick={handleRedeploy}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-background px-3.5 text-xs font-medium text-foreground hover:bg-surface transition-all cursor-pointer shadow-xs"
+              >
+                <Rocket className="h-3.5 w-3.5 text-[#5F6AD2]"/> Redeploy All
               </button>
             </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
-            <button 
-                onClick={() => setIsAddServiceModalOpen(true)}
-                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-[#5F6AD2] px-3.5 text-[12px] font-semibold text-white hover:bg-[#4F5ABF] transition-all cursor-pointer shadow-sm"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add Service
-            </button>
-            <button onClick={() => window.open(`https://${project.domain}`, "_blank")} className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 text-[12px] font-medium text-text-primary hover:border-border-strong hover:bg-surface/80 transition-all cursor-pointer shadow-xs">
-              <ExternalLink className="h-3.5 w-3.5" /> Visit Site
-            </button>
-            <button 
-                onClick={handleRedeploy}
-                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 text-[12px] font-medium text-text-primary hover:border-border-strong transition-all cursor-pointer shadow-xs"
-            >
-              <Rocket className="h-3.5 w-3.5 text-[#5F6AD2]"/> Redeploy Stack
-            </button>
           </div>
         </div>
 
@@ -269,56 +295,75 @@ function ProjectDetailPage() {
 
         {/* OVERVIEW TAB */}
         {tab === "Overview" && (<>
-            {/* Project Container Architecture Map */}
-            <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface p-5">
-                <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                        <Layers className="h-4 w-4 text-[#5F6AD2]" />
-                        <span>Project Infrastructure Stack ({projectServices.length} Services)</span>
+            {/* Visual Infrastructure Pipeline Diagram */}
+            <div className="mb-6 rounded-2xl border border-border bg-card/60 p-6 shadow-md backdrop-blur-sm">
+                <div className="flex items-center justify-between border-b border-border/80 pb-3 mb-5">
+                    <div>
+                        <h2 className="text-sm font-bold text-foreground tracking-tight flex items-center gap-2">
+                            <Layers className="h-4 w-4 text-[#5F6AD2]" />
+                            Folder Infrastructure Architecture Map
+                        </h2>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">Connected services running inside this root project container.</p>
                     </div>
                     <button
                         onClick={() => setIsAddServiceModalOpen(true)}
-                        className="text-xs text-[#5F6AD2] hover:underline font-medium cursor-pointer"
+                        className="text-xs text-[#5F6AD2] hover:underline font-semibold cursor-pointer"
                     >
-                        + Add new service to folder
+                        + Add Service
                     </button>
                 </div>
 
                 {/* Services Topology Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {projectServices.map((svc) => (
-                        <div key={svc.id} className="rounded-lg border border-border bg-background p-4 hover:border-border-strong transition-all">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                    {svc.type.includes("Frontend") ? <Globe className="h-4 w-4 text-[#5F6AD2]" /> :
-                                     svc.type.includes("Database") ? <Database className="h-4 w-4 text-emerald-400" /> :
-                                     <Cpu className="h-4 w-4 text-sky-400" />}
-                                    <span className="text-xs font-bold text-foreground truncate">{svc.name}</span>
+                        <div 
+                            key={svc.id} 
+                            className="group relative rounded-xl border border-border bg-surface/50 p-5 hover:border-[#5F6AD2]/60 hover:bg-surface hover:shadow-lg transition-all"
+                        >
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background group-hover:border-[#5F6AD2]/40 transition-colors">
+                                        {svc.type.includes("Frontend") ? <Globe className="h-4.5 w-4.5 text-[#5F6AD2]" /> :
+                                         svc.type.includes("Database") ? <Database className="h-4.5 w-4.5 text-emerald-400" /> :
+                                         <Cpu className="h-4.5 w-4.5 text-sky-400" />}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="text-xs font-bold text-foreground truncate group-hover:text-[#5F6AD2] transition-colors">{svc.name}</h3>
+                                        <span className="font-mono text-[10px] text-muted-foreground">{svc.framework}</span>
+                                    </div>
                                 </div>
-                                <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[9.5px] text-muted-foreground border border-border">
+                                <span className="rounded-md bg-background px-2 py-0.5 font-mono text-[9.5px] font-medium text-muted-foreground border border-border">
                                     {svc.type}
                                 </span>
                             </div>
-                            <div className="text-[11px] font-mono text-muted-foreground truncate mb-3">
+
+                            <div className="font-mono text-[11px] text-muted-foreground truncate mb-4 bg-background/60 p-2 rounded border border-border/50">
                                 {svc.url}
                             </div>
-                            <div className="flex items-center justify-between text-[10.5px] text-muted-foreground border-t border-border/50 pt-2 font-mono">
-                                <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                                    <Check className="h-3 w-3" /> Deployed
+
+                            <div className="flex items-center justify-between text-[11px] font-mono border-t border-border/60 pt-3">
+                                <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Deployed
                                 </span>
-                                <span>{svc.region}</span>
+                                <span className="text-muted-foreground">{svc.region}</span>
                             </div>
                         </div>
                     ))}
 
-                    {/* Dashed Add Service Card */}
+                    {/* Dashed Add Service Interactive Card */}
                     <button
                         onClick={() => setIsAddServiceModalOpen(true)}
-                        className="rounded-lg border border-dashed border-border hover:border-[#5F6AD2] bg-surface/30 hover:bg-[#5F6AD2]/5 p-4 transition-all flex flex-col items-center justify-center text-center h-28 cursor-pointer group"
+                        className="rounded-xl border border-dashed border-border hover:border-[#5F6AD2] bg-surface/20 hover:bg-[#5F6AD2]/5 p-5 transition-all flex flex-col items-center justify-center text-center min-h-[140px] cursor-pointer group"
                     >
-                        <Plus className="h-4 w-4 text-muted-foreground group-hover:text-[#5F6AD2] transition-colors mb-1" />
-                        <span className="text-xs font-semibold text-foreground group-hover:text-[#5F6AD2]">Add Service</span>
-                        <span className="text-[10px] text-muted-foreground">Frontend, API, DB, or Worker</span>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background group-hover:border-[#5F6AD2] text-muted-foreground group-hover:text-[#5F6AD2] transition-colors mb-2">
+                            <Plus className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-bold text-foreground group-hover:text-[#5F6AD2] transition-colors">
+                            Add Service to Folder
+                        </span>
+                        <span className="text-[10.5px] text-muted-foreground mt-0.5">
+                            Frontend, API, Postgres, or Worker
+                        </span>
                     </button>
                 </div>
             </div>
