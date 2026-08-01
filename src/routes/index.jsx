@@ -765,7 +765,7 @@ function LandingPage() {
                     <div className="reveal delay-200 mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
                             to="/register"
-                            className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-md bg-blue-600 text-white px-5 py-2.5 text-[13px] font-semibold hover:bg-blue-500 transition-all duration-200 shadow-md shadow-blue-600/20"
+                            className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-md bg-[#5F6AD2] text-white px-5 py-2.5 text-[13px] font-semibold hover:bg-[#4F5ABF] transition-all duration-200 shadow-md shadow-[#5F6AD2]/25"
                         >
                             Start Deploying
                             <ArrowRight className="h-3.5 w-3.5" />

@@ -97,7 +97,7 @@ function RegisterPage() {
           />
           <p className="mt-1 text-[10.5px] text-muted-foreground">At least 12 characters with a mix of letters, numbers, and symbols.</p>
         </div>
-        <button type="submit" className="flex h-10 w-full items-center justify-center rounded-md bg-blue-600 text-[13px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer shadow-sm">
+        <button type="submit" className="flex h-10 w-full items-center justify-center rounded-md bg-[#5F6AD2] text-[13px] font-medium text-white hover:bg-[#4F5ABF] transition-all cursor-pointer shadow-sm">
           Create account
         </button>
         <p className="text-center text-[11px] text-muted-foreground">

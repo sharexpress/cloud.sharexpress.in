@@ -122,7 +122,7 @@ function DatabasesPage() {
                     actions={
                         <button 
                             onClick={() => setIsCreateOpen(true)}
-                            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3.5 text-[12px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer shadow-sm"
+                            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#5F6AD2] px-3.5 text-[12px] font-medium text-white hover:bg-[#4F5ABF] transition-all cursor-pointer shadow-sm"
                         >
                             <Plus className="h-3.5 w-3.5"/> New database
                         </button>
@@ -327,7 +327,7 @@ function DatabasesPage() {
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="px-4 py-1.5 bg-blue-600 text-white font-medium rounded-md text-xs hover:bg-blue-500 transition-all cursor-pointer disabled:opacity-50"
+                                        className="px-4 py-1.5 bg-[#5F6AD2] text-white font-medium rounded-md text-xs hover:bg-[#4F5ABF] transition-all cursor-pointer disabled:opacity-50"
                                     >
                                         {submitting ? "Provisioning..." : "Create Database"}
                                     </button>

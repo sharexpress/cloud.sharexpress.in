@@ -131,7 +131,7 @@ function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-500 disabled:opacity-50 transition-all cursor-pointer shadow-sm"
+                            className="w-full py-2.5 bg-[#5F6AD2] text-white text-xs font-semibold rounded-md hover:bg-[#4F5ABF] disabled:opacity-50 transition-all cursor-pointer shadow-sm"
                         >
                             {loading ? "Sending Code..." : "Send Verification Code"}
                         </button>
@@ -157,7 +157,7 @@ function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-500 disabled:opacity-50 transition-all cursor-pointer shadow-sm"
+                            className="w-full py-2.5 bg-[#5F6AD2] text-white text-xs font-semibold rounded-md hover:bg-[#4F5ABF] disabled:opacity-50 transition-all cursor-pointer shadow-sm"
                         >
                             {loading ? "Verifying..." : "Verify & Sign In"}
                         </button>

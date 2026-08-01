@@ -173,7 +173,7 @@ function ApiKeysPage() {
               </div>
               <div className="pt-2 flex justify-end gap-2 border-t border-border">
                 <button type="button" onClick={() => setIsCreateOpen(false)} className="h-9 px-4 rounded border border-border bg-surface text-[12.5px] text-foreground hover:bg-surface-elevated hover:border-border-strong cursor-pointer">Cancel</button>
-                <button type="submit" className="h-9 px-4 rounded bg-blue-600 text-[12.5px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer">Generate Key</button>
+                <button type="submit" className="h-9 px-4 rounded bg-[#5F6AD2] text-[12.5px] font-medium text-white hover:bg-[#4F5ABF] transition-all cursor-pointer">Generate Key</button>
               </div>
             </form>
           </div>
@@ -206,7 +206,7 @@ function ApiKeysPage() {
                     setIsSecretOpen(false);
                     setGeneratedSecret("");
                   }} 
-                  className="h-9 px-5 rounded bg-blue-600 text-[12.5px] font-medium text-white hover:bg-blue-500 transition-all cursor-pointer"
+                  className="h-9 px-5 rounded bg-[#5F6AD2] text-[12.5px] font-medium text-white hover:bg-[#4F5ABF] transition-all cursor-pointer"
                 >
                   Close
                 </button>
