@@ -18,7 +18,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderGit2, Rocket, Cpu, Database, HardDrive, Zap, Globe, KeyRound, Network,
   Activity, ScrollText, Receipt, Users, Terminal, BookOpen, Settings,
-  ChevronDown, ChevronRight, Check, Plus, X, Building2, ArrowLeft, BarChart3, Key, Layers, ShieldCheck
+  ChevronDown, ChevronRight, Check, Plus, X, Building2, ArrowLeft, BarChart3, Key, Layers, ShieldCheck,
+  Sliders, Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
