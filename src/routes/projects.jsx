@@ -18,7 +18,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { AppShell } from "@/components/app/shell";
 import { PageShell, PageHeader, StatusBadge } from "@/components/app/primitives";
 import { 
-  GitBranch, Grid3x3, List, Plus, Search, X, FolderGit2, 
+  GitBranch, Grid3x3, List, Plus, Search, X, FolderGit2, FolderPlus,
   Globe, ArrowRight 
 } from "lucide-react";
 import { useState, useEffect } from "react";
