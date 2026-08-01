@@ -101,13 +101,13 @@
 }
 
 :root {
-  /* Default Dark Theme — Linear Dark screenshot match */
-  --background: #000000;
-  --secondary-bg: #000000;
-  --card: #0B0C0E;
+  /* Default Dark Theme — Consistent Soft Charcoal Canvas */
+  --background: #0F1015;
+  --secondary-bg: #0F1015;
+  --card: #161821;
   --card-foreground: #F7F8F8;
-  --surface: #141519;
-  --surface-elevated: #18191E;
+  --surface: #1C1E2A;
+  --surface-elevated: #222533;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --primary-text: #F7F8F8;
@@ -119,7 +119,7 @@
   --danger: #EF4444;
   --info: #3B82F6;
 
-  --sidebar: #000000;
+  --sidebar: #090A0E;
   --sidebar-foreground: #8A8F98;
   --sidebar-primary: #F7F8F8;
   --sidebar-accent: rgba(255, 255, 255, 0.08);
