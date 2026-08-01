@@ -101,6 +101,42 @@
 }
 
 :root {
+  /* Default Dark Theme — Linear Dark screenshot match */
+  --background: #000000;
+  --secondary-bg: #000000;
+  --card: #0B0C0E;
+  --card-foreground: #F7F8F8;
+  --surface: #141519;
+  --surface-elevated: #18191E;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --primary-text: #F7F8F8;
+  --secondary-text: #8A8F98;
+  --muted-text: #62666D;
+  --accent: #5F6AD2;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  --sidebar: #000000;
+  --sidebar-foreground: #8A8F98;
+  --sidebar-primary: #F7F8F8;
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-border: transparent;
+
+  --shadow-val: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
+  --shadow-sm-val: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md-val: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg-val: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-2xl-val: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  --shadow-premium-val: 0 1px 3px rgba(0,0,0,0.6), 0 10px 40px -10px rgba(0,0,0,0.8);
+  
+  --toastify-color-dark: var(--card);
+  --toastify-text-color-dark: var(--primary-text);
+}
+
+.light {
   /* Linear Light Theme — Exact match to Linear Light screenshot */
   --background: #F4F5F8;
   --secondary-bg: #F4F5F8;
@@ -134,42 +170,6 @@
   
   --toastify-color-light: var(--card);
   --toastify-text-color-light: var(--primary-text);
-}
-
-.dark {
-  /* Linear Dark Theme — Exact match to Linear Dark screenshot */
-  --background: #000000;
-  --secondary-bg: #000000;
-  --card: #0B0C0E;
-  --card-foreground: #F7F8F8;
-  --surface: #141519;
-  --surface-elevated: #18191E;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --primary-text: #F7F8F8;
-  --secondary-text: #8A8F98;
-  --muted-text: #62666D;
-  --accent: #5F6AD2;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --info: #3B82F6;
-
-  --sidebar: #000000;
-  --sidebar-foreground: #8A8F98;
-  --sidebar-primary: #F7F8F8;
-  --sidebar-accent: rgba(255, 255, 255, 0.08);
-  --sidebar-border: transparent;
-
-  --shadow-val: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
-  --shadow-sm-val: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md-val: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg-val: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
-  --shadow-2xl-val: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-  --shadow-premium-val: 0 1px 3px rgba(0,0,0,0.6), 0 10px 40px -10px rgba(0,0,0,0.8);
-  
-  --toastify-color-dark: var(--card);
-  --toastify-text-color-dark: var(--primary-text);
 }
 
 @layer base {

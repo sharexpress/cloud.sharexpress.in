@@ -72,11 +72,16 @@ function ErrorComponent({ error, reset }) {
 }
 
 function RootShell({ children }) {
-    return (<html lang="en">
+    return (<html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"){document.documentElement.classList.add("light");document.documentElement.classList.remove("dark");document.documentElement.style.colorScheme="light";}else{document.documentElement.classList.add("dark");document.documentElement.classList.remove("light");document.documentElement.style.colorScheme="dark";}}catch(e){}})()`,
+          }}
+        />
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-background text-foreground">
         {children}
         <Scripts />
       </body>
@@ -89,6 +94,10 @@ function ThemeApplier({ children }) {
     useEffect(() => {
         if (typeof document === "undefined") return;
         const root = document.documentElement;
+        try {
+            localStorage.setItem("theme", theme);
+        } catch (e) {}
+
         if (theme === "dark") {
             root.classList.add("dark");
             root.classList.remove("light");
