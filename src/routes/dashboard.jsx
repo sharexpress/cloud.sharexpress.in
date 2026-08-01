@@ -67,16 +67,16 @@ function XyCoordinateGraph({ cpuData, memData }) {
                 <div className="flex items-center gap-4 text-xs font-mono">
                     <div className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-[#5F6AD2]" />
-                        <span className="text-foreground font-semibold">Host CPU Utilization</span>
+                        <span className="text-foreground font-semibold">CPU Utilization</span>
                         <span className="text-muted-foreground">({cpuData[hoverIndex ?? len - 1]}%)</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                        <span className="text-foreground font-semibold">RAM Usage</span>
+                        <span className="text-foreground font-semibold">Memory Usage</span>
                         <span className="text-muted-foreground">({memData[hoverIndex ?? len - 1]}%)</span>
                     </div>
                 </div>
-                <span className="text-[10.5px] font-mono text-muted-foreground">XY Coordinate Telemetry · 24h Window</span>
+                <span className="text-[10.5px] font-mono text-muted-foreground">24h Window</span>
             </div>
 
             <div
@@ -296,15 +296,15 @@ function OverviewPage() {
                     />
                 </div>
 
-                {/* Interactive Graphics & Telemetry Graphs Grid */}
+                {/* Interactive Telemetry Graphs Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* XY Coordinate System Telemetry Graph */}
-                    <Panel title="System Telemetry (XY Coordinate Plot)" icon={Activity}>
+                    {/* System Performance Graph */}
+                    <Panel title="System Performance" icon={Activity}>
                         <XyCoordinateGraph cpuData={cpuTimeSeries} memData={memTimeSeries} />
                     </Panel>
 
-                    {/* Hourly Request Bar Graph */}
-                    <Panel title="Hourly Throughput (24h Bar Chart)" icon={BarChart3}>
+                    {/* Request Volume Bar Graph */}
+                    <Panel title="Request Volume" icon={BarChart3}>
                         <BarGraphOverview barData={hourlyRequests} />
                     </Panel>
                 </div>
