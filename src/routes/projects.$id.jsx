@@ -97,6 +97,46 @@ function ProjectDetailPage() {
     const projectFiles = (storeStorage.currentObjects || storeStorage.files || []).filter((f) => f.bucketId === storeStorage.activeBucketId || true);
 
     // --- State for Interactive Features ---
+    const [copiedText, setCopiedText] = useState("");
+    const [toastMessage, setToastMessage] = useState("");
+
+    const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(""), 3000);
+    };
+
+    const triggerCopy = (text) => {
+        navigator.clipboard.writeText(text);
+        setCopiedText(text);
+        showToast("Copied to clipboard!");
+        setTimeout(() => setCopiedText(""), 2000);
+    };
+
+    // Redeploy Simulator
+    const handleRedeploy = () => {
+        const randomCommit = Math.random().toString(36).substring(2, 9);
+        dispatch(addDeployment({
+            project: project.name,
+            branch: project.branch,
+            commit: randomCommit,
+            message: "Manual redeployment triggered",
+            author: "Jordan Lee",
+            authorAvatar: "JL",
+            environment: "production",
+            url: project.domain,
+        }));
+        showToast("Redeployment triggered successfully!");
+    };
+
+    // Rollback Simulator
+    const handleRollback = (dpl) => {
+        dispatch(triggerRollback({
+            deploymentId: dpl.id,
+            projectName: project.name,
+        }));
+        showToast(`Triggering rollback to commit ${dpl.commit}...`);
+    };
+
     // --- State for Interactive Services Inside Project Container ---
     const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
     const [newServiceType, setNewServiceType] = useState("web_service");
