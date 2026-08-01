@@ -97,45 +97,37 @@ function ProjectDetailPage() {
     const projectFiles = (storeStorage.currentObjects || storeStorage.files || []).filter((f) => f.bucketId === storeStorage.activeBucketId || true);
 
     // --- State for Interactive Features ---
-    const [copiedText, setCopiedText] = useState("");
+    // --- State for Interactive Services Inside Project Container ---
+    const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
+    const [newServiceType, setNewServiceType] = useState("web_service");
+    const [newServiceName, setNewServiceName] = useState("");
+    const [newServiceFramework, setNewServiceFramework] = useState("Node.js");
     
-    // Toast Simulator
-    const [toastMessage, setToastMessage] = useState("");
-    const showToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(""), 3000);
-    };
+    // Project services stack (Frontend, Backend, DB, etc inside this project container)
+    const [projectServices, setProjectServices] = useState([
+        { id: "s1", name: `${project.name}-frontend`, type: "Frontend Site", framework: project.framework || "Vite + React", status: "ready", url: project.domain, region: "Ashburn (iad1)" },
+        { id: "s2", name: `${project.name}-api`, type: "Web Service", framework: "Node.js Express", status: "ready", url: `api-${project.domain}`, region: "Ashburn (iad1)" },
+        { id: "s3", name: `${project.name}-db`, type: "PostgreSQL Database", framework: "Postgres 16", status: "ready", url: `postgres://${project.name}:***@db.sharexpress.in:5432`, region: "Ashburn (iad1)" },
+    ]);
 
-    const triggerCopy = (text) => {
-        navigator.clipboard.writeText(text);
-        setCopiedText(text);
-        showToast("Copied to clipboard!");
-        setTimeout(() => setCopiedText(""), 2000);
-    };
+    const handleAddServiceToProject = (e) => {
+        e.preventDefault();
+        if (!newServiceName.trim()) return;
 
-    // Redeploy Simulator
-    const handleRedeploy = () => {
-        const randomCommit = Math.random().toString(36).substring(2, 9);
-        dispatch(addDeployment({
-            project: project.name,
-            branch: project.branch,
-            commit: randomCommit,
-            message: "Manual redeployment triggered",
-            author: "Jordan Lee",
-            authorAvatar: "JL",
-            environment: "production",
-            url: project.domain,
-        }));
-        showToast("Redeployment triggered successfully!");
-    };
+        const newSvc = {
+            id: `s_${Date.now()}`,
+            name: newServiceName.trim(),
+            type: newServiceType === "web_service" ? "Web Service" : newServiceType === "static" ? "Frontend Site" : newServiceType === "postgres" ? "PostgreSQL Database" : "Background Worker",
+            framework: newServiceFramework,
+            status: "ready",
+            url: `${newServiceName.trim().toLowerCase()}.sharexpress.in`,
+            region: "Ashburn (iad1)",
+        };
 
-    // Rollback Simulator
-    const handleRollback = (dpl) => {
-        dispatch(triggerRollback({
-            deploymentId: dpl.id,
-            projectName: project.name,
-        }));
-        showToast(`Triggering rollback to commit ${dpl.commit}...`);
+        setProjectServices([...projectServices, newSvc]);
+        setNewServiceName("");
+        setIsAddServiceModalOpen(false);
+        showToast(`Added ${newSvc.name} to project folder`);
     };
 
     return (<AppShell breadcrumbs={[
@@ -176,6 +168,8 @@ function ProjectDetailPage() {
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
+              <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">PROJECT CONTAINER</span>
+              <span className="text-muted-foreground">•</span>
               <h1 className="truncate text-[22px] font-bold tracking-tight text-text-primary">{project.name}</h1>
               <StatusBadge status={project.status}/>
             </div>
@@ -193,14 +187,20 @@ function ProjectDetailPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <button 
+                onClick={() => setIsAddServiceModalOpen(true)}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-[#5F6AD2] px-3.5 text-[12px] font-semibold text-white hover:bg-[#4F5ABF] transition-all cursor-pointer shadow-sm"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Service
+            </button>
             <button onClick={() => window.open(`https://${project.domain}`, "_blank")} className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 text-[12px] font-medium text-text-primary hover:border-border-strong hover:bg-surface/80 transition-all cursor-pointer shadow-xs">
               <ExternalLink className="h-3.5 w-3.5" /> Visit Site
             </button>
             <button 
                 onClick={handleRedeploy}
-                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-[12px] font-semibold text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 text-[12px] font-medium text-text-primary hover:border-border-strong transition-all cursor-pointer shadow-xs"
             >
-              <Rocket className="h-3.5 w-3.5"/> Redeploy
+              <Rocket className="h-3.5 w-3.5 text-[#5F6AD2]"/> Redeploy Stack
             </button>
           </div>
         </div>
@@ -216,7 +216,7 @@ function ProjectDetailPage() {
               className={cn(
                 "whitespace-nowrap border-b-2 px-3.5 py-2 text-[12.5px] font-medium transition-all cursor-pointer relative",
                 tab === t 
-                  ? "border-accent-purple text-text-primary font-semibold" 
+                  ? "border-[#5F6AD2] text-text-primary font-semibold" 
                   : "border-transparent text-text-muted hover:text-text-primary"
               )}
             >
@@ -229,6 +229,60 @@ function ProjectDetailPage() {
 
         {/* OVERVIEW TAB */}
         {tab === "Overview" && (<>
+            {/* Project Container Architecture Map */}
+            <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface p-5">
+                <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                        <Layers className="h-4 w-4 text-[#5F6AD2]" />
+                        <span>Project Infrastructure Stack ({projectServices.length} Services)</span>
+                    </div>
+                    <button
+                        onClick={() => setIsAddServiceModalOpen(true)}
+                        className="text-xs text-[#5F6AD2] hover:underline font-medium cursor-pointer"
+                    >
+                        + Add new service to folder
+                    </button>
+                </div>
+
+                {/* Services Topology Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {projectServices.map((svc) => (
+                        <div key={svc.id} className="rounded-lg border border-border bg-background p-4 hover:border-border-strong transition-all">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    {svc.type.includes("Frontend") ? <Globe className="h-4 w-4 text-[#5F6AD2]" /> :
+                                     svc.type.includes("Database") ? <Database className="h-4 w-4 text-emerald-400" /> :
+                                     <Cpu className="h-4 w-4 text-sky-400" />}
+                                    <span className="text-xs font-bold text-foreground truncate">{svc.name}</span>
+                                </div>
+                                <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[9.5px] text-muted-foreground border border-border">
+                                    {svc.type}
+                                </span>
+                            </div>
+                            <div className="text-[11px] font-mono text-muted-foreground truncate mb-3">
+                                {svc.url}
+                            </div>
+                            <div className="flex items-center justify-between text-[10.5px] text-muted-foreground border-t border-border/50 pt-2 font-mono">
+                                <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                                    <Check className="h-3 w-3" /> Deployed
+                                </span>
+                                <span>{svc.region}</span>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Dashed Add Service Card */}
+                    <button
+                        onClick={() => setIsAddServiceModalOpen(true)}
+                        className="rounded-lg border border-dashed border-border hover:border-[#5F6AD2] bg-surface/30 hover:bg-[#5F6AD2]/5 p-4 transition-all flex flex-col items-center justify-center text-center h-28 cursor-pointer group"
+                    >
+                        <Plus className="h-4 w-4 text-muted-foreground group-hover:text-[#5F6AD2] transition-colors mb-1" />
+                        <span className="text-xs font-semibold text-foreground group-hover:text-[#5F6AD2]">Add Service</span>
+                        <span className="text-[10px] text-muted-foreground">Frontend, API, DB, or Worker</span>
+                    </button>
+                </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
               <Metric label="Requests / min" value="12.4k" delta={{ value: "+4.2%", positive: true }} series={metricSeries(2)}/>
               <Metric label="Avg latency" value="118ms" delta={{ value: "-6ms", positive: true }} series={metricSeries(4)}/>
@@ -308,6 +362,105 @@ function ProjectDetailPage() {
 
         {/* SETTINGS TAB */}
         {tab === "Settings" && (<SettingsTab project={project} dispatch={dispatch} router={router} showToast={showToast} />)}
+
+        {/* Modular Add Service to Project Modal */}
+        {isAddServiceModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+                <div className="w-full max-w-lg rounded-xl border border-border bg-surface p-6 shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-border pb-4">
+                        <div>
+                            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">Project Folder: {project.name}</span>
+                            <h3 className="text-base font-bold text-foreground">Add New Service</h3>
+                        </div>
+                        <button
+                            onClick={() => setIsAddServiceModalOpen(false)}
+                            className="rounded p-1 text-muted-foreground hover:bg-surface-elevated hover:text-foreground cursor-pointer"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleAddServiceToProject} className="mt-4 space-y-4">
+                        <div>
+                            <label className="block text-xs font-medium text-foreground mb-2">Select Service Type</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { id: "web_service", label: "Web Service / API", icon: Cpu, desc: "Node, Express, FastAPI, Go" },
+                                    { id: "static", label: "Frontend Site", icon: Globe, desc: "Vite, React, Next.js, Astro" },
+                                    { id: "postgres", label: "Database", icon: Database, desc: "Postgres 16, Redis, Mongo" },
+                                    { id: "worker", label: "Background Worker", icon: Terminal, desc: "Queue processing, Cron" },
+                                ].map((t) => {
+                                    const Icon = t.icon;
+                                    const isSel = newServiceType === t.id;
+                                    return (
+                                        <button
+                                            key={t.id}
+                                            type="button"
+                                            onClick={() => setNewServiceType(t.id)}
+                                            className={cn(
+                                                "p-3 rounded-lg border text-left transition-all cursor-pointer",
+                                                isSel ? "border-[#5F6AD2] bg-[#5F6AD2]/10" : "border-border bg-background hover:border-border-strong"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Icon className={cn("h-4 w-4", isSel ? "text-[#5F6AD2]" : "text-muted-foreground")} />
+                                                <span className="text-xs font-bold text-foreground">{t.label}</span>
+                                            </div>
+                                            <p className="text-[10.5px] text-muted-foreground font-mono">{t.desc}</p>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-foreground mb-1">Service Identifier</label>
+                            <input
+                                type="text"
+                                required
+                                placeholder="e.g. auth-api or checkout-frontend"
+                                value={newServiceName}
+                                onChange={(e) => setNewServiceName(e.target.value)}
+                                className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground focus:border-[#5F6AD2] focus:outline-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-foreground mb-1">Framework / Runtime</label>
+                            <select
+                                value={newServiceFramework}
+                                onChange={(e) => setNewServiceFramework(e.target.value)}
+                                className="h-9 w-full rounded-md border border-border bg-background px-2 text-xs text-foreground focus:border-[#5F6AD2] focus:outline-none"
+                            >
+                                <option value="Node.js">Node.js Express / NestJS</option>
+                                <option value="Vite + React">Vite + React / Vue</option>
+                                <option value="Next.js">Next.js App Router</option>
+                                <option value="Python FastAPI">Python FastAPI / Django</option>
+                                <option value="Go API">Go Fiber / Gin</option>
+                                <option value="Postgres 16">Managed PostgreSQL 16</option>
+                                <option value="Redis 7">Managed Redis Cache</option>
+                            </select>
+                        </div>
+
+                        <div className="pt-3 flex justify-end gap-2 border-t border-border">
+                            <button
+                                type="button"
+                                onClick={() => setIsAddServiceModalOpen(false)}
+                                className="h-9 px-4 rounded border border-border bg-background text-xs font-medium text-foreground hover:bg-surface-elevated cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="h-9 px-5 rounded bg-[#5F6AD2] text-xs font-semibold text-white hover:bg-[#4F5ABF] transition-all cursor-pointer"
+                            >
+                                Provision Service in {project.name}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
 
       </PageShell>
     </AppShell>);
