@@ -90,7 +90,8 @@ function RootShell({ children }) {
 
 function ThemeApplier({ children }) {
     const theme = useSelector((state) => state.settings?.appearance?.theme || "dark");
-    const prevThemeRef = useRef(theme);
+    const prevThemeRef = useRef(null);
+    const overlayRef = useRef(null);
 
     useEffect(() => {
         if (typeof document === "undefined") return;
@@ -111,41 +112,66 @@ function ThemeApplier({ children }) {
             }
         };
 
-        // If theme hasn't changed (initial render), apply immediately without view transition
-        if (prevThemeRef.current === theme) {
+        // Initial render — apply immediately, no animation
+        if (prevThemeRef.current === null) {
+            prevThemeRef.current = theme;
             applyThemeDOM();
             return;
         }
 
+        // Theme hasn't changed, skip
+        if (prevThemeRef.current === theme) return;
         prevThemeRef.current = theme;
 
-        // Perform ultra-smooth 60FPS hardware-accelerated directional circular sweep:
-        // Top-Left (0 0) -> Bottom-Right for Light mode
-        // Bottom-Right (100% 100%) -> Top-Left for Dark mode
-        if (typeof document.startViewTransition === "function") {
-            const transition = document.startViewTransition(() => {
-                applyThemeDOM();
-            });
+        // Pure CSS overlay circle-expand — no View Transitions snapshot overhead
+        const isLight = theme === "light";
+        const radius = Math.hypot(window.innerWidth, window.innerHeight);
 
-            transition.ready.then(() => {
-                const radius = Math.hypot(window.innerWidth, window.innerHeight);
-                const origin = theme === "light" ? "0 0" : "100% 100%";
-
-                root.animate(
-                    [
-                        { clipPath: `circle(0px at ${origin})` },
-                        { clipPath: `circle(${radius * 1.5}px at ${origin})` }
-                    ],
-                    {
-                        duration: 800,
-                        easing: "linear",
-                        pseudoElement: "::view-transition-new(root)"
-                    }
-                );
-            });
-        } else {
-            applyThemeDOM();
+        // Remove any prior overlay
+        if (overlayRef.current) {
+            overlayRef.current.remove();
+            overlayRef.current = null;
         }
+
+        // Create a full-screen overlay painted in the *new* theme's background colour
+        const overlay = document.createElement("div");
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            pointer-events: none;
+            background: ${isLight ? "#ffffff" : "#0a0a0a"};
+            clip-path: ${isLight ? "circle(0px at 0 0)" : "circle(0px at 100% 100%)"};
+            will-change: clip-path;
+        `;
+        document.body.appendChild(overlay);
+        overlayRef.current = overlay;
+
+        // Apply the real theme immediately so content behind overlay is correct
+        applyThemeDOM();
+
+        // Force a reflow so the initial clip-path is painted before transitioning
+        // eslint-disable-next-line no-unused-expressions
+        overlay.getBoundingClientRect();
+
+        // Expand the circle to cover the entire screen
+        const expandTo = isLight ? "circle(0px at 0 0)" : "circle(0px at 100% 100%)";
+        const origin = isLight ? "0 0" : "100% 100%";
+
+        overlay.animate(
+            [
+                { clipPath: `circle(0px at ${origin})` },
+                { clipPath: `circle(${radius * 1.42}px at ${origin})` }
+            ],
+            {
+                duration: 650,
+                easing: "linear",
+                fill: "forwards"
+            }
+        ).onfinish = () => {
+            overlay.remove();
+            overlayRef.current = null;
+        };
     }, [theme]);
 
     return children;
