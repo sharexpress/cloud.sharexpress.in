@@ -412,4 +412,12 @@ html {
   box-shadow: 0 0 20px rgba(94, 106, 210, 0.12);
 }
 
-
+/* Theme Sweep — freeze old, clip-path new */
+::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
