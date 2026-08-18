@@ -41,23 +41,39 @@ function XyCoordinateGraph({ cpuData, memData }) {
 
     const w = 800;
     const h = 200;
+    const padLeft = 44;
+    const padRight = 12;
+    const padTop = 16;
+    const padBottom = 20;
+    const plotW = w - padLeft - padRight;
+    const plotH = h - padTop - padBottom;
+
     const len = cpuData.length;
-    const step = w / (len - 1);
+    const step = plotW / (len - 1);
 
     // Map CPU points (0 - 100%)
-    const cpuPoints = cpuData.map((v, i) => [i * step, h - (v / 100) * (h - 40) - 20]);
+    const cpuPoints = cpuData.map((v, i) => [
+        padLeft + i * step,
+        padTop + (1 - v / 100) * plotH
+    ]);
     const cpuD = cpuPoints.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-    const cpuArea = `${cpuD} L${w},${h - 20} L0,${h - 20} Z`;
+    const cpuArea = `${cpuD} L${(padLeft + plotW).toFixed(1)},${padTop + plotH} L${padLeft},${padTop + plotH} Z`;
 
     // Map Memory points (0 - 100%)
-    const memPoints = memData.map((v, i) => [i * step, h - (v / 100) * (h - 40) - 20]);
+    const memPoints = memData.map((v, i) => [
+        padLeft + i * step,
+        padTop + (1 - v / 100) * plotH
+    ]);
     const memD = memPoints.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
     const handleMouseMove = (e) => {
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         const clientX = e.clientX - rect.left;
-        const index = Math.max(0, Math.min(len - 1, Math.round((clientX / rect.width) * (len - 1))));
+        const padLeftPx = (padLeft / w) * rect.width;
+        const plotWPx = (plotW / w) * rect.width;
+        const relativeX = clientX - padLeftPx;
+        const index = Math.max(0, Math.min(len - 1, Math.round((relativeX / plotWPx) * (len - 1))));
         setHoverIndex(index);
     };
 
@@ -95,11 +111,33 @@ function XyCoordinateGraph({ cpuData, memData }) {
 
                     {/* Horizontal Grid lines with Y-Axis Values */}
                     {[100, 75, 50, 25, 0].map((val, idx) => {
-                        const y = (idx / 4) * (h - 40) + 20;
+                        const y = padTop + (idx / 4) * plotH;
                         return (
                             <g key={val}>
-                                <line x1="0" y1={y} x2={w} y2={y} stroke="rgba(255, 255, 255, 0.05)" strokeDasharray="4 4" strokeWidth="0.75" />
-                                <text x="-6" y={y + 3} fill="rgba(255, 255, 255, 0.3)" fontSize="9" fontFamily="monospace" textAnchor="end">{val}%</text>
+                                <line
+                                    x1={padLeft}
+                                    y1={y}
+                                    x2={padLeft + plotW}
+                                    y2={y}
+                                    stroke="currentColor"
+                                    strokeDasharray="4 4"
+                                    strokeWidth="1"
+                                    className="text-border/60"
+                                    opacity={0.25}
+                                />
+                                <text
+                                    x={padLeft - 8}
+                                    y={y + 4}
+                                    fill="currentColor"
+                                    fontSize="12.5"
+                                    fontFamily="monospace"
+                                    fontWeight="500"
+                                    textAnchor="end"
+                                    className="text-muted-foreground font-mono"
+                                    opacity={0.85}
+                                >
+                                    {val}%
+                                </text>
                             </g>
                         );
                     })}
@@ -118,9 +156,9 @@ function XyCoordinateGraph({ cpuData, memData }) {
                         <>
                             <line
                                 x1={cpuPoints[hoverIndex][0]}
-                                y1="0"
+                                y1={padTop}
                                 x2={cpuPoints[hoverIndex][0]}
-                                y2={h}
+                                y2={padTop + plotH}
                                 stroke="rgba(255, 255, 255, 0.15)"
                                 strokeDasharray="2 2"
                                 strokeWidth="1"
@@ -133,8 +171,11 @@ function XyCoordinateGraph({ cpuData, memData }) {
                     )}
                 </svg>
 
-                {/* X-Axis Labels */}
-                <div className="flex justify-between items-center mt-2 px-1 text-[10px] font-mono text-muted-foreground">
+                {/* X-Axis Labels aligned to plot area */}
+                <div
+                    className="flex justify-between items-center mt-2 text-[10px] font-mono text-muted-foreground"
+                    style={{ paddingLeft: `${(padLeft / w) * 100}%`, paddingRight: `${(padRight / w) * 100}%` }}
+                >
                     <span>00:00</span>
                     <span>04:00</span>
                     <span>08:00</span>
