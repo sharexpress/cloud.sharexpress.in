@@ -122,19 +122,17 @@ function XyCoordinateGraph({ cpuData, memData }) {
                                     stroke="currentColor"
                                     strokeDasharray="4 4"
                                     strokeWidth="1"
-                                    className="text-border/60"
-                                    opacity={0.25}
+                                    className="text-foreground/15"
                                 />
                                 <text
                                     x={padLeft - 8}
                                     y={y + 4}
                                     fill="currentColor"
-                                    fontSize="12.5"
+                                    fontSize="12"
                                     fontFamily="monospace"
                                     fontWeight="500"
                                     textAnchor="end"
                                     className="text-muted-foreground font-mono"
-                                    opacity={0.85}
                                 >
                                     {val}%
                                 </text>
@@ -146,10 +144,10 @@ function XyCoordinateGraph({ cpuData, memData }) {
                     <path d={cpuArea} fill="url(#xy-cpu-grad)" />
 
                     {/* Memory Line */}
-                    <path d={memD} fill="none" stroke="#10B981" strokeWidth="1.75" strokeDasharray="3 3" strokeLinejoin="round" />
+                    <path d={memD} fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="4 3" strokeLinejoin="round" strokeLinecap="round" />
 
                     {/* CPU Line */}
-                    <path d={cpuD} fill="none" stroke="#5F6AD2" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                    <path d={cpuD} fill="none" stroke="#5F6AD2" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
 
                     {/* Interactive Crosshair & Tooltip Dots */}
                     {hoverIndex !== null && (
